@@ -717,3 +717,55 @@ body {
     justify-content: center;
   }
 }
+
+/* === 其他课程区域样式 === */
+
+.grade-section.other-class {
+  border-top: 5px solid var(--other-class, #9C27B0);
+  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+  margin-top: 40px;
+}
+
+.other-class .section-header h2 {
+  color: #7B1FA2;
+  font-size: 28px;
+}
+
+.other-class .section-header i {
+  color: #7B1FA2;
+  font-size: 24px;
+}
+
+.other-class .section-header .grade-description {
+  color: #7B1FA2;
+  opacity: 0.8;
+}
+
+.other-class .subject-card {
+  border: 1px solid #E1BEE7;
+}
+
+.other-class .subject-card:hover {
+  border-color: #9C27B0;
+  box-shadow: 0 10px 20px rgba(156, 39, 176, 0.1);
+  transform: translateY(-5px);
+}
+
+.other-class .subject-icon {
+  background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+}
+
+.other-class .subject-info h3 {
+  color: #7B1FA2;
+}
+
+.other-class .subject-info p {
+  color: #BA68C8;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .other-class .section-header h2 {
+    font-size: 24px;
+  }
+}
