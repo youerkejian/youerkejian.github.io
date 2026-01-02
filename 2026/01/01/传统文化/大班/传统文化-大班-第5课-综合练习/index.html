@@ -1,101 +1,34 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="mobile-optimized">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <!-- 关键Viewport设置 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  
-  <!-- 移动端优化 -->
-  <meta name="format-detection" content="telephone=no">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#3498db">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>传统文化大班第5课：综合练习 - 幼儿园课件资源中心</title>
-  
-  <!-- 基本CSS -->
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/mobile-fix.css">
-  
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  
-  <style>
-    /* 内联关键CSS以确保立即加载 */
-    .mobile-loading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    
-    .mobile-loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
-  <!-- 移动端加载动画 -->
-  <div class="mobile-loading" id="mobile-loading">
-    <div class="mobile-loading-spinner"></div>
-  </div>
-  
-  <!-- 简化版头部 -->
-  <header class="mobile-header">
-    <div class="mobile-header-content">
-      <a href="/" class="mobile-logo">
-        <i class="fas fa-school"></i>
-        <span>幼儿园课件资源中心</span>
-      </a>
-      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
-        <i class="fas fa-bars"></i>
-      </button>
-    </div>
-    
-    <!-- 移动端导航 -->
-    <nav class="mobile-nav" id="mobile-nav">
-      <div class="mobile-nav-content">
-        <a href="/" class="mobile-nav-item">
+  <header class="site-header">
+    <div class="header-container">
+      <div class="site-logo">
+        <a href="/">
+          <i class="fas fa-school"></i>
+          <span class="logo-text">幼儿园课件资源中心</span>
+        </a>
+      </div>
+      
+      <nav class="site-nav">
+        <a href="/" class="nav-link ">
           <i class="fas fa-home"></i> 首页
         </a>
-        <a href="/categories/小班" class="mobile-nav-item">
-          <i class="fas fa-child"></i> 小班课程
+        <a href="/about" class="nav-link">
+          <i class="fas fa-info-circle"></i> 关于
         </a>
-        <a href="/categories/中班" class="mobile-nav-item">
-          <i class="fas fa-user-graduate"></i> 中班课程
-        </a>
-        <a href="/categories/大班" class="mobile-nav-item">
-          <i class="fas fa-user-tie"></i> 大班课程
-        </a>
-        
-        
-        <a href="/categories/其他课程" class="mobile-nav-item">
-          <i class="fas fa-ellipsis-h"></i> 其他课程
-        </a>
-        
-      </div>
-    </nav>
+      </nav>
+    </div>
   </header>
-  
-  <!-- 主要内容 -->
-  <main class="mobile-main">
+
+  <main class="main-content">
     <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -108,289 +41,23 @@
 <body>
   <header class="site-header">
   <div class="header-container">
-    <!-- 移动端菜单按钮 -->
-    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="菜单">
-      <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- 网站Logo -->
     <div class="site-logo">
       <a href="/">
         <i class="fas fa-school"></i>
-        <span>幼儿园课件资源中心</span>
+        <span class="logo-text">幼儿园课件资源中心</span>
       </a>
     </div>
     
-    <!-- 桌面导航 -->
-    <nav class="site-nav desktop-nav">
-      <a href="/" class="nav-link">
+    <nav class="site-nav">
+      <a href="/" class="nav-link ">
         <i class="fas fa-home"></i> 首页
       </a>
-      
-      <!-- 快速跳转链接 -->
-      <div class="nav-dropdown">
-        <a href="javascript:void(0)" class="nav-link">
-          <i class="fas fa-graduation-cap"></i> 课程分类
-        </a>
-        <div class="dropdown-menu">
-          <a href="/categories/小班" class="dropdown-item">
-            <i class="fas fa-child"></i> 小班课程
-          </a>
-          <a href="/categories/中班" class="dropdown-item">
-            <i class="fas fa-user-graduate"></i> 中班课程
-          </a>
-          <a href="/categories/大班" class="dropdown-item">
-            <i class="fas fa-user-tie"></i> 大班课程
-          </a>
-          
-          
-          <a href="/categories/其他课程" class="dropdown-item">
-            <i class="fas fa-ellipsis-h"></i> 其他课程
-          </a>
-          
-        </div>
-      </div>
-      
       <a href="/about" class="nav-link">
-        <i class="fas fa-info-circle"></i> 关于我们
+        <i class="fas fa-info-circle"></i> 关于
       </a>
-    </nav>
-    
-    <!-- 移动端导航菜单（初始隐藏） -->
-    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
-    <nav class="mobile-nav" id="mobile-nav">
-      <button class="mobile-close-btn" id="mobile-close-btn">
-        <i class="fas fa-times"></i>
-      </button>
-      
-      <div class="mobile-nav-header">
-        <i class="fas fa-school"></i>
-        <h3>幼儿园课件资源中心</h3>
-      </div>
-      
-      <div class="mobile-nav-links">
-        <a href="/" class="mobile-nav-link">
-          <i class="fas fa-home"></i> 首页
-        </a>
-        
-        <div class="mobile-nav-section">
-          <h4><i class="fas fa-graduation-cap"></i> 课程分类</h4>
-          <a href="/categories/小班" class="mobile-nav-link">
-            <i class="fas fa-child"></i> 小班课程
-          </a>
-          <a href="/categories/中班" class="mobile-nav-link">
-            <i class="fas fa-user-graduate"></i> 中班课程
-          </a>
-          <a href="/categories/大班" class="mobile-nav-link">
-            <i class="fas fa-user-tie"></i> 大班课程
-          </a>
-          
-          
-          <a href="/categories/其他课程" class="mobile-nav-link">
-            <i class="fas fa-ellipsis-h"></i> 其他课程
-          </a>
-          
-        </div>
-        
-        <a href="/about" class="mobile-nav-link">
-          <i class="fas fa-info-circle"></i> 关于我们
-        </a>
-      </div>
     </nav>
   </div>
 </header>
-
-<!-- 移动端导航脚本 -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileCloseBtn = document.getElementById('mobile-close-btn');
-  const mobileNav = document.getElementById('mobile-nav');
-  const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
-  
-  // 打开移动菜单
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', function() {
-      mobileNav.classList.add('active');
-      mobileNavOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    });
-  }
-  
-  // 关闭移动菜单
-  const closeMobileMenu = function() {
-    mobileNav.classList.remove('active');
-    mobileNavOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-  };
-  
-  if (mobileCloseBtn) {
-    mobileCloseBtn.addEventListener('click', closeMobileMenu);
-  }
-  
-  if (mobileNavOverlay) {
-    mobileNavOverlay.addEventListener('click', closeMobileMenu);
-  }
-  
-  // 点击移动菜单链接也关闭菜单
-  document.querySelectorAll('.mobile-nav-link').forEach(link => {
-    link.addEventListener('click', closeMobileMenu);
-  });
-  
-  // 防止在移动端出现双指缩放
-  document.addEventListener('touchstart', function(event) {
-    if (event.touches.length > 1) {
-      event.preventDefault();
-    }
-  }, { passive: false });
-  
-  // 防止在iOS上双击缩放
-  let lastTouchEnd = 0;
-  document.addEventListener('touchend', function(event) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, false);
-});
-</script>
-
-<style>
-/* 移动端导航样式 */
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #333;
-  cursor: pointer;
-  padding: 10px;
-}
-
-.mobile-nav-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-}
-
-.mobile-nav {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: -280px;
-  width: 280px;
-  height: 100%;
-  background: white;
-  z-index: 1000;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-  transition: left 0.3s ease;
-  overflow-y: auto;
-}
-
-.mobile-nav.active {
-  left: 0;
-}
-
-.mobile-nav-overlay.active {
-  display: block;
-}
-
-.mobile-close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #666;
-  cursor: pointer;
-}
-
-.mobile-nav-header {
-  padding: 30px 20px 20px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-}
-
-.mobile-nav-header i {
-  font-size: 40px;
-  color: #3498db;
-  margin-bottom: 10px;
-}
-
-.mobile-nav-header h3 {
-  margin: 0;
-  color: #333;
-  font-size: 18px;
-}
-
-.mobile-nav-links {
-  padding: 20px;
-}
-
-.mobile-nav-section {
-  margin-bottom: 20px;
-}
-
-.mobile-nav-section h4 {
-  margin: 0 0 10px 0;
-  color: #666;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.mobile-nav-link {
-  display: block;
-  padding: 12px 10px;
-  color: #333;
-  text-decoration: none;
-  border-radius: 6px;
-  margin-bottom: 5px;
-  transition: background 0.2s;
-}
-
-.mobile-nav-link:hover,
-.mobile-nav-link:active {
-  background: #f5f5f5;
-}
-
-.mobile-nav-link i {
-  width: 24px;
-  margin-right: 10px;
-  color: #3498db;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .mobile-menu-btn {
-    display: block;
-  }
-  
-  .desktop-nav {
-    display: none;
-  }
-  
-  .mobile-nav {
-    display: block;
-  }
-  
-  .site-header {
-    padding: 10px 15px !important;
-  }
-  
-  .header-container {
-    justify-content: space-between;
-  }
-}
-</style>
 
 
   <main class="main-content">
@@ -650,172 +317,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </html>
 
   </main>
-  
-  <!-- 简化版页脚 -->
-  <footer class="mobile-footer">
-    <p>&copy; 2026 你的名字</p>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; 2026 你的名字. 保留所有权利.</p>
+    </div>
   </footer>
-  
-  <!-- 移动端优化脚本 -->
-  <script>
-  // 立即执行，避免依赖DOMContentLoaded
-  (function() {
-    // 隐藏加载动画
-    document.getElementById('mobile-loading').style.display = 'none';
-    
-    // 移动端导航切换
-    var menuToggle = document.getElementById('mobile-menu-toggle');
-    var mobileNav = document.getElementById('mobile-nav');
-    
-    if (menuToggle && mobileNav) {
-      menuToggle.addEventListener('click', function() {
-        mobileNav.classList.toggle('active');
-      });
-      
-      // 点击其他地方关闭菜单
-      document.addEventListener('click', function(event) {
-        if (!menuToggle.contains(event.target) && !mobileNav.contains(event.target)) {
-          mobileNav.classList.remove('active');
-        }
-      });
-    }
-    
-    // 修复移动端触摸事件
-    document.addEventListener('touchstart', function(e) {
-      // 防止多点触控
-      if (e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
-    
-    // 防止双击缩放
-    var lastTouchTime = 0;
-    document.addEventListener('touchend', function(e) {
-      var now = Date.now();
-      if (now - lastTouchTime < 300) e.preventDefault();
-      lastTouchTime = now;
-    }, false);
-    
-    // 修复iOS 100vh问题
-    function setVH() {
-      var vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', vh + 'px');
-    }
-    setVH();
-    window.addEventListener('resize', setVH);
-    window.addEventListener('orientationchange', setVH);
-    
-    // 错误处理
-    window.addEventListener('error', function(e) {
-      console.error('Mobile error:', e.message);
-    }, true);
-    
-    // 确保所有链接正确
-    document.querySelectorAll('a').forEach(function(link) {
-      if (link.href && link.href.indexOf('http') === 0) {
-        link.setAttribute('target', '_blank');
-      }
-    });
-  })();
-  </script>
-  
-  <style>
-  /* 移动端专用样式 */
-  .mobile-header {
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-  }
-  
-  .mobile-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-  }
-  
-  .mobile-logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #333;
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .mobile-logo i {
-    margin-right: 10px;
-    color: #3498db;
-    font-size: 24px;
-  }
-  
-  .mobile-menu-toggle {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #333;
-    padding: 5px;
-    cursor: pointer;
-  }
-  
-  .mobile-nav {
-    display: none;
-    background: white;
-    border-top: 1px solid #eee;
-  }
-  
-  .mobile-nav.active {
-    display: block;
-  }
-  
-  .mobile-nav-content {
-    padding: 10px 0;
-  }
-  
-  .mobile-nav-item {
-    display: block;
-    padding: 12px 20px;
-    color: #333;
-    text-decoration: none;
-    border-bottom: 1px solid #f5f5f5;
-  }
-  
-  .mobile-nav-item:last-child {
-    border-bottom: none;
-  }
-  
-  .mobile-nav-item i {
-    width: 24px;
-    margin-right: 10px;
-    color: #3498db;
-  }
-  
-  .mobile-main {
-    margin-top: 60px; /* 给固定头部留空间 */
-    padding: 15px;
-    min-height: calc(100vh - 120px);
-  }
-  
-  .mobile-footer {
-    background: #f8f9fa;
-    padding: 15px;
-    text-align: center;
-    font-size: 12px;
-    color: #666;
-  }
-  
-  /* 响应式调整 */
-  @media (min-width: 769px) {
-    .mobile-header, .mobile-footer {
-      display: none;
-    }
-    
-    .mobile-main {
-      margin-top: 0;
-    }
-  }
-  </style>
 </body>
 </html>
