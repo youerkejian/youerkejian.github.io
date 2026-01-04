@@ -14,31 +14,39 @@
         .post-title { text-align: center; font-size: 2.2rem; color: #2c3e50; margin-bottom: 10px; }
         .post-meta { text-align: center; color: #95a5a6; font-size: 0.9rem; margin-bottom: 30px; }
         
-        /* 🌟 封面图样式 */
+        /* 封面图样式 */
          .post-cover { width: 100%; height: auto; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; object-fit: contain; }
 
         .article-content { line-height: 1.8; color: #444; font-size: 1.1rem; }
         .article-content h2 { color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
 
-        /* 🌟 底部按钮区域 (放大版) */
-        .article-footer { margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee; text-align: center; display: flex; flex-direction: column; gap: 15px; }
+        /* 🌟 付费卡片样式 (新增) */
+        .pay-card { margin-top: 40px; padding: 25px; background: linear-gradient(135deg, #fff6e6 0%, #fff 100%); border: 2px solid #ffd591; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+        .pay-title { margin: 0 0 15px 0; color: #d48806; font-size: 1.2em; font-weight: bold; }
+        .pay-desc { margin-bottom: 20px; color: #666; font-size: 0.95em; }
+        .pay-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .btn-vip { display: inline-block; padding: 12px 25px; background: linear-gradient(to right, #fadb14, #ffec3d); color: #873800; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(250, 219, 20, 0.4); transition: transform 0.2s; }
+        .btn-buy { display: inline-block; padding: 12px 25px; background-color: #1890ff; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3); transition: transform 0.2s; }
+        .btn-vip:hover, .btn-buy:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        .pay-note { margin-top: 15px; font-size: 0.8em; color: #999; }
+
+        /* 🌟 底部导航区域样式 (优化) */
+        .article-footer { margin-top: 40px; padding-top: 30px; border-top: 1px dashed #e8e8e8; text-align: center; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .article-footer .btn { 
-            display: block; 
-            width: 100%; 
-            padding: 18px 0; /* 加大高度 */
-            border-radius: 8px; 
+            display: inline-block; 
+            min-width: 150px;
+            padding: 12px 20px; 
+            border-radius: 6px; 
             text-decoration: none; 
-            font-size: 1.3rem; /* 加大字体 */
-            font-weight: bold;
+            font-size: 1rem; 
+            font-weight: normal;
             transition: 0.3s; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid transparent;
         }
-        .btn-download { background: #2ecc71; color: #fff; }
-        .btn-download:hover { background: #27ae60; transform: translateY(-2px); }
-        .btn-back { background: #3498db; color: #fff; }
-        .btn-back:hover { background: #2980b9; transform: translateY(-2px); }
-        .btn-home { background: #95a5a6; color: #fff; }
-        .btn-home:hover { background: #7f8c8d; transform: translateY(-2px); }
+        .btn-back { background: #fff; color: #555; border-color: #d9d9d9; }
+        .btn-back:hover { background: #f0f2f5; color: #1890ff; border-color: #1890ff; }
+        .btn-home { background: #fff; color: #555; border-color: #d9d9d9; }
+        .btn-home:hover { background: #f0f2f5; color: #d48806; border-color: #d48806; }
     </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
@@ -46,11 +54,13 @@
     <div class="container">
         <div class="post-card">
             <h1 class="post-title">音乐小班课件15</h1>
-                        <!-- 🌟 封面图显示区域 -->
+            
+            <!-- 封面图显示区域 -->
             
                 <div style="text-align: center; margin-bottom: 30px;">
                     <img src="https://picsum.photos/seed/音乐小班课件15/800/400" alt="封面图" class="post-cover">
                 </div>
+            
             
             <div class="post-meta">
                 <span>📅 2025-03-31</span>
@@ -58,31 +68,59 @@
                 <span>👁 429 次浏览</span>
             </div>
 
-            <!-- 🌟 显示封面图 (如果存在) -->
-            
-                <img src=" " class="post-cover" alt="课件封面">
-            
-
+            <!-- 🌟 正文内容区域 -->
             <div class="article-content">
-            
+                
 
-
+                <!-- ⚠️ 这里是修复的关键：如果没有这行，文章正文不会显示 -->
+                <h1 id="音乐小班课件15"><a href="#音乐小班课件15" class="headerlink" title="音乐小班课件15"></a>音乐小班课件15</h1><p>这里是课件的详细介绍内容。</p>
+<h2 id="课件目标"><a href="#课件目标" class="headerlink" title="课件目标"></a>课件目标</h2><ol>
+<li>知识目标…</li>
+<li>能力目标…</li>
+</ol>
+<h2 id="教学准备"><a href="#教学准备" class="headerlink" title="教学准备"></a>教学准备</h2><ul>
+<li>PPT课件</li>
+<li>教具卡片</li>
+</ul>
+<hr>
+ 
             </div>
 
-             <!-- 底部按钮区域 -->
-             
+            <!-- ======================================================= -->
+            <!-- 【区域一：付费下载卡片 - 文章内部】 -->
+            <!-- ======================================================= -->
+            <div class="pay-card">
+                <div class="pay-title">📥 获取本课完整资源</div>
+                <div class="pay-desc">包含高清PPT课件 + 详细教案 + 配套素材</div>
+                
+                <div class="pay-buttons">
+                    <!-- 按钮1：开通VIP (请确认您生成的文章链接是否是 /vip-member/) -->
+                    <a href="/vip-member/" class="btn-vip">
+                       👑 开通VIP会员 (全站免费)
+                    </a>
+                    
+                    <!-- 按钮2：单篇购买 (暂时跳转本页) -->
+                    <a href="#" class="btn-buy">
+                       🛒 单篇购买 (2.99元)
+                    </a>
+                </div>
+                
+                <div class="pay-note">* VIP会员永久免下载券，单次购买永久有效</div>
+            </div>
 
-            <!-- 底部按钮区域 -->
+            <!-- ======================================================= -->
+            <!-- 【区域二：底部导航返回栏 - 文章外部】 -->
+            <!-- ======================================================= -->
             <div class="article-footer">
-                <!-- 1. 智能返回按钮 (名字和链接是上面算出来的) -->
-                <a href="/categories/音乐/小班" class="btn btn-back">返回小班音乐列表</a>
                 
-                <!-- 2. 下载按钮 -->
-                <a href="#" class="btn btn-download" target="_blank">📥 立即下载课件资源</a>
                 
-                <!-- 3. 返回首页 -->
+                <!-- 1. 智能返回按钮 -->
+                <a href="/categories/音乐/小班/" class="btn btn-back">返回 小班音乐 列表</a>
+                
+                <!-- 2. 返回首页按钮 -->
                 <a href="/" class="btn btn-home">⌂ 返回首页</a>
             </div>
+
         </div>
     </div>
 
