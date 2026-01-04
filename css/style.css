@@ -221,3 +221,84 @@ ul { list-style: none; }
 .empty-tip p {
     font-size: 1.1rem;
 }
+
+/* ========== 文章页面样式修复 ========== */
+
+/* 1. 强制加宽所有可能的文章内容容器（覆盖所有常见类名） */
+.post-content,
+.article-entry,
+.markdown-body,
+.content,
+#content,
+.post,
+article,
+main,
+.article,
+.post-body,
+.entry-content,
+.post-main,
+article.entry {
+    max-width: 1000px !important;
+    width: 100% !important;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 2. 确保父容器也是宽的（防止被外部限制） */
+.post,
+article.entry,
+.article-wrapper,
+.container.main-container {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* 3. 图片容器通用样式 */
+.img-container {
+    margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 4. 单张全宽图片样式 (用于封面、文件结构树、教案) */
+.img-single {
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+.img-single img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: block;
+    margin: 0 auto;
+}
+
+/* 5. 双列网格图片样式 (用于PPT除封面外的其他页面) */
+.img-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 20px 0;
+}
+.img-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+/* 6. 确保图片不会被其他样式覆盖 */
+.post-content img,
+.article-entry img,
+.markdown-body img,
+.content img,
+#content img,
+article img,
+main img {
+    max-width: 100%;
+    height: auto;
+}
