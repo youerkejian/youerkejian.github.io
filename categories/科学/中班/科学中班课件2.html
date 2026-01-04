@@ -30,8 +30,9 @@
         .btn-vip:hover, .btn-buy:hover { transform: translateY(-2px); filter: brightness(1.05); }
         .pay-note { margin-top: 15px; font-size: 0.8em; color: #999; }
 
-        /* 🌟 底部导航区域样式 (优化) */
+                /* 🌟 底部导航区域样式 (已优化，增加常驻颜色) */
         .article-footer { margin-top: 40px; padding-top: 30px; border-top: 1px dashed #e8e8e8; text-align: center; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        
         .article-footer .btn { 
             display: inline-block; 
             min-width: 150px;
@@ -39,14 +40,37 @@
             border-radius: 6px; 
             text-decoration: none; 
             font-size: 1rem; 
-            font-weight: normal;
-            transition: 0.3s; 
-            border: 1px solid transparent;
+            font-weight: 500; /* 字体稍微加粗一点点 */
+            transition: all 0.3s ease;
         }
-        .btn-back { background: #fff; color: #555; border-color: #d9d9d9; }
-        .btn-back:hover { background: #f0f2f5; color: #1890ff; border-color: #1890ff; }
-        .btn-home { background: #fff; color: #555; border-color: #d9d9d9; }
-        .btn-home:hover { background: #f0f2f5; color: #d48806; border-color: #d48806; }
+
+        /* 智能返回按钮：淡蓝色系 (呼应上面的单篇购买按钮) */
+        .btn-back { 
+            background-color: #e6f7ff; /* 淡蓝色背景 */
+            color: #0050b3;            /* 深蓝色文字 */
+            border: 1px solid #91d5ff; /* 亮蓝色边框 */
+        }
+        .btn-back:hover { 
+            background-color: #bae7ff; /* 鼠标放上去变深一点的蓝 */
+            color: #003a8c; 
+            border-color: #40a9ff; 
+            transform: translateY(-2px); /* 向上浮动效果 */
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2); /* 增加阴影 */
+        }
+
+        /* 返回首页按钮：淡橙色系 (呼应上面的VIP按钮) */
+        .btn-home { 
+            background-color: #fff7e6; /* 淡橙色背景 */
+            color: #d46b08;            /* 深橙色文字 */
+            border: 1px solid #ffd591; /* 亮橙色边框 */
+        }
+        .btn-home:hover { 
+            background-color: #ffe7ba; /* 鼠标放上去变深一点的橙 */
+            color: #ad4e00; 
+            border-color: #ffa940; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(250, 219, 20, 0.2); /* 增加阴影 */
+        }
     </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
