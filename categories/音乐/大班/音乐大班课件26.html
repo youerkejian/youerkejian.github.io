@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; }
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
         
         /* 文章卡片样式 */
         .post-card { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
@@ -70,6 +71,29 @@
             border-color: #ffa940; 
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(250, 219, 20, 0.2); /* 增加阴影 */
+        }
+
+        <head>
+    <!-- 其他内容 -->
+    <style>
+        /* 强制加宽文章内容区域 */
+        article, .post-content, .article-entry, .markdown-body, 
+        #content, .content, main, .entry-content, 
+        .post, .post-main, .article, .article-wrapper,
+        .container.main-container {
+            max-width: 1000px !important;
+            width: 100% !important;
+            margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* 确保图片正常显示 */
+        article img, .post-content img, .article-entry img, 
+        .markdown-body img, #content img, .content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
     </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
