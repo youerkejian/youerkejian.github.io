@@ -580,3 +580,184 @@ main img {
         font-size: 0.9rem;
     }
 }
+
+/* ========== 新增样式优化 ========== */
+
+/* 网格图组样式 */
+.grid-group {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #ff9800;
+}
+
+.grid-label {
+    font-size: 1rem;
+    color: #e65100;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: #fff3e0;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* PPT网格图特殊样式 */
+.ppt-grid-image {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 教案容器样式 */
+.teaching-plan-container {
+    margin-bottom: 2rem;
+}
+
+.teaching-plan-title {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #4caf50;
+}
+
+.word-file-title {
+    font-size: 1.1rem;
+    color: #388e3c;
+    margin: 1.5rem 0 1rem;
+    padding: 0.8rem 1rem;
+    background: #e8f5e9;
+    border-radius: 6px;
+}
+
+.teaching-plan-page {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f1f8e9;
+    border-radius: 8px;
+    border: 1px solid #c5e1a5;
+}
+
+.page-label {
+    font-size: 0.9rem;
+    color: #689f38;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+/* 素材容器样式 */
+.material-container {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.material-title {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #9e9e9e;
+}
+
+.material-item {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.item-name {
+    font-size: 1.1rem;
+    color: #455a64;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #cfd8dc;
+}
+
+/* 文章页脚 - 灰色居左样式 */
+.article-footer {
+    margin-top: 3rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.footer-content {
+    text-align: left; /* 居左 */
+}
+
+.footer-text {
+    color: #666; /* 灰色 */
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+}
+
+.footer-time {
+    color: #888; /* 更浅的灰色 */
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* 水印位置调整提示（仅用于信息展示） */
+.watermark-note {
+    font-size: 0.8rem;
+    color: #999;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+/* 图片统一尺寸控制 */
+.img-container.img-single.center img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* PPT封面特殊样式 */
+.ppt-cover-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cover-label {
+    font-size: 1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    .grid-group {
+        padding: 1rem;
+    }
+    
+    .teaching-plan-page,
+    .material-item {
+        padding: 1rem;
+    }
+    
+    .article-footer {
+        margin-top: 2rem;
+        padding: 1rem 0;
+    }
+    
+    .footer-text {
+        font-size: 0.95rem;
+    }
+    
+    .footer-time {
+        font-size: 0.85rem;
+    }
+}
