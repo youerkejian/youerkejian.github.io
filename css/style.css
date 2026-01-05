@@ -761,3 +761,346 @@ main img {
         font-size: 0.85rem;
     }
 }
+
+/* ========== 文章页面样式优化 ========== */
+
+/* 文章头部样式 */
+.article-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.article-date {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.article-views {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.article-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.article-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.article-meta span {
+    background: #f8f9fa;
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.article-meta .subject {
+    background: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+.article-meta .age {
+    background: #e3f2fd;
+    border-color: #bbdefb;
+    color: #1565c0;
+}
+
+.article-meta .views {
+    background: #fff3e0;
+    border-color: #ffe0b2;
+    color: #ef6c00;
+}
+
+/* 分隔线 */
+.divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, transparent);
+    margin: 2rem 0;
+}
+
+/* 章节容器 */
+.section-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 5px solid #667eea;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #ecf0f1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 缩略图部分 */
+.thumbnail-section {
+    background: linear-gradient(to right, #f8f9fa, #fff);
+}
+
+/* PPT整体缩览图 */
+.ppt-thumbnail-container {
+    text-align: center;
+}
+
+/* 图片容器 */
+.img-container {
+    margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.img-single {
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+
+.center {
+    text-align: center;
+}
+
+.rounded {
+    border-radius: 8px;
+}
+
+.shadow {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* PPT部分 */
+.ppt-section {
+    background: linear-gradient(to right, #f8f9fa, #fff);
+}
+
+.ppt-title {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 1.5rem 0 1rem;
+    padding: 0.8rem 1rem;
+    background: #e3f2fd;
+    border-radius: 6px;
+    border-left: 4px solid #2196f3;
+}
+
+.ppt-cover-container {
+    margin-bottom: 2rem;
+}
+
+.cover-label {
+    font-size: 1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.ppt-content-pages {
+    margin-top: 2rem;
+}
+
+.content-label {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.grid-group {
+    margin-bottom: 2rem;
+}
+
+/* 教案部分 */
+.teaching-section {
+    background: linear-gradient(to right, #fff9f9, #fff);
+}
+
+.word-file-container {
+    margin-bottom: 2rem;
+}
+
+.word-title {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    background: #e8f5e9;
+    border-radius: 6px;
+    border-left: 4px solid #4CAF50;
+}
+
+/* 下载有效期说明 */
+.download-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: #f9f9f9;
+    border-radius: 10px;
+    border-left: 5px solid #3498db;
+}
+
+.download-title {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: left;
+}
+
+.download-table {
+    overflow-x: auto;
+}
+
+.validity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+}
+
+.validity-table th {
+    background: #3498db;
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid #ddd;
+    font-weight: 600;
+}
+
+.validity-table td {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    background: white;
+    color: #555;
+    text-align: left;
+}
+
+.validity-table tr:nth-child(even) td {
+    background: #f8f9fa;
+}
+
+.validity-table tr:hover td {
+    background: #f0f7ff;
+}
+
+.validity-table strong {
+    color: #2c3e50;
+}
+
+/* 提示框样式 */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.alert.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.alert.info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+/* 确保图片不会超出 */
+.post-content img,
+.article-entry img,
+.markdown-body img,
+.content img,
+#content img,
+article img,
+main img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .article-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .article-meta {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .section-container {
+        padding: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    .download-section {
+        padding: 1rem;
+    }
+    
+    .validity-table {
+        font-size: 0.85rem;
+    }
+    
+    .validity-table th,
+    .validity-table td {
+        padding: 0.8rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .article-header {
+        padding: 1.5rem;
+    }
+    
+    .article-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .section-container {
+        padding: 1rem;
+    }
+    
+    .article-meta span {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .cover-label {
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+    }
+}
