@@ -29,7 +29,16 @@
         .btn-vip { display: inline-block; padding: 12px 25px; background: linear-gradient(to right, #fadb14, #ffec3d); color: #873800; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(250, 219, 20, 0.4); transition: transform 0.2s; }
         .btn-buy { display: inline-block; padding: 12px 25px; background-color: #1890ff; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3); transition: transform 0.2s; }
         .btn-vip:hover, .btn-buy:hover { transform: translateY(-2px); filter: brightness(1.05); }
-        .pay-note { margin-top: 15px; font-size: 0.8em; color: #999; }
+                /* 底部提示文字样式 */
+        .pay-note { 
+            margin-top: 15px; 
+            font-size: 0.8em; 
+            color: #999;
+            display: block;      /* 确保是块级元素，独占一行 */
+            width: 100%;         /* 宽度100% */
+            text-align: center; /* 文字居中 */
+        }
+
 
                 /* 🌟 底部导航区域样式 (已优化，增加常驻颜色) */
         .article-footer { margin-top: 40px; padding-top: 30px; border-top: 1px dashed #e8e8e8; text-align: center; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
@@ -95,6 +104,87 @@
             height: auto;
             display: block;
         }
+
+                /* 🌟 购买弹窗样式 */
+        
+        /* 遮罩层 - 点击后页面变灰 */
+        .modal-overlay {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* 半透明黑色背景 */
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* 弹窗容器 - 白色方框 */
+        .modal-box {
+            background: #fff;
+            width: 320px; /* 宽度320px，适中 */
+            max-width: 90%;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+
+        /* 弹窗标题 */
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* 二维码图片 */
+        .modal-qrcode {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        /* 底部提示文字 */
+        .modal-hint {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 15px;
+        }
+
+        /* 关闭按钮（右上角X） */
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close:hover {
+            color: #666;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
     </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
@@ -583,20 +673,41 @@
                 <div class="pay-title">📥 获取本课完整资源</div>
                 <div class="pay-desc">包含高清PPT课件 + 详细教案 + 配套素材</div>
                 
+                <!-- 🌟 按钮容器 (只有两个按钮) -->
                 <div class="pay-buttons">
-                    <!-- 按钮1：开通VIP (请确认您生成的文章链接是否是 /vip-member/) -->
+                    <!-- 按钮1：开通VIP -->
                     <a href="/vip-member/" class="btn-vip">
                        👑 开通VIP会员 (全站免费)
                     </a>
                     
-                    <!-- 按钮2：单篇购买 (暂时跳转本页) -->
-                    <a href="#" class="btn-buy">
-                       🛒 单篇购买 (2.99元)
+                    <!-- 按钮2：单篇购买 -->
+                    <a href="javascript:void(0);" onclick="openModal()" class="btn-buy">
+                       🛒 单篇购买 (4.99元)
                     </a>
                 </div>
                 
+                <!-- 🌟 底部灰色提示文字 (注意：这里必须放在按钮容器外面) -->
                 <div class="pay-note">* VIP会员永久免下载券，单次购买永久有效</div>
             </div>
+
+            
+        <!-- 🌟 购买弹窗 -->
+        <div class="modal-overlay" id="purchase-modal" onclick="closeModal()">
+            <div class="modal-box" onclick="event.stopPropagation()">
+                <!-- 关闭按钮 -->
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                
+                <!-- 醒目的标题 -->
+                <div class="modal-title">💳 微信扫码购买</div>
+                
+                <!-- 二维码图片 -->
+                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/5046c8071baec05fdc270f8aa31e93b5.jpg" alt="微信支付二维码" class="modal-qrcode">
+                
+                <!-- 底部灰色提示 -->
+                <div class="modal-hint">使用微信扫一扫完成支付</div>
+            </div>
+        </div>
+
 
             <!-- ======================================================= -->
             <!-- 【区域二：底部导航返回栏 - 文章外部】 -->
@@ -613,6 +724,25 @@
 
         </div>
     </div>
+
+        <script>
+        // 打开弹窗
+        function openModal() {
+            document.getElementById('purchase-modal').style.display = 'flex';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('purchase-modal').style.display = 'none';
+        }
+
+        // 按ESC键关闭弹窗
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
 
 </body>
 </html>
