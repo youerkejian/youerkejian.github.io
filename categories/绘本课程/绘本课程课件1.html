@@ -6,6 +6,201 @@
     <title>绘本课程课件1 - 幼儿课件网</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        /* 主体内容 */
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            background-color: #f4f6f8; 
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            padding-top: 110px; /* 顶部留空，防止被固定头部遮挡 */
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* 顶部导航 - 🔥 强制蓝色背景 */
+        .site-header { 
+            background-color: #2c3e50 !important; /* 强制深蓝色 */
+            color: #fff !important;              /* 强制白色文字 */
+            padding: 10px 0; 
+            margin-bottom: 30px;
+            position: fixed;      
+            top: 0;
+            left: 0;
+            width: 100%;          
+            z-index: 9999;         /* 强制最高层级 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* 标题样式 */
+        .logo { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+        .logo a { 
+            color: #fff !important;  /* 强制白色 */
+            text-decoration: none; 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+        }
+        .site-slogan {
+            font-size: 0.9rem;       
+            color: #bdc3c7;          
+            margin-top: 2px;          
+            margin-left: 2px;         
+            font-weight: normal;
+        }
+
+        /* 按钮样式 */
+        .header-buttons a { 
+            color: #ecf0f1 !important; /* 强制浅灰白 */
+            text-decoration: none; 
+            margin-left: 20px; 
+            font-size: 0.9rem; 
+            border: 1px solid rgba(255,255,255,0.3); 
+            padding: 5px 12px; 
+            border-radius: 4px; 
+        }
+
+        /* 搜索按钮 */
+        .header-buttons .search-btn {
+            background-color: #3498db !important;
+            color: #fff !important;
+        }
+        .header-buttons .search-btn:hover {
+            background-color: #2980b9 !important;
+        }
+
+
+        /* 顶部四个大方框 */
+        .top-boxes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 40px; }
+        .big-box { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #3498db; }
+        .box-title { font-size: 1.4rem; font-weight: bold; color: #2c3e50; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .box-content { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
+        .box-link { flex: 0 0 calc(50% - 5px); text-decoration: none; color: #555; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; text-align: center; transition: all 0.2s; border: 1px solid #eee; }
+        .box-link:hover { background: #3498db; color: #fff; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3); }
+
+        /* 筛选按钮行 */
+        .filter-section { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .filter-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .filter-btn { padding: 8px 20px; background: #ecf0f1; border: none; border-radius: 20px; cursor: pointer; font-size: 1rem; color: #555; transition: 0.3s; }
+        .filter-btn:hover { background: #bdc3c7; }
+        .filter-btn.active { background: #e67e22; color: #fff; font-weight: bold; box-shadow: 0 4px 6px rgba(230, 126, 34, 0.3); }
+
+        /* 底部动态课件列表 */
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
+        .list-title { margin: 0; color: #2c3e50; }
+        
+        .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .post-card { background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; }
+        .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        
+        /* 图片区域样式 */
+        .card-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
+        .card-img-wrapper img { width: 100%; height: auto; max-height: 180px; object-fit: contain; transition: transform 0.5s; }
+        .post-card:hover .card-img-wrapper img { transform: scale(1.1); }
+
+        .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+        .card-title { font-size: 1rem; font-weight: bold; margin-bottom: 10px; color: #2c3e50; line-height: 1.4; flex: 1; }
+        .card-title a { text-decoration: none; color: inherit; }
+        .card-meta { font-size: 0.8rem; color: #999; margin-top: auto; display: flex; justify-content: space-between; }
+        
+        /* 分页 */
+        .pagination { margin-top: 30px; text-align: center; }
+        .page-btn { padding: 10px 20px; background: #34495e; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin: 0 10px; }
+        .page-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
+
+        /* 广告轮播图样式 */
+        .ad-slider-container {
+            position: relative;
+            margin-top: -30px;  /* 🌟 向上拉回 */
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            width: 100%; 
+        }
+        .ad-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain; 
+        }
+        .ad-slide { display: none; width: 100%; }
+        .fade { animation-name: fade; animation-duration: 1.5s; }
+        @keyframes fade { from {opacity: .4} to {opacity: 1} }
+
+        /* 手机端优化 */
+        @media (max-width: 768px) {
+            .header-content { padding: 0 10px; }
+            .header-buttons a { font-size: 0.8rem; padding: 4px 8px; margin-left: 8px; white-space: nowrap; }
+            .ad-slider-container { border-radius: 0; margin-left: -10px; margin-right: -10px; width: calc(100% + 20px); max-width: 100vw; }
+            .ad-img { height: auto !important; width: 100%; }
+            .top-boxes-grid { grid-template-columns: 1fr; gap: 15px; }
+            .box-content { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .filter-section { padding: 15px; text-align: left; overflow-x: auto; white-space: nowrap; }
+            .filter-bar { display: flex; gap: 8px; width: max-content; }
+            .posts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .card-img-wrapper { height: 140px; }
+        }
+        @media (max-width: 480px) {
+            .card-title { font-size: 0.85rem; }
+            .card-img-wrapper { height: 120px; }
+        }
+
+        /* ========== 🌟 全局强力调整页面间距 (修正位置：移到了 style 标签里面) ========== */
+
+        /* 1. 修复首页筛选后的列表位置（大中小班分类列表） */
+        .list-header {
+            margin-top: 120px !important; /* 🔥 加大到 120px，强行推下去 */
+        }
+
+        /* 2. 修复“点击查看更多资源”页面的位置（这是一个独立页面） */
+        .page-title, 
+        h1, 
+        .archive-title {
+            margin-top: 100px !important; /* 🔥 针对资源页和文章页的标题增加上边距 */
+            display: block;
+        }
+
+        /* 3. 保险起见，给资源页的主要内容区也增加一点距离 */
+        .page-content,
+        .article-content {
+            margin-top: 50px !important;
+        }
+    </style>
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body>
+
+    <!-- 调用头部 -->
+    <header class="site-header">
+    <div class="header-content">
+        <div class="logo">
+            <a href="/">幼儿课件网</a>
+            <span class="site-slogan">已服务30w+幼师</span>
+        </div>
+        <div class="header-buttons">
+            <a href="/">🏠 首页</a>
+            <a href="/search" class="search-btn">🔍 搜索课件</a>
+            <a href="/about" style="margin-left: 15px;">关于本站</a>
+            <a href="/contact">联系我</a>
+        </div>
+    </div>
+</header>
+
+
+    <!-- 页面内容 -->
+    <div class="container">
+        <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绘本课程课件1 - 幼儿课件网</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; }
         .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
 
@@ -186,7 +381,7 @@
         }
 
     </style>
-<meta name="generator" content="Hexo 8.1.1"></head>
+</head>
 <body>
 
     <div class="container">
@@ -301,6 +496,11 @@
             }
         });
     </script>
+
+</body>
+</html>
+
+    </div>
 
 </body>
 </html>
