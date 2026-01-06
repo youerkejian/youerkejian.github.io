@@ -401,7 +401,7 @@
 
     </div>
 
-    <script>
+        <script>
         const otherCategories = ['托班课程', '绘本课程', '节气节日', '环创区角', '游戏案例', '幼小衔接', '幼小汉字', '家长会'];
 
         // ✅ 已修复：去掉了多余的括号
@@ -448,7 +448,7 @@
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
 
-            const totalPages = Math.ceil(filteredPosts.length / itemsPerPage) || 1;
+            const totalPages = Math.ceil(filteredPosts.length / itemsPerPage) ||1;
             
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
@@ -495,51 +495,40 @@
         }
 
         filterPosts('all');
-    </script>
 
-    
-        // 🌟 修复版广告轮播逻辑
+        // 🌟 修复版广告轮播逻辑 (合并在一起)
         let slideIndex = 0;
         let slideInterval;
         const slides = document.getElementsByClassName("ad-slide");
 
-        // 自动轮播函数
         function showSlides() {
-            // 安全检查：如果没找到图片，不执行
             if (!slides || slides.length === 0) return;
 
-            // 1. 隐藏所有图片
             for (let i = 0; i < slides.length; i++) {
                 slides[i].style.display = "none";  
             }
             
-            // 2. 显示当前图片
             slides[slideIndex].style.display = "block";  
             
-            // 3. 计算下一张索引
             slideIndex++;
             if (slideIndex >= slides.length) {
                 slideIndex = 0;
             }
             
-            // 4. 设置定时器：3秒后切换
             slideInterval = setTimeout(showSlides, 3000); 
         }
 
-        // 启动轮播
         showSlides();
 
-        // 🌟 鼠标悬停暂停，移开继续
         const sliderContainer = document.querySelector('.ad-slider-container');
         if (sliderContainer) {
             sliderContainer.addEventListener('mouseenter', () => {
-                clearTimeout(slideInterval); // 鼠标放上去，清除定时器（暂停）
+                clearTimeout(slideInterval);
             });
-            
             sliderContainer.addEventListener('mouseleave', () => {
-                showSlides(); // 鼠标移开，重新开始
+                showSlides();
             });
         }
+    </script>
 
 </body>
-</html>
