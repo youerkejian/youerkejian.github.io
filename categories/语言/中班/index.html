@@ -154,7 +154,7 @@
 
         /* 1. 修复首页筛选后的列表位置（大中小班分类列表） */
         .list-header {
-            margin-top: 120px !important; /* 🔥 加大到 120px，强行推下去 */
+            margin-top: 0 !important; /* 🔥 加大到 120px，强行推下去 */
         }
 
         /* 2. 修复“点击查看更多资源”页面的位置（这是一个独立页面） */
@@ -196,8 +196,24 @@
         <!-- 🌟 仅保留分类页独有的样式 -->
 <style>
     /* 顶部标题区域 */
-    .category-header { text-align: center; padding: 2rem 1rem; background: #fff; margin-bottom: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .category-title { font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem; }
+    .category-header { 
+        text-align: center; 
+        padding: 1.5rem 1rem;  /* 🌟 稍微减少一点内边距 */
+        background: #fff; 
+        margin-bottom: 30px; 
+        border-radius: 10px; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+        margin-top: 0 !important; /* 🌟 确保容器本身没有大边距 */
+    }
+    
+    /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
+    .category-title { 
+        font-size: 2rem; 
+        color: #2c3e50; 
+        margin-bottom: 0.5rem;
+        margin-top: 0 !important; /* 强制归零，覆盖全局设置 */
+    }
+
     .back-link { margin-top: 10px; }
     .back-link a { color: #7f8c8d; text-decoration: none; }
 

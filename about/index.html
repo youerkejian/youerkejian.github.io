@@ -154,7 +154,7 @@
 
         /* 1. 修复首页筛选后的列表位置（大中小班分类列表） */
         .list-header {
-            margin-top: 120px !important; /* 🔥 加大到 120px，强行推下去 */
+            margin-top: 0 !important; /* 🔥 加大到 120px，强行推下去 */
         }
 
         /* 2. 修复“点击查看更多资源”页面的位置（这是一个独立页面） */
@@ -193,12 +193,34 @@
 
     <!-- 页面内容 -->
     <div class="container">
-        <div class="container">
-    <article>
-        <!-- 标题：这里使用了 .page-title 类名，会自动应用我们在 layout.ejs 里设置的下移 100px 的样式 -->
+        <!-- 🌟 恢复“卡片式”布局的样式 (针对关于本站、联系我等单页) -->
+<style>
+    .page-container {
+        max-width: 800px;         /* 宽度限制，太宽不好看 */
+        margin: 20px auto;        /* 居中，距离顶部20px（配合新页头，不用留太远） */
+        padding: 2rem 3rem;       /* 内部留白 */
+        background: #fff;         /* 白色背景 */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 阴影效果 */
+        border-radius: 8px;       /* 圆角 */
+        min-height: 50vh;         /* 最小高度，避免内容太少时卡片太矮 */
+    }
+
+    /* 修复标题样式 */
+    .page-title {
+        font-size: 2rem;
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db; /* 蓝色下划线 */
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        margin-top: 0 !important; /* 强制取消顶部距离，让卡片撑开布局 */
+    }
+</style>
+
+<div class="container">
+    <!-- 使用 .page-container 包裹内容，恢复之前的“白色卡片”外观 -->
+    <div class="page-container">
         <h1 class="page-title">关于本站</h1>
         
-        <!-- 正文内容 -->
         <div class="page-content">
             <h2 id="欢迎来到幼儿园课件资源中心"><a href="#欢迎来到幼儿园课件资源中心" class="headerlink" title="欢迎来到幼儿园课件资源中心"></a>欢迎来到幼儿园课件资源中心</h2><p>本站致力于为幼儿园教师提供专业、系统、有趣的教学资源。</p>
 <h3 id="我们的资源包括"><a href="#我们的资源包括" class="headerlink" title="我们的资源包括"></a>我们的资源包括</h3><ul>
@@ -210,7 +232,7 @@
 <p>希望这些资源能帮助到您！</p>
 
         </div>
-    </article>
+    </div>
 </div>
 
     </div>

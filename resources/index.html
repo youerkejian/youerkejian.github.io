@@ -154,7 +154,7 @@
 
         /* 1. 修复首页筛选后的列表位置（大中小班分类列表） */
         .list-header {
-            margin-top: 120px !important; /* 🔥 加大到 120px，强行推下去 */
+            margin-top: 0 !important; /* 🔥 加大到 120px，强行推下去 */
         }
 
         /* 2. 修复“点击查看更多资源”页面的位置（这是一个独立页面） */
@@ -240,6 +240,16 @@
 
     .btn-icon { font-size: 2rem; margin-bottom: 10px; }
     .btn-text { font-size: 1.1rem; font-weight: bold; }
+
+    /* 🔥 特殊修正：拉回标题，距离页头太远的问题 */
+    .page-title {
+       margin-top: 20px !important; /* 把原来的 100px 改成 20px */
+    }
+
+    /* 如果觉得还是太远，可以把下面的负值改大一点，比如 -40px */
+    .page-header {
+       margin-top: -30px !important; /* 整体向上提拉 */
+    }
 </style>
 
 <!-- 删掉了旧的 <header>，因为 layout.ejs 已经提供了新的蓝色页头 -->
