@@ -170,6 +170,39 @@
         .article-content {
             margin-top: 50px !important;
         }
+            /* ========== 🌟 强制页脚居中样式 (新增) ========== */
+    .site-footer {
+        width: 100%; /* 确保占满全屏宽度 */
+        text-align: center; /* 🌟 核心：强制内部所有文字和元素居中 */
+        background-color: #2c3e50; /* 深蓝背景 */
+        color: #ecf0f1; /* 浅灰文字 */
+        padding: 40px 0; /* 上下留白 */
+        margin-top: 60px; /* 距离上方内容 */
+        display: block; /* 确保是块级显示 */
+        border-top: 3px solid #3498db; /* 顶部蓝线 */
+    }
+
+    .footer-content {
+        max-width: 1200px; /* 内容最大宽度 */
+        margin: 0 auto; /* 🌟 核心：确保内容块在屏幕中间 */
+        padding: 0 20px; /* 左右留空 */
+    }
+
+    /* 链接样式 */
+    .footer-content a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .footer-content a:hover {
+        color: #5dade2;
+        text-decoration: underline;
+    }
+
+    /* 手机端适配 */
+    @media (max-width: 768px) {
+        .site-footer { padding: 30px 0; }
+    }
     </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
@@ -202,13 +235,29 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; }
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
 
         
         /* 文章卡片样式 */
         .post-card { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        /* 1. 标题样式 */
         .post-title { text-align: center; font-size: 2.2rem; color: #2c3e50; margin-bottom: 10px; }
         .post-meta { text-align: center; color: #95a5a6; font-size: 0.9rem; margin-bottom: 30px; }
+
+
+/* 3. 🌟 关键修复：强制消除“科目/年龄/热度”这一行的顶部间距 */
+/* 很多模板这一行默认有很大间距，这里强制覆盖 */
+.article-meta {
+    margin-top: 5px !important; /* 强制缩小到 5px */
+    margin-bottom: 20px; /* 下面正文留一点空隙即可 */
+}
+
+/* 4. 🌟 保险措施：如果上面的不生效，把内容区域第一个元素的间距也消除 */
+.article-content > *:first-child {
+    margin-top: 0 !important;
+}
+
+
         
         /* 封面图样式 */
          .post-cover { width: 100%; height: auto; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; object-fit: contain; }
@@ -379,7 +428,6 @@
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-
     </style>
 </head>
 <body>
@@ -685,7 +733,22 @@
 </body>
 </html>
 
-    </div>
+        </div>
+
+    <!-- 🌟 网站页脚 -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>). All Rights Reserved
+            </div>
+            <div class="footer-notice">
+                申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
+            </div>
+            <div class="footer-beian">
+                备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>

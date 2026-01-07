@@ -170,6 +170,39 @@
         .article-content {
             margin-top: 50px !important;
         }
+            /* ========== 🌟 强制页脚居中样式 (新增) ========== */
+    .site-footer {
+        width: 100%; /* 确保占满全屏宽度 */
+        text-align: center; /* 🌟 核心：强制内部所有文字和元素居中 */
+        background-color: #2c3e50; /* 深蓝背景 */
+        color: #ecf0f1; /* 浅灰文字 */
+        padding: 40px 0; /* 上下留白 */
+        margin-top: 60px; /* 距离上方内容 */
+        display: block; /* 确保是块级显示 */
+        border-top: 3px solid #3498db; /* 顶部蓝线 */
+    }
+
+    .footer-content {
+        max-width: 1200px; /* 内容最大宽度 */
+        margin: 0 auto; /* 🌟 核心：确保内容块在屏幕中间 */
+        padding: 0 20px; /* 左右留空 */
+    }
+
+    /* 链接样式 */
+    .footer-content a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .footer-content a:hover {
+        color: #5dade2;
+        text-decoration: underline;
+    }
+
+    /* 手机端适配 */
+    @media (max-width: 768px) {
+        .site-footer { padding: 30px 0; }
+    }
     </style>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
@@ -209,9 +242,34 @@
     }
     
     /* 响应式：手机端每行2个 */
-    @media (max-width: 768px) {
-        .resources-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 768px) {
+    .resources-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* 👇 以下是新增：手机端弹窗按钮样式优化 👇 */
+
+    /* 1. 容器间距缩小 */
+    .safety-options-container {
+        padding: 10px;      /* 原来是 20px，改小 */
+        gap: 8px;           /* 按钮之间的间距，原来 20px，改小 */
+        margin-top: 5px;    /* 距离上面按钮的距离 */
     }
+
+    /* 2. 单个按钮缩小 */
+    .sub-safety-btn {
+        padding: 6px 10px; /* 原来是 12px 20px，大幅缩小内边距 */
+    }
+
+    /* 3. 图标缩小 */
+    .sub-icon {
+        font-size: 1.1rem; /* 原来是 1.4rem */
+    }
+
+    /* 4. 文字缩小 */
+    .sub-text {
+        font-size: 0.75rem; /* 原来是 0.95rem */
+    }
+}
+
 
     /* 单个按钮卡片 */
     .resource-btn {
@@ -445,7 +503,22 @@
 
 
 
-    </div>
+        </div>
+
+    <!-- 🌟 网站页脚 -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>). All Rights Reserved
+            </div>
+            <div class="footer-notice">
+                申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
+            </div>
+            <div class="footer-beian">
+                备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>
