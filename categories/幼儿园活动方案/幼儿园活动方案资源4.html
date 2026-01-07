@@ -234,11 +234,24 @@
     <title>幼儿园活动方案资源4 - 幼儿课件网</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        /* ========== 全局基础样式 ========== */
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; }
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-                /* ========== 🌟 补回文章宽度和弹窗修复样式 ========== */
+
+        /* 文章卡片样式 */
+        .post-card { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         
-        /* 1. 强制加宽文章内容区域 (设置为您之前想要的 1300px) */
+        /* 标题和元数据 */
+        .post-title { text-align: center; font-size: 2.2rem; color: #2c3e50; margin-bottom: 10px; }
+        .post-meta { text-align: center; color: #95a5a6; font-size: 0.9rem; margin-bottom: 30px; }
+
+        /* 封面图样式 */
+        .post-cover { width: 100%; height: auto; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; object-fit: contain; }
+
+        .article-content { line-height: 1.8; color: #444; font-size: 1.1rem; }
+        .article-content h2 { color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
+
+        /* ========== 🌟 核心修复一：文章宽度加宽 (1300px) ========== */
         article, .post-content, .article-entry, .markdown-body, 
         #content, .content, main, .entry-content, 
         .post, .post-main, .article, .article-wrapper,
@@ -250,7 +263,7 @@
             box-sizing: border-box;
         }
 
-        /* 2. 确保图片正常显示 */
+        /* 确保图片正常显示 */
         article img, .post-content img, .article-entry img, 
         .markdown-body img, #content img, .content img {
             max-width: 100%;
@@ -258,16 +271,16 @@
             display: block;
         }
 
-        /* 3. 🌟 购买弹窗样式 (修复闪屏和延迟的关键) */
+        /* ========== 🌟 核心修复二：购买弹窗 (屏幕居中，不闪屏) ========== */
         .modal-overlay {
             display: none; /* 默认隐藏 */
-            position: fixed !important; /* 强制固定定位 */
+            position: fixed !important; /* 🔥 强制固定定位，相对于屏幕 */
             top: 0 !important;
             left: 0 !important;
-            width: 100vw !important;  /* 视口宽度 */
-            height: 100vh !important; /* 视口高度 */
+            width: 100vw !important;  /* 🔥 强制占满屏幕宽度 */
+            height: 100vh !important; /* 🔥 强制占满屏幕高度 */
             background-color: rgba(0, 0, 0, 0.6);
-            z-index: 99999 !important; /* 最高层级 */
+            z-index: 99999 !important; /* 🔥 最高层级 */
             justify-content: center;
             align-items: center;
             animation: fadeIn 0.3s ease-in-out;
@@ -328,34 +341,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* 文章卡片样式 */
-        .post-card { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        /* 1. 标题样式 */
-        .post-title { text-align: center; font-size: 2.2rem; color: #2c3e50; margin-bottom: 10px; }
-        .post-meta { text-align: center; color: #95a5a6; font-size: 0.9rem; margin-bottom: 30px; }
-
-
-/* 3. 🌟 关键修复：强制消除“科目/年龄/热度”这一行的顶部间距 */
-/* 很多模板这一行默认有很大间距，这里强制覆盖 */
-.article-meta {
-    margin-top: 5px !important; /* 强制缩小到 5px */
-    margin-bottom: 20px; /* 下面正文留一点空隙即可 */
-}
-
-/* 4. 🌟 保险措施：如果上面的不生效，把内容区域第一个元素的间距也消除 */
-.article-content > *:first-child {
-    margin-top: 0 !important;
-}
-
-
-        
-        /* 封面图样式 */
-         .post-cover { width: 100%; height: auto; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; object-fit: contain; }
-
-        .article-content { line-height: 1.8; color: #444; font-size: 1.1rem; }
-        .article-content h2 { color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
-
-        /* 🌟 付费卡片样式 (新增) */
+        /* ========== 其他样式 (付费卡片、底部按钮) ========== */
         .pay-card { margin-top: 40px; padding: 25px; background: linear-gradient(135deg, #fff6e6 0%, #fff 100%); border: 2px solid #ffd591; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
         .pay-title { margin: 0 0 15px 0; color: #d48806; font-size: 1.2em; font-weight: bold; }
         .pay-desc { margin-bottom: 20px; color: #666; font-size: 0.95em; }
@@ -363,58 +349,17 @@
         .btn-vip { display: inline-block; padding: 12px 25px; background: linear-gradient(to right, #fadb14, #ffec3d); color: #873800; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(250, 219, 20, 0.4); transition: transform 0.2s; }
         .btn-buy { display: inline-block; padding: 12px 25px; background-color: #1890ff; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3); transition: transform 0.2s; }
         .btn-vip:hover, .btn-buy:hover { transform: translateY(-2px); filter: brightness(1.05); }
-                /* 底部提示文字样式 */
-        .pay-note { 
-            margin-top: 15px; 
-            font-size: 0.8em; 
-            color: #999;
-            display: block;      /* 确保是块级元素，独占一行 */
-            width: 100%;         /* 宽度100% */
-            text-align: center; /* 文字居中 */
-        }
+        .pay-note { margin-top: 15px; font-size: 0.8em; color: #999; display: block; width: 100%; text-align: center; }
 
-
-                /* 🌟 底部导航区域样式 (已优化，增加常驻颜色) */
+        /* 底部导航区域样式 */
         .article-footer { margin-top: 40px; padding-top: 30px; border-top: 1px dashed #e8e8e8; text-align: center; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        
-        .article-footer .btn { 
-            display: inline-block; 
-            min-width: 150px;
-            padding: 12px 20px; 
-            border-radius: 6px; 
-            text-decoration: none; 
-            font-size: 1rem; 
-            font-weight: 500; /* 字体稍微加粗一点点 */
-            transition: all 0.3s ease;
-        }
-
-        /* 智能返回按钮：淡蓝色系 (呼应上面的单篇购买按钮) */
-        .btn-back { 
-            background-color: #e6f7ff; /* 淡蓝色背景 */
-            color: #0050b3;            /* 深蓝色文字 */
-            border: 1px solid #91d5ff; /* 亮蓝色边框 */
-        }
-        .btn-back:hover { 
-            background-color: #bae7ff; /* 鼠标放上去变深一点的蓝 */
-            color: #003a8c; 
-            border-color: #40a9ff; 
-            transform: translateY(-2px); /* 向上浮动效果 */
-            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2); /* 增加阴影 */
-        }
-
-        /* 返回首页按钮：淡橙色系 (呼应上面的VIP按钮) */
-        .btn-home { 
-            background-color: #fff7e6; /* 淡橙色背景 */
-            color: #d46b08;            /* 深橙色文字 */
-            border: 1px solid #ffd591; /* 亮橙色边框 */
-        }
-        .btn-home:hover { 
-            background-color: #ffe7ba; /* 鼠标放上去变深一点的橙 */
-            color: #ad4e00; 
-            border-color: #ffa940; 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(250, 219, 20, 0.2); /* 增加阴影 */
-        }
+        .article-footer .btn { display: inline-block; min-width: 150px; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-size: 1rem; font-weight: 500; transition: all 0.3s ease; }
+        .btn-back { background-color: #e6f7ff; color: #0050b3; border: 1px solid #91d5ff; }
+        .btn-back:hover { background-color: #bae7ff; color: #003a8c; border-color: #40a9ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2); }
+        .btn-home { background-color: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .btn-home:hover { background-color: #ffe7ba; color: #ad4e00; border-color: #ffa940; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(250, 219, 20, 0.2); }
+    </style>
+</head>
 <body>
 
     <div class="container">
@@ -438,7 +383,6 @@
             <div class="article-content">
                 
 
-                <!-- ⚠️ 这里是修复的关键：如果没有这行，文章正文不会显示 -->
                 <h1 id="幼儿园活动方案资源4"><a href="#幼儿园活动方案资源4" class="headerlink" title="幼儿园活动方案资源4"></a>幼儿园活动方案资源4</h1><p>这里是课件的详细介绍内容。</p>
 <h2 id="课件目标"><a href="#课件目标" class="headerlink" title="课件目标"></a>课件目标</h2><ol>
 <li>知识目标…</li>
@@ -459,41 +403,18 @@
                 <div class="pay-title">📥 获取本课完整资源</div>
                 <div class="pay-desc">包含高清PPT课件 + 详细教案 + 配套素材</div>
                 
-                <!-- 🌟 按钮容器 (只有两个按钮) -->
                 <div class="pay-buttons">
-                    <!-- 按钮1：开通VIP -->
                     <a href="/vip-member/" class="btn-vip">
                        👑 开通VIP会员 (全站免费)
                     </a>
                     
-                    <!-- 按钮2：单篇购买 -->
                     <a href="javascript:void(0);" onclick="openModal()" class="btn-buy">
                        🛒 单篇购买 (4.99元)
                     </a>
                 </div>
                 
-                <!-- 🌟 底部灰色提示文字 (注意：这里必须放在按钮容器外面) -->
                 <div class="pay-note">* VIP会员永久免下载券，单次购买永久有效</div>
             </div>
-
-            
-        <!-- 🌟 购买弹窗 -->
-        <div class="modal-overlay" id="purchase-modal" onclick="closeModal()">
-            <div class="modal-box" onclick="event.stopPropagation()">
-                <!-- 关闭按钮 -->
-                <span class="modal-close" onclick="closeModal()">&times;</span>
-                
-                <!-- 醒目的标题 -->
-                <div class="modal-title">💳 微信扫码购买</div>
-                
-                <!-- 二维码图片 -->
-                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/5046c8071baec05fdc270f8aa31e93b5.jpg" alt="微信支付二维码" class="modal-qrcode">
-                
-                <!-- 底部灰色提示 -->
-                <div class="modal-hint">使用微信扫一扫完成支付</div>
-            </div>
-        </div>
-
 
             <!-- ======================================================= -->
             <!-- 【区域二：底部导航返回栏 - 文章外部】 -->
@@ -501,34 +422,42 @@
             <div class="article-footer">
                 
                 
-                <!-- 1. 智能返回按钮 -->
                 <a href="/" class="btn btn-back">返回课程列表</a>
-                
-                <!-- 2. 返回首页按钮 -->
                 <a href="/" class="btn btn-home">返回首页</a>
             </div>
 
         </div>
     </div>
 
-        <script>
-        // 打开弹窗
-        function openModal() {
-            document.getElementById('purchase-modal').style.display = 'flex';
-        }
+    <script>
+    // 打开弹窗
+    function openModal() {
+        document.getElementById('purchase-modal').style.display = 'flex';
+    }
 
-        // 关闭弹窗
-        function closeModal() {
-            document.getElementById('purchase-modal').style.display = 'none';
-        }
+    // 关闭弹窗
+    function closeModal() {
+        document.getElementById('purchase-modal').style.display = 'none';
+    }
 
-        // 按ESC键关闭弹窗
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
-        });
+    // 按ESC键关闭弹窗
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
     </script>
+
+    <!-- 🌟 购买弹窗 HTML -->
+            <div class="modal-overlay" id="purchase-modal" onclick="closeModal()">
+                <div class="modal-box" onclick="event.stopPropagation()">
+                    <span class="modal-close" onclick="closeModal()">&times;</span>
+                    <div class="modal-title">💳 微信扫码购买</div>
+                    <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/5046c8071baec05fdc270f8aa31e93b5.jpg" alt="微信支付二维码" class="modal-qrcode">
+                    <div class="modal-hint">使用微信扫一扫完成支付</div>
+                </div>
+            </div>
+
 
 </body>
 </html>
