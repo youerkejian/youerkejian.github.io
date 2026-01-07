@@ -251,7 +251,7 @@
 
         /* 1. 容器：必须覆盖掉原本的 display: flex */
         .safety-options-container {
-            display: grid !important;             /* 🔥 强制变成网格布局 */
+            display: grid;             /* 🔥 强制变成网格布局 */
             grid-template-columns: repeat(2, 1fr) !important; /* 🔥 强制每行 2 个 */
             width: 100% !important;               /* 🔥 占满宽度 */
             box-sizing: border-box !important;    /* 🔥 防止溢出 */
