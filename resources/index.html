@@ -241,35 +241,49 @@
         margin-bottom: 40px;
     }
     
-    /* 响应式：手机端每行2个 */
-@media (max-width: 768px) {
-    .resources-grid { grid-template-columns: repeat(2, 1fr); }
+        /* 响应式：手机端每行2个 */
+    @media (max-width: 768px) {
+        .resources-grid { grid-template-columns: repeat(2, 1fr); }
 
-    /* 👇 以下是新增：手机端弹窗按钮样式优化 👇 */
+        /* 👇 以下是重构：手机端弹窗按钮布局优化 (解决拥挤和显示不全) 👇 */
 
-    /* 1. 容器间距缩小 */
-    .safety-options-container {
-        padding: 10px;      /* 原来是 20px，改小 */
-        gap: 8px;           /* 按钮之间的间距，原来 20px，改小 */
-        margin-top: 5px;    /* 距离上面按钮的距离 */
+        /* 1. 容器：改为 2列网格布局 */
+        .safety-options-container {
+            display: grid !important;      /* 强制使用网格布局 */
+            grid-template-columns: repeat(2, 1fr); /* 🌟 核心：强制每行 2 个，整齐划一 */
+            gap: 10px;                     /* 按钮之间的间距 */
+            padding: 10px;                 /* 容器内边距 */
+            margin-top: 5px;
+        }
+
+        /* 2. 按钮：改为垂直排列（图标上，文字下），允许换行 */
+        .sub-safety-btn {
+            display: flex;
+            flex-direction: column !important; /* 🌟 图标和文字上下排列 */
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px;                       /* 图标和文字的微小间距 */
+            padding: 8px 4px;              /* 左右内边距极小 */
+            text-align: center;             /* 文字居中 */
+            height: auto;                   /* 高度自动撑开 */
+            min-height: 65px;               /* 设置最小高度，避免太扁 */
+            white-space: normal !important; /* 🌟 核心：允许文字换行！解决文字不完整问题 */
+        }
+
+        /* 3. 图标样式 */
+        .sub-icon {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        /* 4. 文字样式 */
+        .sub-text {
+            font-size: 0.7rem;  /* 字体再稍微小一点 */
+            line-height: 1.2;
+            width: 100%;        /* 确保文字占满按钮宽度，以便居中换行 */
+            margin: 0;
+        }
     }
-
-    /* 2. 单个按钮缩小 */
-    .sub-safety-btn {
-        padding: 6px 10px; /* 原来是 12px 20px，大幅缩小内边距 */
-    }
-
-    /* 3. 图标缩小 */
-    .sub-icon {
-        font-size: 1.1rem; /* 原来是 1.4rem */
-    }
-
-    /* 4. 文字缩小 */
-    .sub-text {
-        font-size: 0.75rem; /* 原来是 0.95rem */
-    }
-}
-
 
     /* 单个按钮卡片 */
     .resource-btn {
@@ -489,17 +503,17 @@
 <!-- 脚本逻辑（万能版） -->
 <script>
     function toggleMenu(id) {
-        // 1. 找到名字对应的那个隐藏盒子
         var contentDiv = document.getElementById(id);
         
-        // 2. 判断它是不是隐藏状态 (display: "none")
+        // 判断是否隐藏
         if (contentDiv.style.display === "none") {
-            contentDiv.style.display = "flex"; // 显示它
+            contentDiv.style.display = ""; // 🌟 改为空字符串，让 CSS 控制是 flex 还是 grid
         } else {
             contentDiv.style.display = "none"; // 隐藏它
         }
     }
 </script>
+
 
 
 
