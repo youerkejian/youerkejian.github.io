@@ -240,58 +240,6 @@
         gap: 20px;
         margin-bottom: 40px;
     }
-    
-    /* 响应式：手机端每行2个 */
-    @media (max-width: 768px) {
-        .resources-grid { grid-template-columns: repeat(2, 1fr); }
-
-        /* ============================================ */
-        /* 👇 终极版：强行把子按钮改成 2x2 网格，文字自动换行 👇 */
-        /* ============================================ */
-
-        /* 1. 容器：必须覆盖掉原本的 display: flex */
-        .safety-options-container {
-            display: grid;             /* 🔥 强制变成网格布局 */
-            grid-template-columns: repeat(2, 1fr) !important; /* 🔥 强制每行 2 个 */
-            width: 100% !important;               /* 🔥 占满宽度 */
-            box-sizing: border-box !important;    /* 🔥 防止溢出 */
-            gap: 8px !important;                  /* 按钮间距缩小 */
-            padding: 8px !important;
-            margin-top: 5px !important;
-        }
-
-        /* 2. 按钮：变成垂直排列，文字换行 */
-        .sub-safety-btn {
-            display: flex !important;
-            flex-direction: column !important;    /* 🔥 图标上，文字下 */
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;               /* 🔥 撑满网格格子 */
-            padding: 6px 2px !important;          /* 🔥 内边距极小，防止太大 */
-            min-height: 55px !important;          /* 🔥 最小高度缩小一点 */
-            height: auto !important;             /* 高度自动 */
-            white-space: normal !important;       /* 🔥 允许文字换行 */
-            word-break: break-all !important;     /* 🔥 强制长文字（如“中国传统节日”）折行 */
-            box-sizing: border-box !important;
-        }
-
-        /* 3. 图标：缩小 */
-        .sub-icon {
-            font-size: 1.1rem !important;        /* 图标小一点 */
-            margin-bottom: 2px !important;
-            line-height: 1 !important;
-        }
-
-        /* 4. 文字：极小号字体，确保放得下 */
-        .sub-text {
-            font-size: 0.65rem !important;       /* 🔥 字体变小，约 10px */
-            line-height: 1.2 !important;
-            text-align: center !important;
-            width: 100% !important;
-            margin: 0 !important;
-            display: block !important;           /* 强制作为块元素显示 */
-        }
-    }
 
     /* 单个按钮卡片 */
     .resource-btn {
@@ -391,6 +339,58 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* 响应式：手机端每行2个 */
+    @media (max-width: 768px) {
+        .resources-grid { grid-template-columns: repeat(2, 1fr); }
+
+        /* ============================================ */
+        /* 👇 终极版：强行把子按钮改成 2x2 网格，文字自动换行 👇 */
+        /* ============================================ */
+
+        /* 1. 容器：必须覆盖掉原本的 display: flex */
+        .safety-options-container {
+            display: grid;             /* 🔥 强制变成网格布局 */
+            grid-template-columns: repeat(2, 1fr) !important; /* 🔥 强制每行 2 个 */
+            width: 100% !important;               /* 🔥 占满宽度 */
+            box-sizing: border-box !important;    /* 🔥 防止溢出 */
+            gap: 8px !important;                  /* 按钮间距缩小 */
+            padding: 8px !important;
+            margin-top: 5px !important;
+        }
+
+        /* 2. 按钮：变成垂直排列，文字换行 */
+        .sub-safety-btn {
+            display: flex !important;
+            flex-direction: column !important;    /* 🔥 图标上，文字下 */
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;               /* 🔥 撑满网格格子 */
+            padding: 6px 2px !important;          /* 🔥 内边距极小，防止太大 */
+            min-height: 55px !important;          /* 🔥 最小高度缩小一点 */
+            height: auto !important;             /* 高度自动 */
+            white-space: normal !important;       /* 🔥 允许文字换行 */
+            word-break: break-all !important;     /* 🔥 强制长文字（如“中国传统节日”）折行 */
+            box-sizing: border-box !important;
+        }
+
+        /* 3. 图标：缩小 */
+        .sub-icon {
+            font-size: 1.1rem !important;        /* 图标小一点 */
+            margin-bottom: 2px !important;
+            line-height: 1 !important;
+        }
+
+        /* 4. 文字：极小号字体，确保放得下 */
+        .sub-text {
+            font-size: 0.65rem !important;       /* 🔥 字体变小，约 10px */
+            line-height: 1.2 !important;
+            text-align: center !important;
+            width: 100% !important;
+            margin: 0 !important;
+            display: block !important;           /* 强制作为块元素显示 */
+        }
+    }
 
 </style>
 
