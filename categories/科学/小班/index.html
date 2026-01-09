@@ -203,7 +203,19 @@
     @media (max-width: 768px) {
         .site-footer { padding: 30px 0; }
     }
+    /* 运行时间样式 */
+.site-runtime-container {
+    text-align: left; /* 左对齐（与备案号一致） */
+    font-size: 0.9rem;   /* 字体大小 */
+    color: #bdc3c7;      /* 浅灰白色 */
+    margin: 5px 0;       /* 上下间距 */
+}
+.runtime-icon { margin-right: 5px; }
     </style>
+
+   <!-- 引入不蒜子统计脚本（必须保留） -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -297,7 +309,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"科学小班课件1","path":"/categories/科学/小班/科学小班课件1.html","views":16,"date":"2025-12-13","cover_img":"https://picsum.photos/seed/科学小班课件1/800/400","categories":["科学","小班"]},{"title":"科学小班课件2","path":"/categories/科学/小班/科学小班课件2.html","views":243,"date":"2025-04-09","cover_img":"https://picsum.photos/seed/科学小班课件2/800/400","categories":["科学","小班"]}];
+    const allPosts = [{"title":"冬天到","path":"/categories/科学/冬天到.html","views":11795,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬天到_语言科学_小班/ppt/20260109124152_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"夏天的太阳","path":"/categories/科学/夏天的太阳.html","views":19595,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/夏天的太阳_语言科学_小班/ppt/20260109124743_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"夏天的声音","path":"/categories/科学/夏天的声音.html","views":7965,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/夏天的声音_科学语言_小班/ppt/20260109124730_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"冬爷爷在哪里","path":"/categories/科学/冬爷爷在哪里.html","views":74405,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬爷爷在哪里_语言科学_小班/ppt/20260109124224_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"咏鹅","path":"/categories/科学/咏鹅.html","views":19827,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/咏鹅_语言科学_小班/ppt/20260109124603_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"夏天的水果","path":"/categories/科学/夏天的水果.html","views":8000,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/夏天的水果_科学语言_小班/ppt/20260109124809_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小叶子在哪儿？","path":"/categories/科学/小叶子在哪儿？.html","views":17566,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小叶子在哪儿？_语言科学_小班/ppt/20260109130000_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"《小蝌蚪找妈妈》","path":"/categories/科学/《小蝌蚪找妈妈》.html","views":9482,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言科学《小蝌蚪找妈妈》/ppt/20260109130409_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"苹果种子的故事","path":"/categories/科学/苹果种子的故事.html","views":18358,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_语言科学_苹果种子的故事/ppt/20260109130158_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"春天的花","path":"/categories/科学/春天的花.html","views":13515,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春天的花_语言科学_小班/ppt/20260109131805_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"消防车救火","path":"/categories/科学/消防车救火.html","views":6503,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学语言-消防车救火/ppt/20260109130238_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"猜耳朵","path":"/categories/科学/猜耳朵.html","views":12976,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/猜耳朵_语言科学_小班/ppt/20260109132921_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"春雨中的小动物","path":"/categories/科学/春雨中的小动物.html","views":12692,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春雨中的小动物_科学语言_小班/ppt/20260109131850_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"水果的味道","path":"/categories/科学/水果的味道.html","views":8936,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果的味道_语言科学_小班/ppt/20260109132351_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"超级变变变","path":"/categories/科学/超级变变变.html","views":11976,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/超级变变变_科学语言_小班/ppt/20260109134150_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"蜜蜜的空调屋","path":"/categories/科学/蜜蜜的空调屋.html","views":18835,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/蜜蜜的空调屋_科学语言_小班/ppt/20260109133838_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"雪花飘飘","path":"/categories/科学/雪花飘飘.html","views":19884,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/雪花飘飘_科学语言_小班/ppt/20260109134346_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"车来啦","path":"/categories/科学/车来啦.html","views":6010,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/车来啦_语言科学_小班/ppt/20260109134227_ppt_cover_wm.jpg","categories":["科学","小班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
@@ -359,18 +371,79 @@
 
     <!-- 🌟 网站页脚 -->
     <footer class="site-footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>). All Rights Reserved
-            </div>
-            <div class="footer-notice">
-                申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
-            </div>
-            <div class="footer-beian">
-                备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
-            </div>
+    <div class="footer-content">
+        <div class="footer-copyright">
+            Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>) . All Rights Reserved
+        </div>
+        <div class="footer-notice">
+            申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
+        </div>
+        <div class="footer-beian">
+            备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
+        </div>
+        <!-- 🌟 网站运行时间统计 -->
+        <div class="site-runtime-container">
+            <span class="runtime-icon">⏳</span>
+            本站已安全运行：
+            <span id="site-runtime">计算中...</span>
+        </div>
+        <!-- 🌟 总访客数统计 -->
+        <div class="site-visitor-container">
+            <span class="visitor-icon">👤</span>
+            
+            <span id="busuanzi_value_site_uv">加载中...</span>
+        </div>
+    </div>
+</footer>
+
+<head>
+    <!-- ... 其他代码 ... -->
+</head>
+<body>
+    <!-- ... 页面内容 ... -->
+    <footer>
+        <!-- ... 页脚内容 ... -->
+        <div class="site-runtime-container">
+            <span id="site-runtime">计算中...</span>
         </div>
     </footer>
+    
+    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+    <script>
+        function updateRuntime() {
+            // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
+            var startTime = new Date('2014/04/04 09:05:40'); 
+            
+            // 获取当前时间
+            var now = new Date();
+            
+            // 计算时间差（毫秒）
+            var difference = now - startTime;
+            
+            // 计算天数、小时、分钟、秒
+            var days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+            var minutes = Math.floor((difference / (1000 * 60)) % 60);
+            var seconds = Math.floor((difference / 1000) % 60);
+            
+            // 拼接字符串
+            var result = days + "天" + 
+                         hours + "小时" + 
+                         minutes + "分钟" + 
+                         seconds + "秒";
+            
+            // 更新网页显示
+            document.getElementById('site-runtime').innerHTML = result;
+        }
+
+        // 立即执行一次，避免加载时有延迟
+        updateRuntime();
+        
+        // 每隔 1 秒刷新一次
+        setInterval(updateRuntime, 1000);
+    </script>
+</body>
+
 
 </body>
 </html>

@@ -203,7 +203,19 @@
     @media (max-width: 768px) {
         .site-footer { padding: 30px 0; }
     }
+    /* 运行时间样式 */
+.site-runtime-container {
+    text-align: left; /* 左对齐（与备案号一致） */
+    font-size: 0.9rem;   /* 字体大小 */
+    color: #bdc3c7;      /* 浅灰白色 */
+    margin: 5px 0;       /* 上下间距 */
+}
+.runtime-icon { margin-right: 5px; }
     </style>
+
+   <!-- 引入不蒜子统计脚本（必须保留） -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -297,7 +309,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"基础版 出发！采购年货","path":"/categories/社会/基础版 出发！采购年货.html","views":4832,"date":"2026-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/基础版_出发！采购年货_社会_中班/ppt/20260106013415_ppt_cover_wm.jpg","categories":["社会","中班"]}];
+    const allPosts = [{"title":"动物服务中心","path":"/categories/社会/动物服务中心.html","views":15317,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会语言_动物服务中心/ppt/20260109123615_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"一起去秋游 课件","path":"/categories/社会/一起去秋游 课件.html","views":8526,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/一起去秋游_社会语言_中班_课件/ppt/20260109123312_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"过冬","path":"/categories/社会/过冬.html","views":13809,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_语言社会_过冬/ppt/20260109123657_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"压岁钱","path":"/categories/社会/压岁钱.html","views":5570,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/压岁钱_语言社会_中班/ppt/20260109124412_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"《萤火虫找朋友》","path":"/categories/社会/《萤火虫找朋友》.html","views":17593,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言社会《萤火虫找朋友》/ppt/20260109123852_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"动物服务中心","path":"/categories/社会/动物服务中心.html","views":8848,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/动物服务中心_社会语言_中班/ppt/20260109124326_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"好事情","path":"/categories/社会/好事情.html","views":8641,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/好事情_社会语言_中班/ppt/20260109125601_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小小猫钓鱼","path":"/categories/社会/小小猫钓鱼.html","views":11515,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小小猫钓鱼_语言社会_中班/ppt/20260109130024_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"灰喜鹊搬家","path":"/categories/社会/灰喜鹊搬家.html","views":6180,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/灰喜鹊搬家_语言社会_中班/ppt/20260109132731_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"好邻居","path":"/categories/社会/好邻居.html","views":10417,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/好邻居_社会语言_中班/ppt/20260109125626_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"悯农","path":"/categories/社会/悯农.html","views":13225,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/悯农_语言社会_中班/ppt/20260109131011_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"我们来抱抱","path":"/categories/社会/我们来抱抱.html","views":16454,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我们来抱抱_中班社会语言_/ppt/20260109131111_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"爱在我身边 小","path":"/categories/社会/爱在我身边 小.html","views":17599,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱在我身边_社会语言_小中班/ppt/20260109132822_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"萤火虫找朋友","path":"/categories/社会/萤火虫找朋友.html","views":5522,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/萤火虫找朋友_语言社会_中班/ppt/20260109133707_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"老师的本领","path":"/categories/社会/老师的本领.html","views":5299,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/老师的本领_语言社会_中班/ppt/20260109133558_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"过冬","path":"/categories/社会/过冬.html","views":17156,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/过冬_语言社会_中班/ppt/20260109134257_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"认真倾听，不插话","path":"/categories/社会/认真倾听，不插话.html","views":14974,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/认真倾听，不插话_语言社会_中班/ppt/20260109133920_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"基础版 出发！采购年货","path":"/categories/社会/基础版 出发！采购年货.html","views":4832,"date":"2026-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/基础版_出发！采购年货_社会_中班/ppt/20260106013415_ppt_cover_wm.jpg","categories":["社会","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
@@ -359,18 +371,79 @@
 
     <!-- 🌟 网站页脚 -->
     <footer class="site-footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>). All Rights Reserved
-            </div>
-            <div class="footer-notice">
-                申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
-            </div>
-            <div class="footer-beian">
-                备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
-            </div>
+    <div class="footer-content">
+        <div class="footer-copyright">
+            Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>) . All Rights Reserved
+        </div>
+        <div class="footer-notice">
+            申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
+        </div>
+        <div class="footer-beian">
+            备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
+        </div>
+        <!-- 🌟 网站运行时间统计 -->
+        <div class="site-runtime-container">
+            <span class="runtime-icon">⏳</span>
+            本站已安全运行：
+            <span id="site-runtime">计算中...</span>
+        </div>
+        <!-- 🌟 总访客数统计 -->
+        <div class="site-visitor-container">
+            <span class="visitor-icon">👤</span>
+            
+            <span id="busuanzi_value_site_uv">加载中...</span>
+        </div>
+    </div>
+</footer>
+
+<head>
+    <!-- ... 其他代码 ... -->
+</head>
+<body>
+    <!-- ... 页面内容 ... -->
+    <footer>
+        <!-- ... 页脚内容 ... -->
+        <div class="site-runtime-container">
+            <span id="site-runtime">计算中...</span>
         </div>
     </footer>
+    
+    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+    <script>
+        function updateRuntime() {
+            // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
+            var startTime = new Date('2014/04/04 09:05:40'); 
+            
+            // 获取当前时间
+            var now = new Date();
+            
+            // 计算时间差（毫秒）
+            var difference = now - startTime;
+            
+            // 计算天数、小时、分钟、秒
+            var days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+            var minutes = Math.floor((difference / (1000 * 60)) % 60);
+            var seconds = Math.floor((difference / 1000) % 60);
+            
+            // 拼接字符串
+            var result = days + "天" + 
+                         hours + "小时" + 
+                         minutes + "分钟" + 
+                         seconds + "秒";
+            
+            // 更新网页显示
+            document.getElementById('site-runtime').innerHTML = result;
+        }
+
+        // 立即执行一次，避免加载时有延迟
+        updateRuntime();
+        
+        // 每隔 1 秒刷新一次
+        setInterval(updateRuntime, 1000);
+    </script>
+</body>
+
 
 </body>
 </html>

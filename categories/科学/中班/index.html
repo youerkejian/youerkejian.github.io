@@ -203,7 +203,19 @@
     @media (max-width: 768px) {
         .site-footer { padding: 30px 0; }
     }
+    /* 运行时间样式 */
+.site-runtime-container {
+    text-align: left; /* 左对齐（与备案号一致） */
+    font-size: 0.9rem;   /* 字体大小 */
+    color: #bdc3c7;      /* 浅灰白色 */
+    margin: 5px 0;       /* 上下间距 */
+}
+.runtime-icon { margin-right: 5px; }
     </style>
+
+   <!-- 引入不蒜子统计脚本（必须保留） -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -297,7 +309,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"解码水之声","path":"/categories/科学/解码水之声.html","views":11756,"date":"2026-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/解码水之声_科学_中班/ppt/20260106014133_ppt_cover_wm.jpg","categories":["科学","中班"]}];
+    const allPosts = [{"title":"公鸡喔喔学孵蛋","path":"/categories/科学/公鸡喔喔学孵蛋.html","views":18595,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班-语言科学-公鸡喔喔学孵蛋/ppt/20260109123557_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"你家借我躲一下","path":"/categories/科学/你家借我躲一下.html","views":19303,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/你家借我躲一下_语言科学_中班/ppt/20260109124026_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"昆虫大比赛","path":"/categories/科学/昆虫大比赛.html","views":16260,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_科学语言_昆虫大比赛/ppt/20260109123623_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"益虫和害虫","path":"/categories/科学/益虫和害虫.html","views":18917,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_语言科学_益虫和害虫/ppt/20260109123708_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"坚硬的动物","path":"/categories/科学/坚硬的动物.html","views":9832,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/坚硬的动物_语言科学_中班/ppt/20260109124705_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小动物的家","path":"/categories/科学/小动物的家.html","views":50878,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小动物的家_科学语言_中班/ppt/20260109125948_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"春夜喜雨","path":"/categories/科学/春夜喜雨.html","views":11716,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春夜喜雨_语言科学_中班/ppt/20260109131709_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小狗的本领","path":"/categories/科学/小狗的本领.html","views":9570,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小狗的本领_科学语言_中班/ppt/20260109130037_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"秋天的花 (1)","path":"/categories/科学/秋天的花 (1).html","views":4397,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/秋天的花_科学语言_中班(1)/ppt/20260109133352_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"益虫和害虫","path":"/categories/科学/益虫和害虫.html","views":16084,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/益虫和害虫_语言科学_中班/ppt/20260109133102_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"章鱼小子找工作","path":"/categories/科学/章鱼小子找工作.html","views":10112,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/章鱼小子找工作_语言科学_中班/ppt/20260109133435_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蜻蜓","path":"/categories/科学/蜻蜓.html","views":5269,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/蜻蜓_科学语言_中班/ppt/20260109133847_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"秋天的花","path":"/categories/科学/秋天的花.html","views":11154,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/秋天的花_科学语言_中班/ppt/20260109133339_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"英勇的消防员","path":"/categories/科学/英勇的消防员.html","views":17979,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/英勇的消防员_语言科学_中班/ppt/20260109133638_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"落叶","path":"/categories/科学/落叶.html","views":5596,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/落叶_语言科学_中班/ppt/20260109133721_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"谁的尾巴掉啦","path":"/categories/科学/谁的尾巴掉啦.html","views":6062,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/谁的尾巴掉啦_语言科学_中班/ppt/20260109134124_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"公鸡喔喔学孵蛋","path":"/categories/科学/公鸡喔喔学孵蛋_中班.html","views":5120,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/公鸡喔喔学孵蛋_语言科学_中班/ppt/20260109202525_ppt_cover_wm.jpg","categories":["科学","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
@@ -359,18 +371,79 @@
 
     <!-- 🌟 网站页脚 -->
     <footer class="site-footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>). All Rights Reserved
-            </div>
-            <div class="footer-notice">
-                申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
-            </div>
-            <div class="footer-beian">
-                备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
-            </div>
+    <div class="footer-content">
+        <div class="footer-copyright">
+            Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>) . All Rights Reserved
+        </div>
+        <div class="footer-notice">
+            申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
+        </div>
+        <div class="footer-beian">
+            备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
+        </div>
+        <!-- 🌟 网站运行时间统计 -->
+        <div class="site-runtime-container">
+            <span class="runtime-icon">⏳</span>
+            本站已安全运行：
+            <span id="site-runtime">计算中...</span>
+        </div>
+        <!-- 🌟 总访客数统计 -->
+        <div class="site-visitor-container">
+            <span class="visitor-icon">👤</span>
+            
+            <span id="busuanzi_value_site_uv">加载中...</span>
+        </div>
+    </div>
+</footer>
+
+<head>
+    <!-- ... 其他代码 ... -->
+</head>
+<body>
+    <!-- ... 页面内容 ... -->
+    <footer>
+        <!-- ... 页脚内容 ... -->
+        <div class="site-runtime-container">
+            <span id="site-runtime">计算中...</span>
         </div>
     </footer>
+    
+    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+    <script>
+        function updateRuntime() {
+            // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
+            var startTime = new Date('2014/04/04 09:05:40'); 
+            
+            // 获取当前时间
+            var now = new Date();
+            
+            // 计算时间差（毫秒）
+            var difference = now - startTime;
+            
+            // 计算天数、小时、分钟、秒
+            var days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+            var minutes = Math.floor((difference / (1000 * 60)) % 60);
+            var seconds = Math.floor((difference / 1000) % 60);
+            
+            // 拼接字符串
+            var result = days + "天" + 
+                         hours + "小时" + 
+                         minutes + "分钟" + 
+                         seconds + "秒";
+            
+            // 更新网页显示
+            document.getElementById('site-runtime').innerHTML = result;
+        }
+
+        // 立即执行一次，避免加载时有延迟
+        updateRuntime();
+        
+        // 每隔 1 秒刷新一次
+        setInterval(updateRuntime, 1000);
+    </script>
+</body>
+
 
 </body>
 </html>

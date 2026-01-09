@@ -203,7 +203,19 @@
     @media (max-width: 768px) {
         .site-footer { padding: 30px 0; }
     }
+    /* 运行时间样式 */
+.site-runtime-container {
+    text-align: left; /* 左对齐（与备案号一致） */
+    font-size: 0.9rem;   /* 字体大小 */
+    color: #bdc3c7;      /* 浅灰白色 */
+    margin: 5px 0;       /* 上下间距 */
+}
+.runtime-icon { margin-right: 5px; }
     </style>
+
+   <!-- 引入不蒜子统计脚本（必须保留） -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -297,7 +309,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"基础版 噼里啪啦鞭炮响","path":"/categories/健康/基础版 噼里啪啦鞭炮响.html","views":105958,"date":"2026-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/基础版_噼里啪啦鞭炮响_健康_小班/ppt/20260106013441_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"秋季第一课","path":"/categories/健康/秋季第一课.html","views":6893,"date":"2026-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/秋季安全第一课_健康_大班/ppt/20260106014041_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"基础版 消防教育（新规版） 小中","path":"/categories/健康/基础版 消防教育（新规版） 小中.html","views":4961,"date":"2026-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/基础版_消防安全教育（新规版）_健康_小中大班/ppt/20260106013514_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"健康中班课件1","path":"/categories/健康/中班/健康中班课件1.html","views":256,"date":"2024-10-17","cover_img":"https://picsum.photos/seed/健康中班课件1/800/400","categories":["健康","中班"]}];
+    const allPosts = [{"title":"我喜欢吃水果","path":"/categories/健康/我喜欢吃水果.html","views":17035,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_健康语言_我喜欢吃水果/ppt/20260109123607_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"不贪吃冷饮 小中","path":"/categories/健康/不贪吃冷饮 小中.html","views":19960,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/不贪吃冷饮_语言健康_小中大班/ppt/20260109123429_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"书写姿势我知道","path":"/categories/健康/书写姿势我知道.html","views":10650,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/书写姿势我知道_语言健康_大班/ppt/20260109123945_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"常规我知道 小","path":"/categories/健康/常规我知道 小.html","views":16458,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/开学常规我知道_健康语言_小中班/ppt/20260109130740_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"地震拍手歌 中","path":"/categories/健康/地震拍手歌 中.html","views":11618,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/地震拍手歌_语言健康_中大班/ppt/20260109124656_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"歪歪扭扭可不行","path":"/categories/健康/歪歪扭扭可不行.html","views":4680,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班_健康语言_歪歪扭扭可不行/ppt/20260109124905_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"不哭啦不哭啦","path":"/categories/健康/不哭啦不哭啦.html","views":19478,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/不哭啦不哭啦_语言健康_小班/ppt/20260109123407_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"我能够","path":"/categories/健康/我能够.html","views":16030,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我能够_语言健康_大班/ppt/20260109131442_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"家里的危险 小中","path":"/categories/健康/家里的危险 小中.html","views":8834,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/家里的危险_健康语言_小中大班/ppt/20260109125722_ppt_cover_wm.jpg","categories":["健康","大班"]},{"title":"生气飞啦，飞啦","path":"/categories/健康/生气飞啦，飞啦.html","views":8688,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_语言健康_生气飞啦，飞啦/ppt/20260109130141_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"怕冷的大恐龙","path":"/categories/健康/怕冷的大恐龙.html","views":18922,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/怕冷的大恐龙_语言健康_小班/ppt/20260109130946_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"正确坐和站","path":"/categories/健康/正确坐和站.html","views":11486,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/正确坐和站_健康语言_小班/ppt/20260109132307_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"早餐你喜欢吃什么","path":"/categories/健康/早餐你喜欢吃什么.html","views":10224,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/早餐你喜欢吃什么_语言健康_小班/ppt/20260109131658_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"江南","path":"/categories/健康/江南.html","views":16471,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/江南_语言健康_小班/ppt/20260109132652_ppt_cover_wm.jpg","categories":["健康","小班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
@@ -359,18 +371,79 @@
 
     <!-- 🌟 网站页脚 -->
     <footer class="site-footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>). All Rights Reserved
-            </div>
-            <div class="footer-notice">
-                申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
-            </div>
-            <div class="footer-beian">
-                备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
-            </div>
+    <div class="footer-content">
+        <div class="footer-copyright">
+            Copyright © 2014-2026 幼儿课件网(<a href="https://yekjw.top" target="_blank">https://yekjw.top</a>) . All Rights Reserved
+        </div>
+        <div class="footer-notice">
+            申明：网站图片内容若涉及到版权侵权问题，请联系我们从网站删除！客服微信：ppt66368
+        </div>
+        <div class="footer-beian">
+            备案号：<a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">鲁ICP备08100281号</a>
+        </div>
+        <!-- 🌟 网站运行时间统计 -->
+        <div class="site-runtime-container">
+            <span class="runtime-icon">⏳</span>
+            本站已安全运行：
+            <span id="site-runtime">计算中...</span>
+        </div>
+        <!-- 🌟 总访客数统计 -->
+        <div class="site-visitor-container">
+            <span class="visitor-icon">👤</span>
+            
+            <span id="busuanzi_value_site_uv">加载中...</span>
+        </div>
+    </div>
+</footer>
+
+<head>
+    <!-- ... 其他代码 ... -->
+</head>
+<body>
+    <!-- ... 页面内容 ... -->
+    <footer>
+        <!-- ... 页脚内容 ... -->
+        <div class="site-runtime-container">
+            <span id="site-runtime">计算中...</span>
         </div>
     </footer>
+    
+    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+    <script>
+        function updateRuntime() {
+            // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
+            var startTime = new Date('2014/04/04 09:05:40'); 
+            
+            // 获取当前时间
+            var now = new Date();
+            
+            // 计算时间差（毫秒）
+            var difference = now - startTime;
+            
+            // 计算天数、小时、分钟、秒
+            var days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+            var minutes = Math.floor((difference / (1000 * 60)) % 60);
+            var seconds = Math.floor((difference / 1000) % 60);
+            
+            // 拼接字符串
+            var result = days + "天" + 
+                         hours + "小时" + 
+                         minutes + "分钟" + 
+                         seconds + "秒";
+            
+            // 更新网页显示
+            document.getElementById('site-runtime').innerHTML = result;
+        }
+
+        // 立即执行一次，避免加载时有延迟
+        updateRuntime();
+        
+        // 每隔 1 秒刷新一次
+        setInterval(updateRuntime, 1000);
+    </script>
+</body>
+
 
 </body>
 </html>
