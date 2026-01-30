@@ -226,16 +226,8 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
+            <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
-
-<!-- 在页面底部添加脚本 -->
-<script>
-function handleSearchClick(e) {
-    e.preventDefault(); // 阻止默认行为
-    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
-}
-</script>
-
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -243,6 +235,14 @@ function handleSearchClick(e) {
         </div>
     </div>
 </header>
+
+<!-- 🌟 把脚本移到 header 外面，代码更整洁 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
 
 
     <!-- 页面内容 -->
@@ -318,7 +318,7 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"快乐的元宵节 社会美术 小中班","path":"/categories/社会/快乐的元宵节 社会美术 小中班_中班.html","views":13043,"date":"2024-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/快乐的元宵节_社会美术_小中班/ppt/20260130221633_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_中班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《保护动物》","path":"/categories/社会/中班社会《保护动物》_中班.html","views":4352,"date":"2020-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《保护动物》/ppt/20260130220629_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《消防叔叔本领大》","path":"/categories/社会/中班社会《消防叔叔本领大》_中班.html","views":5551,"date":"2017-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《消防叔叔本领大》/ppt/20260130220636_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_中班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","中班"]}];
+    const allPosts = [{"title":"快乐的元宵节 社会美术 小中班","path":"/categories/社会/快乐的元宵节 社会美术 小中班_中班.html","views":13043,"date":"2024-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/快乐的元宵节_社会美术_小中班/ppt/20260130221633_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会课件《十二生肖》PPT课件","path":"/categories/社会/25中班社会课件《十二生肖》PPT课件 plus 教案_中班.html","views":10393,"date":"2023-07-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25中班社会课件《十二生肖》PPT课件_plus_教案/ppt/20260130233423_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《小麦的一生》PPT课件","path":"/categories/社会/中班社会《小麦的一生》PPT课件 plus 教案 plus 音乐_中班.html","views":13979,"date":"2022-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《小麦的一生》PPT课件_plus_教案_plus_音乐/ppt/20260130233842_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_中班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 新年到","path":"/categories/社会/中班社会 新年到_中班.html","views":18956,"date":"2021-06-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会-新年到/ppt/20260130233837_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 心情树叶","path":"/categories/社会/中班 社会 心情树叶_中班.html","views":5552,"date":"2021-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_心情树叶/ppt/20260130233800_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《保护动物》","path":"/categories/社会/中班社会《保护动物》_中班.html","views":4352,"date":"2020-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《保护动物》/ppt/20260130220629_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 植树去 含有声PPT","path":"/categories/社会/3中班 社会 植树去 含有声PPT plus 歌曲及伴奏 plus 教案_中班.html","views":12016,"date":"2020-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3中班-社会-植树去_含有声PPT_plus_歌曲及伴奏_plus_教案/ppt/20260130233444_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《消防叔叔本领大》","path":"/categories/社会/中班社会《消防叔叔本领大》_中班.html","views":5551,"date":"2017-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《消防叔叔本领大》/ppt/20260130220636_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_中班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

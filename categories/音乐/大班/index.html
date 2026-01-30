@@ -226,16 +226,8 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
+            <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
-
-<!-- 在页面底部添加脚本 -->
-<script>
-function handleSearchClick(e) {
-    e.preventDefault(); // 阻止默认行为
-    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
-}
-</script>
-
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -243,6 +235,14 @@ function handleSearchClick(e) {
         </div>
     </div>
 </header>
+
+<!-- 🌟 把脚本移到 header 外面，代码更整洁 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
 
 
     <!-- 页面内容 -->
@@ -318,7 +318,7 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"中大班音乐 夏天的声音","path":"/categories/音乐/中大班音乐 夏天的声音_大班.html","views":8126,"date":"2017-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班音乐-夏天的声音/ppt/20260130201445_ppt_cover_wm.jpg","categories":["音乐","大班"]}];
+    const allPosts = [{"title":"大班艺术语言 年画欣赏 含有声PPT 音乐 教案","path":"/categories/音乐/16大班艺术语言 年画欣赏 含有声PPT plus 音乐 plus 教案_大班.html","views":11376,"date":"2021-08-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/16大班艺术语言-年画欣赏-含有声PPT_plus_音乐_plus_教案/ppt/20260130233409_ppt_cover_wm.jpg","categories":["音乐","大班"]},{"title":"大班健康《预防蚊虫叮咬》PPT课件 教案 音乐","path":"/categories/音乐/大班健康《预防蚊虫叮咬》PPT课件 plus 教案 plus 音乐_大班.html","views":17940,"date":"2018-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班健康《预防蚊虫叮咬》PPT课件_plus_教案_plus_音乐/ppt/20260130234034_ppt_cover_wm.jpg","categories":["音乐","大班"]},{"title":"中大班音乐 夏天的声音","path":"/categories/音乐/中大班音乐 夏天的声音_大班.html","views":8126,"date":"2017-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班音乐-夏天的声音/ppt/20260130201445_ppt_cover_wm.jpg","categories":["音乐","大班"]},{"title":"大班社会《夸夸自己和别人》PPT课件 教案 配音 背景音乐","path":"/categories/音乐/大班社会《夸夸自己和别人》PPT课件 plus 教案 plus 配音 plus 背景音乐_大班.html","views":13909,"date":"2016-05-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班社会《夸夸自己和别人》PPT课件_plus_教案_plus_配音_plus_背景音乐/ppt/20260130234107_ppt_cover_wm.jpg","categories":["音乐","大班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

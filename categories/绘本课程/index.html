@@ -226,16 +226,8 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
+            <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
-
-<!-- 在页面底部添加脚本 -->
-<script>
-function handleSearchClick(e) {
-    e.preventDefault(); // 阻止默认行为
-    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
-}
-</script>
-
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -243,6 +235,14 @@ function handleSearchClick(e) {
         </div>
     </div>
 </header>
+
+<!-- 🌟 把脚本移到 header 外面，代码更整洁 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
 
 
     <!-- 页面内容 -->
@@ -318,7 +318,7 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"小班绘本《早晚问好》","path":"/categories/通用/小班绘本《早晚问好》_小班.html","views":10888,"date":"2025-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班绘本《早晚问好》/ppt/20260130201731_ppt_cover_wm.jpg","categories":["绘本课程"]}];
+    const allPosts = [{"title":"小班绘本《早晚问好》","path":"/categories/通用/小班绘本《早晚问好》_小班.html","views":10888,"date":"2025-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班绘本《早晚问好》/ppt/20260130201731_ppt_cover_wm.jpg","categories":["绘本课程"]},{"title":"我喜欢我自己 绘本","path":"/categories/通用/我喜欢我自己 绘本_通用.html","views":5654,"date":"2017-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我喜欢我自己-绘本/ppt/20260130234642_ppt_cover_wm.jpg","categories":["绘本课程"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

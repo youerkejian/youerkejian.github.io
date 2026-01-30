@@ -226,16 +226,8 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
+            <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
-
-<!-- 在页面底部添加脚本 -->
-<script>
-function handleSearchClick(e) {
-    e.preventDefault(); // 阻止默认行为
-    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
-}
-</script>
-
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -243,6 +235,14 @@ function handleSearchClick(e) {
         </div>
     </div>
 </header>
+
+<!-- 🌟 把脚本移到 header 外面，代码更整洁 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
 
 
     <!-- 页面内容 -->
@@ -318,7 +318,7 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"小班数学《小兔学整理》","path":"/categories/数学/小班数学《小兔学整理》_小班.html","views":11220,"date":"2025-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《小兔学整理》/ppt/20260130221351_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小动物骑轮车 数学 小班","path":"/categories/数学/小动物骑轮车 数学 小班_小班.html","views":7580,"date":"2024-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小动物骑轮车_数学_小班/ppt/20260130221246_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《圆形与方形》","path":"/categories/数学/小班数学《圆形与方形》_小班.html","views":16089,"date":"2022-10-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《圆形与方形》/ppt/20260130221340_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《母鸡下蛋》","path":"/categories/数学/小班数学《母鸡下蛋》_小班.html","views":9825,"date":"2022-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《母鸡下蛋》/ppt/20260130221357_ppt_cover_wm.jpg","categories":["数学","小班"]}];
+    const allPosts = [{"title":"小班数学《小兔学整理》","path":"/categories/数学/小班数学《小兔学整理》_小班.html","views":11220,"date":"2025-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《小兔学整理》/ppt/20260130221351_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小动物骑轮车 数学 小班","path":"/categories/数学/小动物骑轮车 数学 小班_小班.html","views":7580,"date":"2024-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小动物骑轮车_数学_小班/ppt/20260130221246_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学 开饼干店(分类)PPT","path":"/categories/数学/小班数学 开饼干店(分类) 含PPT plus 纸具打印 plus 教案_小班.html","views":15597,"date":"2023-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学-开饼干店(分类)-含PPT_plus_纸具打印_plus_教案/ppt/20260130234224_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《圆形与方形》","path":"/categories/数学/小班数学《圆形与方形》_小班.html","views":16089,"date":"2022-10-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《圆形与方形》/ppt/20260130221340_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《母鸡下蛋》","path":"/categories/数学/小班数学《母鸡下蛋》_小班.html","views":9825,"date":"2022-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《母鸡下蛋》/ppt/20260130221357_ppt_cover_wm.jpg","categories":["数学","小班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
