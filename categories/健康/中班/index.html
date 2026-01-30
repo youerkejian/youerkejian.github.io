@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"防溺水 小中大班 健康","path":"/categories/健康/防溺水 小中大班 健康_中班.html","views":9634,"date":"2019-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防溺水-小中大班-健康/ppt/20260130201812_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/健康/《防火小达人》小中大班 健康安全_中班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《水果变变变》小中大 健康","path":"/categories/健康/《水果变变变》小中大 健康_中班.html","views":15339,"date":"2017-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《水果变变变》小中大-健康/ppt/20260130201404_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"小中健康《防地震安全》","path":"/categories/健康/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["健康","中班"]}];
+    const allPosts = [{"title":"中班健康——我们不玩火","path":"/categories/健康/中班健康——我们不玩火_中班.html","views":12939,"date":"2025-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康——我们不玩火/ppt/20260130220445_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"和椅子交朋友","path":"/categories/通用/和椅子交朋友_通用.html","views":14414,"date":"2025-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/和椅子交朋友/ppt/20260130220841_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《小猪生病了》","path":"/categories/健康/中班健康《小猪生病了》_中班.html","views":17944,"date":"2024-01-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《小猪生病了》/ppt/20260130220455_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《生气汤》","path":"/categories/健康/中班健康《生气汤》_中班.html","views":8916,"date":"2020-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《生气汤》/ppt/20260130220500_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《一盔一带安全出行》","path":"/categories/健康/中班健康《一盔一带安全出行》_中班.html","views":4360,"date":"2019-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《一盔一带安全出行》/ppt/20260130220450_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"防溺水 小中大班 健康","path":"/categories/健康/防溺水 小中大班 健康_中班.html","views":9634,"date":"2019-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防溺水-小中大班-健康/ppt/20260130201812_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/健康/《防火小达人》小中大班 健康安全_中班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《水果变变变》小中大 健康","path":"/categories/健康/《水果变变变》小中大 健康_中班.html","views":15339,"date":"2017-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《水果变变变》小中大-健康/ppt/20260130201404_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"小中健康《防地震安全》","path":"/categories/健康/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["健康","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

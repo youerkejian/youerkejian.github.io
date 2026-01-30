@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"小中科学 可爱的蚕宝宝","path":"/categories/科学/小中科学 可爱的蚕宝宝_通用.html","views":18145,"date":"2018-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中科学-可爱的蚕宝宝/ppt/20260130201652_ppt_cover_wm.jpg","categories":["科学","小班"]}];
+    const allPosts = [{"title":"冷冷的冰 科学健康 小班","path":"/categories/科学/冷冷的冰 科学健康 小班_小班.html","views":12294,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冷冷的冰_科学健康_小班/ppt/20260130220834_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《有趣的溶解》","path":"/categories/科学/小班科学《有趣的溶解》_小班.html","views":12425,"date":"2019-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《有趣的溶解》/ppt/20260130221430_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小中科学 可爱的蚕宝宝","path":"/categories/科学/小中科学 可爱的蚕宝宝_通用.html","views":18145,"date":"2018-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中科学-可爱的蚕宝宝/ppt/20260130201652_ppt_cover_wm.jpg","categories":["科学","小班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

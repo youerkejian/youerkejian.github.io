@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"大班语言《聪明的乌龟》","path":"/categories/语言/大班语言《聪明的乌龟》_大班.html","views":18726,"date":"2022-10-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《聪明的乌龟》/ppt/20260130201632_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言 象形文字的秘密","path":"/categories/语言/大班语言 象形文字的秘密_大班.html","views":16115,"date":"2019-03-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言-象形文字的秘密/ppt/20260130201624_ppt_cover_wm.jpg","categories":["语言","大班"]}];
+    const allPosts = [{"title":"大班语言《骑着恐龙去上学》","path":"/categories/语言/大班语言《骑着恐龙去上学》_大班.html","views":18297,"date":"2024-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《骑着恐龙去上学》/ppt/20260130221219_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《聪明的乌龟》","path":"/categories/语言/大班语言《聪明的乌龟》_大班.html","views":18726,"date":"2022-10-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《聪明的乌龟》/ppt/20260130201632_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《冬天的温妮》","path":"/categories/语言/大班语言《冬天的温妮》_大班.html","views":14983,"date":"2021-11-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《冬天的温妮》/ppt/20260130221134_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《魔法奶奶的电话》","path":"/categories/语言/大班语言《魔法奶奶的电话》_大班.html","views":7470,"date":"2021-10-29","categories":["语言","大班"]},{"title":"大班语言《城里最漂亮的巨人》","path":"/categories/语言/大班语言《城里最漂亮的巨人》_大班.html","views":18154,"date":"2020-10-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《城里最漂亮的巨人》/ppt/20260130221140_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《小贝挖宝》","path":"/categories/语言/大班语言《小贝挖宝》_大班.html","views":10703,"date":"2020-06-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《小贝挖宝》/ppt/20260130221151_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《睡睡镇》","path":"/categories/语言/大班语言《睡睡镇》_大班.html","views":9401,"date":"2020-04-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《睡睡镇》/ppt/20260130221204_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言 象形文字的秘密","path":"/categories/语言/大班语言 象形文字的秘密_大班.html","views":16115,"date":"2019-03-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言-象形文字的秘密/ppt/20260130201624_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《彩色牛奶》","path":"/categories/语言/大班语言《彩色牛奶》_大班.html","views":16102,"date":"2019-01-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《彩色牛奶》/ppt/20260130221157_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《小刺猬烫发》","path":"/categories/语言/大班语言《小刺猬烫发》_大班.html","views":4960,"date":"2018-12-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《小刺猬烫发》/ppt/20260130221145_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《相反国》","path":"/categories/语言/大班语言《相反国》_大班.html","views":10674,"date":"2018-03-31","categories":["语言","大班"]},{"title":"大班绘本语言《小企鹅升学记》","path":"/categories/语言/大班绘本语言《小企鹅升学记》_大班.html","views":9174,"date":"2018-02-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班绘本语言《小企鹅升学记》/ppt/20260130221111_ppt_cover_wm.jpg","categories":["语言","大班"]},{"title":"大班语言《萤火虫》","path":"/categories/语言/大班语言《萤火虫》_大班.html","views":14501,"date":"2016-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言《萤火虫》/ppt/20260130221209_ppt_cover_wm.jpg","categories":["语言","大班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

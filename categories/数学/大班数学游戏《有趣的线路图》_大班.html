@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>

@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_小班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_小班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/社会/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["社会","小班"]}];
+    const allPosts = [{"title":"小汤圆过元宵 社会 小班","path":"/categories/社会/小汤圆过元宵 社会 小班_小班.html","views":14815,"date":"2023-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小汤圆过元宵_社会_小班/ppt/20260130221258_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_小班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"米奇森林历险记","path":"/categories/通用/米奇森林历险记_通用.html","views":12445,"date":"2021-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/米奇森林历险记/ppt/20260130221730_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"庆祝妇女节 社会美术 小班","path":"/categories/社会/庆祝妇女节 社会美术 小班_小班.html","views":12610,"date":"2019-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/庆祝妇女节_社会美术_小班/ppt/20260130221613_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《轻轻跑、慢慢跳》","path":"/categories/社会/小班社会《轻轻跑、慢慢跳》_小班.html","views":16566,"date":"2019-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《轻轻跑、慢慢跳》/ppt/20260130221423_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《孤独的小熊》","path":"/categories/社会/小班社会《孤独的小熊》_小班.html","views":7318,"date":"2018-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《孤独的小熊》/ppt/20260130221411_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_小班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/社会/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["社会","小班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

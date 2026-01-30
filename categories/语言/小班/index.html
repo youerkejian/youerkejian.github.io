@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"小班语言《小猪的野餐》","path":"/categories/语言/小班语言《小猪的野餐》_小班.html","views":9608,"date":"2025-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《小猪的野餐》/ppt/20260130201739_ppt_cover_wm.jpg","categories":["语言","小班"]}];
+    const allPosts = [{"title":"小班语言《小猪的野餐》","path":"/categories/语言/小班语言《小猪的野餐》_小班.html","views":9608,"date":"2025-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《小猪的野餐》/ppt/20260130201739_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《太阳爱吃冰淇淋》","path":"/categories/语言/小班语言《太阳爱吃冰淇淋》_小班.html","views":14633,"date":"2025-08-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《太阳爱吃冰淇淋》/ppt/20260130221516_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《月亮巴巴》","path":"/categories/语言/小班语言《月亮巴巴》_小班.html","views":11123,"date":"2024-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《月亮巴巴》/ppt/20260130221529_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《好饿的小蛇》","path":"/categories/语言/小班语言《好饿的小蛇》_小班.html","views":9963,"date":"2023-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《好饿的小蛇》/ppt/20260130221523_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言游戏《咔嚓咔嚓！》","path":"/categories/语言/小班语言游戏《咔嚓咔嚓！》_小班.html","views":15760,"date":"2023-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言游戏《咔嚓咔嚓！》/ppt/20260130221542_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《肥皂泡泡》","path":"/categories/语言/小班语言《肥皂泡泡》_小班.html","views":12143,"date":"2018-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《肥皂泡泡》/ppt/20260130221535_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《冬爷爷的礼物》","path":"/categories/语言/小班语言《冬爷爷的礼物》_小班.html","views":7927,"date":"2018-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《冬爷爷的礼物》/ppt/20260130221510_ppt_cover_wm.jpg","categories":["语言","小班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

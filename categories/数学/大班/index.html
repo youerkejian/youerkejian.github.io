@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"大班数学游戏《有趣的线路图》","path":"/categories/数学/大班数学游戏《有趣的线路图》_大班.html","views":13456,"date":"2023-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学游戏《有趣的线路图》/ppt/20260130201554_ppt_cover_wm.jpg","categories":["数学","大班"]}];
+    const allPosts = [{"title":"大班数学游戏《有趣的线路图》","path":"/categories/数学/大班数学游戏《有趣的线路图》_大班.html","views":13456,"date":"2023-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学游戏《有趣的线路图》/ppt/20260130201554_ppt_cover_wm.jpg","categories":["数学","大班"]},{"title":"大班数学《快递风波》","path":"/categories/数学/大班数学《快递风波》_大班.html","views":9314,"date":"2021-04-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学《快递风波》/ppt/20260130220928_ppt_cover_wm.jpg","categories":["数学","大班"]},{"title":"大班数学《二等分、四等分》","path":"/categories/数学/大班数学《二等分、四等分》_大班.html","views":10686,"date":"2020-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学《二等分、四等分》/ppt/20260130220918_ppt_cover_wm.jpg","categories":["数学","大班"]},{"title":"大班数学《蜘蛛和糖果店》","path":"/categories/数学/大班数学《蜘蛛和糖果店》_大班.html","views":9196,"date":"2020-06-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学《蜘蛛和糖果店》/ppt/20260130220936_ppt_cover_wm.jpg","categories":["数学","大班"]},{"title":"大班数学《小风车》","path":"/categories/数学/大班数学《小风车》_大班.html","views":4887,"date":"2019-10-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学《小风车》/ppt/20260130220922_ppt_cover_wm.jpg","categories":["数学","大班"]},{"title":"大班数学《认识方向》","path":"/categories/数学/大班数学《认识方向》_大班.html","views":6501,"date":"2019-09-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学《认识方向》/ppt/20260130220942_ppt_cover_wm.jpg","categories":["数学","大班"]},{"title":"大班数学《有趣的路线》","path":"/categories/数学/大班数学《有趣的路线》_大班.html","views":9575,"date":"2019-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班数学《有趣的路线》/ppt/20260130220932_ppt_cover_wm.jpg","categories":["数学","大班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

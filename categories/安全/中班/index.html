@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"中班安全 安全过夏天","path":"/categories/安全/中班安全 安全过夏天_中班.html","views":5636,"date":"2020-03-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班安全-安全过夏天/ppt/20260130201452_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"《地震来了我不怕》小中大班 安全","path":"/categories/安全/《地震来了我不怕》小中大班 安全_中班.html","views":16581,"date":"2019-09-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《地震来了我不怕》小中大班-安全/ppt/20260130201343_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/安全/《防火小达人》小中大班 健康安全_中班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"小中班安全《防地震安全》","path":"/categories/安全/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["安全","中班"]}];
+    const allPosts = [{"title":"中班安全 安全过夏天","path":"/categories/安全/中班安全 安全过夏天_中班.html","views":5636,"date":"2020-03-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班安全-安全过夏天/ppt/20260130201452_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"《地震来了我不怕》小中大班 安全","path":"/categories/安全/《地震来了我不怕》小中大班 安全_中班.html","views":16581,"date":"2019-09-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《地震来了我不怕》小中大班-安全/ppt/20260130201343_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"中班健康《一盔一带安全出行》","path":"/categories/安全/中班健康《一盔一带安全出行》_中班.html","views":4360,"date":"2019-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《一盔一带安全出行》/ppt/20260130220450_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/安全/《防火小达人》小中大班 健康安全_中班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["安全","中班"]},{"title":"小中班安全《防地震安全》","path":"/categories/安全/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["安全","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 

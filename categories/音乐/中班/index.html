@@ -226,8 +226,16 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             
-            <!-- 🌟 关键点：保留外部链接 href，但确保没有 target="_blank" -->
-            <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a target="_blank" rel="noopener" href="https://syekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
+
+<!-- 在页面底部添加脚本 -->
+<script>
+function handleSearchClick(e) {
+    e.preventDefault(); // 阻止默认行为
+    window.location.href = 'https://syekjw.top/'; // 强制当前窗口跳转
+}
+</script>
+
             
             <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
@@ -310,7 +318,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"中班打击乐《老巫婆的汤》音乐课件","path":"/categories/音乐/中班打击乐《老巫婆的汤》音乐课件_中班.html","views":14908,"date":"2019-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班打击乐《老巫婆的汤》音乐课件/ppt/20260130201500_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中大班音乐 夏天的声音","path":"/categories/音乐/中大班音乐 夏天的声音_中班.html","views":8126,"date":"2017-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班音乐-夏天的声音/ppt/20260130201445_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐狗熊吃面包","path":"/categories/音乐/中班音乐狗熊吃面包_中班.html","views":16651,"date":"2016-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐狗熊吃面包/ppt/20260130201536_ppt_cover_wm.jpg","categories":["音乐","中班"]}];
+    const allPosts = [{"title":"中班音乐《小雨沙沙》","path":"/categories/音乐/中班音乐《小雨沙沙》_中班.html","views":8220,"date":"2023-10-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《小雨沙沙》/ppt/20260130220754_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"小海军 音乐 中班","path":"/categories/音乐/小海军 音乐 中班_中班.html","views":14283,"date":"2023-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小海军_音乐_中班/ppt/20260130221309_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐《旋转木马》","path":"/categories/音乐/中班音乐《旋转木马》_中班.html","views":14130,"date":"2023-01-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《旋转木马》/ppt/20260130220758_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班打击乐《老巫婆的汤》音乐课件","path":"/categories/音乐/中班打击乐《老巫婆的汤》音乐课件_中班.html","views":14908,"date":"2019-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班打击乐《老巫婆的汤》音乐课件/ppt/20260130201500_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中大班音乐 夏天的声音","path":"/categories/音乐/中大班音乐 夏天的声音_中班.html","views":8126,"date":"2017-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班音乐-夏天的声音/ppt/20260130201445_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐狗熊吃面包","path":"/categories/音乐/中班音乐狗熊吃面包_中班.html","views":16651,"date":"2016-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐狗熊吃面包/ppt/20260130201536_ppt_cover_wm.jpg","categories":["音乐","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
