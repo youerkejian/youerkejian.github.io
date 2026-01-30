@@ -226,11 +226,13 @@
         <div class="header-buttons">
             <a href="/">🏠 首页</a>
             <a target="_blank" rel="noopener" href="https://syekjw.top/" class="search-btn">🔍 搜索课件</a>
+            <a href="/admin" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
             <a href="/contact">联系我</a>
         </div>
     </div>
 </header>
+
 
     <!-- 页面内容 -->
     <div class="container">
@@ -305,7 +307,7 @@
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"基础版 消防教育（新规版） 小中","path":"/categories/健康/基础版 消防教育（新规版） 小中_中班.html","views":19298,"date":"2026-01-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/基础版_消防安全教育（新规版）_健康_小中大班/ppt/20260110010826_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"不贪吃冷饮 小中","path":"/categories/健康/不贪吃冷饮 小中_中班.html","views":16818,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/不贪吃冷饮_语言健康_小中大班/ppt/20260109220038_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"地震拍手歌 中","path":"/categories/健康/地震拍手歌 中_中班.html","views":17328,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/地震拍手歌_语言健康_中大班/ppt/20260109224609_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"我喜欢吃水果","path":"/categories/健康/我喜欢吃水果_中班.html","views":7621,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_健康语言_我喜欢吃水果/ppt/20260109220343_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"常规我知道 小","path":"/categories/健康/常规我知道 小_中班.html","views":115440,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/开学常规我知道_健康语言_小中班/ppt/20260109232818_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"家里的危险 小中","path":"/categories/健康/家里的危险 小中_中班.html","views":11070,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/家里的危险_健康语言_小中大班/ppt/20260109231059_ppt_cover_wm.jpg","categories":["健康","中班"]}];
+    const allPosts = [{"title":"基础版 消防教育（新规版） 小中","path":"/categories/健康/基础版 消防教育（新规版） 小中_中班.html","views":19298,"date":"2026-01-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/基础版_消防安全教育（新规版）_健康_小中大班/ppt/20260110010826_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"不贪吃冷饮 小中","path":"/categories/健康/不贪吃冷饮 小中_中班.html","views":16818,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/不贪吃冷饮_语言健康_小中大班/ppt/20260109220038_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"我喜欢吃水果","path":"/categories/健康/我喜欢吃水果_中班.html","views":7621,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_健康语言_我喜欢吃水果/ppt/20260109220343_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"地震拍手歌 中","path":"/categories/健康/地震拍手歌 中_中班.html","views":17328,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/地震拍手歌_语言健康_中大班/ppt/20260109224609_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"家里的危险 小中","path":"/categories/健康/家里的危险 小中_中班.html","views":11070,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/家里的危险_健康语言_小中大班/ppt/20260109231059_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"常规我知道 小","path":"/categories/健康/常规我知道 小_中班.html","views":115440,"date":"2026-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/开学常规我知道_健康语言_小中班/ppt/20260109232818_ppt_cover_wm.jpg","categories":["健康","中班"]}];
 
     let currentPage = 1;
     const itemsPerPage = 20; 
