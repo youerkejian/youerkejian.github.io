@@ -396,6 +396,25 @@ function handleSearchClick(e) {
         .pay-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .btn-vip { display: inline-block; padding: 12px 25px; background: linear-gradient(to right, #fadb14, #ffec3d); color: #873800; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(250, 219, 20, 0.4); transition: transform 0.2s; }
         .btn-buy { display: inline-block; padding: 12px 25px; background-color: #1890ff; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3); transition: transform 0.2s; }
+        
+        /* 🌟 新增：立即下载按钮样式 */
+        .btn-download {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #52c41a; /* 绿色背景，代表下载 */
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(82, 196, 26, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+        
         .btn-vip:hover, .btn-buy:hover { transform: translateY(-2px); filter: brightness(1.05); }
         .pay-note { margin-top: 15px; font-size: 0.8em; color: #999; display: block; width: 100%; text-align: center; }
 
@@ -803,6 +822,11 @@ function handleSearchClick(e) {
                     <a href="javascript:void(0);" onclick="openModal()" class="btn-buy">
                        🛒 单篇购买 (4.99元)
                     </a>
+                    
+                    <!-- 🌟 新增：立即下载按钮 -->
+                    <a href="javascript:void(0);" onclick="showLoginTip()" class="btn-download">
+                       ⬇️ 立即下载 (VIP免费)
+                    </a>
                 </div>
                 
                 <div class="pay-note">* VIP会员永久免下载券，单次购买永久有效</div>
@@ -822,20 +846,31 @@ function handleSearchClick(e) {
     </div>
 
     <script>
-    // 打开弹窗
+    // 打开购买弹窗
     function openModal() {
         document.getElementById('purchase-modal').style.display = 'flex';
     }
 
-    // 关闭弹窗
+    // 关闭购买弹窗
     function closeModal() {
         document.getElementById('purchase-modal').style.display = 'none';
+    }
+
+    // 🌟 打开登录提示弹窗
+    function showLoginTip() {
+        document.getElementById('login-tip-modal').style.display = 'flex';
+    }
+
+    // 🌟 关闭登录提示弹窗
+    function closeLoginTip() {
+        document.getElementById('login-tip-modal').style.display = 'none';
     }
 
     // 按ESC键关闭弹窗
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             closeModal();
+            closeLoginTip();
         }
     });
     </script>
@@ -847,6 +882,23 @@ function handleSearchClick(e) {
                     <div class="modal-title">💳 微信扫码购买</div>
                     <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/5046c8071baec05fdc270f8aa31e93b5.jpg" alt="微信支付二维码" class="modal-qrcode">
                     <div class="modal-hint">使用微信扫一扫完成支付</div>
+                </div>
+            </div>
+
+    <!-- 🌟 登录提示弹窗 HTML (新增) -->
+            <div class="modal-overlay" id="login-tip-modal" onclick="closeLoginTip()">
+                <div class="modal-box" onclick="event.stopPropagation()">
+                    <span class="modal-close" onclick="closeLoginTip()">&times;</span>
+                    <div class="modal-title">🔐 温馨提示</div>
+                    
+                    <!-- 这里把二维码位置换成文字提示 -->
+                    <div class="modal-qrcode" style="height: auto; padding: 20px; background: none; border: none; display: flex; align-items: center; justify-content: center;">
+                        <p style="font-size: 1.2rem; color: #333; font-weight: bold; margin: 0;">请登录后进行下载</p>
+                    </div>
+
+                    <div class="modal-hint">
+                        <a href="/admin" style="color: #1890ff; text-decoration: underline; font-weight: bold;">前往登录页面 &rarr;</a>
+                    </div>
                 </div>
             </div>
 
