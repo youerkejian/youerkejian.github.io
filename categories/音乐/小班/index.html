@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"摇篮曲 音乐 小班","path":"/categories/音乐/摇篮曲 音乐 小班_小班.html","views":16687,"date":"2024-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/摇篮曲_音乐_小班/ppt/20260131013250_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小鱼游》","path":"/categories/音乐/小班音乐《小鱼游》_小班.html","views":10197,"date":"2024-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小鱼游》/ppt/20260130221548_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《苹果》","path":"/categories/音乐/小班音乐《苹果》_小班.html","views":15808,"date":"2024-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《苹果》/ppt/20260130221603_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《花园种花》小小花园","path":"/categories/音乐/小班音乐《花园种花》小小花园_小班.html","views":17045,"date":"2024-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《花园种花》小小花园/ppt/20260130201745_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"好吃的大西瓜 音乐 小班","path":"/categories/音乐/好吃的大西瓜 音乐 小班_小班.html","views":15218,"date":"2023-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/好吃的大西瓜_音乐_小班/ppt/20260131012812_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"爱跳舞的机器人 健康音乐 小班","path":"/categories/音乐/爱跳舞的机器人 健康音乐 小班_小班.html","views":5292,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱跳舞的机器人_健康音乐_小班/ppt/20260131013502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"北风爷爷别神气 音乐健康 小班","path":"/categories/音乐/北风爷爷别神气 音乐健康 小班_小班.html","views":10233,"date":"2022-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/北风爷爷别神气_音乐健康_小班/ppt/20260131012502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"大鞋和小鞋 音乐 小班","path":"/categories/音乐/大鞋和小鞋 音乐 小班_小班.html","views":14937,"date":"2020-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大鞋和小鞋_音乐_小班/ppt/20260130221227_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"我的朋友在哪里 音乐社会 小班","path":"/categories/音乐/我的朋友在哪里 音乐社会 小班_小班.html","views":13517,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的朋友在哪里_音乐社会_小班/ppt/20260131013214_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《神奇的土豆》","path":"/categories/音乐/小班音乐《神奇的土豆》_小班.html","views":7328,"date":"2019-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《神奇的土豆》/ppt/20260130221556_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"Hello，大家好！ 音乐 小班","path":"/categories/音乐/Hello，大家好！ 音乐 小班_小班.html","views":19273,"date":"2018-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/Hello，大家好！_音乐_小班/ppt/20260131012148_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"彩色世界 音乐 小班","path":"/categories/音乐/彩色世界 音乐 小班_小班.html","views":10118,"date":"2016-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/彩色世界_音乐_小班/ppt/20260131013130_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/音乐/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["音乐","小班"]}];
+    const allPosts = [{"title":"小班音乐《小动物走路》","path":"/categories/音乐/小班音乐《小动物走路》_小班.html","views":12624,"date":"2025-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小动物走路》/ppt/20260131125033_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 嘘，请小声","path":"/categories/音乐/小班 音乐 嘘，请小声_小班.html","views":13904,"date":"2025-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_嘘，请小声/ppt/20260131124714_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小雨沙沙》","path":"/categories/音乐/小班音乐《小雨沙沙》PPT课件 plus 教案 plus 音乐_小班.html","views":9321,"date":"2024-12-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小雨沙沙》PPT课件_plus_教案_plus_音乐/ppt/20260131125037_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班语言《春天的颜色》","path":"/categories/音乐/小班语言《春天的颜色》PPT课件 plus 教案 plus 音乐_小班.html","views":13485,"date":"2024-12-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《春天的颜色》PPT课件_plus_教案_plus_音乐/ppt/20260131125019_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《我爱我的小动物》","path":"/categories/音乐/小班音乐《我爱我的小动物》2025 视频 plus 教案 plus PPT课件 plus 音乐 plus 反思 plus 打印图_小班.html","views":13399,"date":"2024-10-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《我爱我的小动物》2025_视频_plus_教案_plus_PPT课件_plus_音乐_plus_反思_plus_打印图/ppt/20260131125041_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"摇篮曲 音乐 小班","path":"/categories/音乐/摇篮曲 音乐 小班_小班.html","views":16687,"date":"2024-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/摇篮曲_音乐_小班/ppt/20260131013250_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小鱼游》","path":"/categories/音乐/小班音乐《小鱼游》_小班.html","views":10197,"date":"2024-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小鱼游》/ppt/20260130221548_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《苹果》","path":"/categories/音乐/小班音乐《苹果》_小班.html","views":15808,"date":"2024-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《苹果》/ppt/20260130221603_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《花园种花》小小花园","path":"/categories/音乐/小班音乐《花园种花》小小花园_小班.html","views":17045,"date":"2024-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《花园种花》小小花园/ppt/20260130201745_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"好吃的大西瓜 音乐 小班","path":"/categories/音乐/好吃的大西瓜 音乐 小班_小班.html","views":15218,"date":"2023-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/好吃的大西瓜_音乐_小班/ppt/20260131012812_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"爱跳舞的机器人 健康音乐 小班","path":"/categories/音乐/爱跳舞的机器人 健康音乐 小班_小班.html","views":5292,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱跳舞的机器人_健康音乐_小班/ppt/20260131013502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 勇敢小士兵","path":"/categories/音乐/小班 音乐 勇敢小士兵_小班.html","views":4595,"date":"2022-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_勇敢小士兵/ppt/20260131124707_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"北风爷爷别神气 音乐健康 小班","path":"/categories/音乐/北风爷爷别神气 音乐健康 小班_小班.html","views":10233,"date":"2022-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/北风爷爷别神气_音乐健康_小班/ppt/20260131012502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 你好，再见","path":"/categories/音乐/小班 音乐 你好，再见_小班.html","views":4776,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_你好，再见/ppt/20260131124702_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 我爱我的小动物","path":"/categories/音乐/小班 音乐 我爱我的小动物_小班.html","views":4681,"date":"2021-09-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_我爱我的小动物/ppt/20260131124719_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"大鞋和小鞋 音乐 小班","path":"/categories/音乐/大鞋和小鞋 音乐 小班_小班.html","views":14937,"date":"2020-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大鞋和小鞋_音乐_小班/ppt/20260130221227_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"我的朋友在哪里 音乐社会 小班","path":"/categories/音乐/我的朋友在哪里 音乐社会 小班_小班.html","views":13517,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的朋友在哪里_音乐社会_小班/ppt/20260131013214_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《神奇的土豆》","path":"/categories/音乐/小班音乐《神奇的土豆》_小班.html","views":7328,"date":"2019-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《神奇的土豆》/ppt/20260130221556_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"Hello，大家好！ 音乐 小班","path":"/categories/音乐/Hello，大家好！ 音乐 小班_小班.html","views":19273,"date":"2018-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/Hello，大家好！_音乐_小班/ppt/20260131012148_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"彩色世界 音乐 小班","path":"/categories/音乐/彩色世界 音乐 小班_小班.html","views":10118,"date":"2016-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/彩色世界_音乐_小班/ppt/20260131013130_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/音乐/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["音乐","小班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

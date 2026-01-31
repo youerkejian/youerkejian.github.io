@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"数一数 数学 小班","path":"/categories/数学/数一数 数学 小班_小班.html","views":25196,"date":"2025-10-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/数一数_数学_小班/ppt/20260131013311_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《小兔学整理》","path":"/categories/数学/小班数学《小兔学整理》_小班.html","views":11220,"date":"2025-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《小兔学整理》/ppt/20260130221351_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班 数学 美味小丸子（10以内点数、按数取物）","path":"/categories/数学/小班 数学 美味小丸子（10以内点数、按数取物）_小班.html","views":6368,"date":"2025-05-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_数学_美味小丸子（10以内点数、按数取物）/ppt/20260131013012_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小动物骑轮车 数学 小班","path":"/categories/数学/小动物骑轮车 数学 小班_小班.html","views":7580,"date":"2024-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小动物骑轮车_数学_小班/ppt/20260130221246_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学 开饼干店(分类)PPT","path":"/categories/数学/小班数学 开饼干店(分类) 含PPT plus 纸具打印 plus 教案_小班.html","views":15597,"date":"2023-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学-开饼干店(分类)-含PPT_plus_纸具打印_plus_教案/ppt/20260130234224_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《圆形与方形》","path":"/categories/数学/小班数学《圆形与方形》_小班.html","views":16089,"date":"2022-10-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《圆形与方形》/ppt/20260130221340_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《母鸡下蛋》","path":"/categories/数学/小班数学《母鸡下蛋》_小班.html","views":9825,"date":"2022-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《母鸡下蛋》/ppt/20260130221357_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班 数学 小蚂蚁过生日（7的点数）","path":"/categories/数学/小班 数学 小蚂蚁过生日（7的点数）_小班.html","views":19860,"date":"2018-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_数学_小蚂蚁过生日（7的点数）/ppt/20260131013002_ppt_cover_wm.jpg","categories":["数学","小班"]}];
+    const allPosts = [{"title":"数一数 数学 小班","path":"/categories/数学/数一数 数学 小班_小班.html","views":25196,"date":"2025-10-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/数一数_数学_小班/ppt/20260131013311_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《小兔学整理》","path":"/categories/数学/小班数学《小兔学整理》_小班.html","views":11220,"date":"2025-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《小兔学整理》/ppt/20260130221351_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班 数学 美味小丸子（10以内点数、按数取物）","path":"/categories/数学/小班 数学 美味小丸子（10以内点数、按数取物）_小班.html","views":6368,"date":"2025-05-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_数学_美味小丸子（10以内点数、按数取物）/ppt/20260131013012_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小动物骑轮车 数学 小班","path":"/categories/数学/小动物骑轮车 数学 小班_小班.html","views":7580,"date":"2024-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小动物骑轮车_数学_小班/ppt/20260130221246_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学 开饼干店(分类)PPT","path":"/categories/数学/小班数学 开饼干店(分类) 含PPT plus 纸具打印 plus 教案_小班.html","views":15597,"date":"2023-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学-开饼干店(分类)-含PPT_plus_纸具打印_plus_教案/ppt/20260130234224_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《圆形与方形》","path":"/categories/数学/小班数学《圆形与方形》_小班.html","views":16089,"date":"2022-10-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《圆形与方形》/ppt/20260130221340_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《母鸡下蛋》","path":"/categories/数学/小班数学《母鸡下蛋》_小班.html","views":9825,"date":"2022-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《母鸡下蛋》/ppt/20260130221357_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《蝴蝶找花》","path":"/categories/数学/小班数学《蝴蝶找花》PPT课件 plus 教案 plus 教具图片_小班.html","views":12268,"date":"2022-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《蝴蝶找花》PPT课件_plus_教案_plus_教具图片/ppt/20260131124818_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《种花》","path":"/categories/数学/小班数学《种花》含动态PPT plus 纸具打印 plus 教案_小班.html","views":4956,"date":"2020-02-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《种花》含动态PPT_plus_纸具打印_plus_教案/ppt/20260131124815_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《认识数字1 10》","path":"/categories/数学/小班数学《认识数字1 10》_小班.html","views":15192,"date":"2019-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《认识数字1-10》/ppt/20260131124823_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《小动物骑轮车》含PPT plus 纸具打印 plus 教案","path":"/categories/数学/小班数学《小动物骑轮车》含PPT plus 纸具打印 plus 教案_小班.html","views":11834,"date":"2019-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《小动物骑轮车》含PPT_plus_纸具打印_plus_教案/ppt/20260131124802_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《敲门声》","path":"/categories/数学/小班数学《敲门声》含有声可交互PPT plus 纸具打印 plus 教案_小班.html","views":18894,"date":"2019-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《敲门声》含有声可交互PPT_plus_纸具打印_plus_教案/ppt/20260131124806_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班 数学 小蚂蚁过生日（7的点数）","path":"/categories/数学/小班 数学 小蚂蚁过生日（7的点数）_小班.html","views":19860,"date":"2018-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_数学_小蚂蚁过生日（7的点数）/ppt/20260131013002_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"配对小能手 数学 小班","path":"/categories/数学/配对小能手 数学 小班 教案_小班.html","views":14492,"date":"2018-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/配对小能手_数学_小班_教案/ppt/20260131125344_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《小兔找家》","path":"/categories/数学/小班数学《小兔找家》_小班.html","views":10983,"date":"2017-12-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《小兔找家》/ppt/20260131124757_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"一一对应 数学 小班","path":"/categories/数学/一一对应 数学 小班_小班.html","views":6220,"date":"2017-06-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/一一对应_数学_小班/ppt/20260131123355_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《修路》","path":"/categories/数学/小班数学《修路》动态PPT plus 纸面教具 plus 教案_小班.html","views":6149,"date":"2016-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《修路》动态PPT_plus_纸面教具_plus_教案/ppt/20260131124753_ppt_cover_wm.jpg","categories":["数学","小班"]},{"title":"小班数学《沙滩上的棒冰ABAABB》","path":"/categories/数学/小班数学《沙滩上的棒冰ABAABB》_小班.html","views":17939,"date":"2016-02-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班数学《沙滩上的棒冰ABAABB》/ppt/20260131124811_ppt_cover_wm.jpg","categories":["数学","小班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

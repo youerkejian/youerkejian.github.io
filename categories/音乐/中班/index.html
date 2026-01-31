@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：中班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"中班语言《会说话的商场标识 小熊逛商场》PPT课件 plus 教案 plus 配音 plus 背景音乐","path":"/categories/音乐/中班语言《会说话的商场标识 小熊逛商场》PPT课件 plus 教案 plus 配音 plus 背景音乐_中班.html","views":14601,"date":"2024-04-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言《会说话的商场标识_小熊逛商场》PPT课件_plus_教案_plus_配音_plus_背景音乐/ppt/20260131012341_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐《小雨沙沙》","path":"/categories/音乐/中班音乐《小雨沙沙》_中班.html","views":8220,"date":"2023-10-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《小雨沙沙》/ppt/20260130220754_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"小海军 音乐 中班","path":"/categories/音乐/小海军 音乐 中班_中班.html","views":14283,"date":"2023-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小海军_音乐_中班/ppt/20260130221309_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐《旋转木马》","path":"/categories/音乐/中班音乐《旋转木马》_中班.html","views":14130,"date":"2023-01-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《旋转木马》/ppt/20260130220758_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班社会《小麦的一生》PPT课件 教案 音乐","path":"/categories/音乐/中班社会《小麦的一生》PPT课件 plus 教案 plus 音乐_中班.html","views":13979,"date":"2022-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《小麦的一生》PPT课件_plus_教案_plus_音乐/ppt/20260130233842_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班 音乐 开心农场","path":"/categories/音乐/中班 音乐 开心农场_中班.html","views":7084,"date":"2020-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_音乐_开心农场/ppt/20260131012326_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班打击乐《老巫婆的汤》音乐课件","path":"/categories/音乐/中班打击乐《老巫婆的汤》音乐课件_中班.html","views":14908,"date":"2019-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班打击乐《老巫婆的汤》音乐课件/ppt/20260130201500_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中大班音乐 夏天的声音","path":"/categories/音乐/中大班音乐 夏天的声音_中班.html","views":8126,"date":"2017-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班音乐-夏天的声音/ppt/20260130201445_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"拉拉钩 音乐社会 中班","path":"/categories/音乐/拉拉钩 音乐社会 中班_中班.html","views":9371,"date":"2017-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/拉拉钩_音乐社会_中班/ppt/20260131013242_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"我们是中班小朋友 音乐 中班","path":"/categories/音乐/我们是中班小朋友 音乐 中班_中班.html","views":14918,"date":"2017-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我们是中班小朋友_音乐_中班/ppt/20260130234619_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐狗熊吃面包","path":"/categories/音乐/中班音乐狗熊吃面包_中班.html","views":16651,"date":"2016-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐狗熊吃面包/ppt/20260130201536_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班语言《春姑娘吹泡泡》PPT课件 plus 教案 plus 配音 plus 背景音乐","path":"/categories/音乐/中班语言《春姑娘吹泡泡》PPT课件 plus 教案 plus 配音 plus 背景音乐_中班.html","views":12324,"date":"2016-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言《春姑娘吹泡泡》PPT课件_plus_教案_plus_配音_plus_背景音乐/ppt/20260131012346_ppt_cover_wm.jpg","categories":["音乐","中班"]}];
+    const allPosts = [{"title":"中班音乐 有趣的节奏","path":"/categories/音乐/中班音乐 有趣的节奏_中班.html","views":80322,"date":"2025-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐__有趣的节奏/ppt/20260131123922_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐《小小粉刷匠》","path":"/categories/音乐/中班音乐《小小粉刷匠》_中班.html","views":19600,"date":"2025-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《小小粉刷匠》/ppt/20260131123927_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐韵律《汪汪队》","path":"/categories/音乐/中班音乐韵律《汪汪队》_中班.html","views":16289,"date":"2025-07-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐韵律《汪汪队》/ppt/20260131123937_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班语言《春姑娘吹泡泡》","path":"/categories/音乐/中班语言《春姑娘吹泡泡》PPT课件 plus 教案 plus 配音 plus 背景音乐_中班.html","views":83960,"date":"2024-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言《春姑娘吹泡泡》PPT课件_plus_教案_plus_配音_plus_背景音乐/ppt/20260131123856_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班语言《会说话的商场标识 小熊逛商场》PPT课件 plus 教案 plus 配音 plus 背景音乐","path":"/categories/音乐/中班语言《会说话的商场标识 小熊逛商场》PPT课件 plus 教案 plus 配音 plus 背景音乐_中班.html","views":14601,"date":"2024-04-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言《会说话的商场标识_小熊逛商场》PPT课件_plus_教案_plus_配音_plus_背景音乐/ppt/20260131012341_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班语言音乐《春晓》","path":"/categories/音乐/中班语言音乐《春晓》_中班.html","views":12608,"date":"2024-02-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言音乐《春晓》/ppt/20260131123917_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐《小雨沙沙》","path":"/categories/音乐/中班音乐《小雨沙沙》_中班.html","views":8220,"date":"2023-10-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《小雨沙沙》/ppt/20260130220754_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"小海军 音乐 中班","path":"/categories/音乐/小海军 音乐 中班_中班.html","views":14283,"date":"2023-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小海军_音乐_中班/ppt/20260130221309_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐《旋转木马》","path":"/categories/音乐/中班音乐《旋转木马》_中班.html","views":14130,"date":"2023-01-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐《旋转木马》/ppt/20260130220758_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班 音乐 小燕子","path":"/categories/音乐/中班 音乐 小燕子_中班.html","views":11912,"date":"2022-09-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_音乐_小燕子/ppt/20260131123620_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班社会《小麦的一生》PPT课件 教案 音乐","path":"/categories/音乐/中班社会《小麦的一生》PPT课件 plus 教案 plus 音乐_中班.html","views":13979,"date":"2022-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《小麦的一生》PPT课件_plus_教案_plus_音乐/ppt/20260130233842_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班 音乐 开心农场","path":"/categories/音乐/中班 音乐 开心农场_中班.html","views":7084,"date":"2020-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_音乐_开心农场/ppt/20260131012326_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班打击乐《老巫婆的汤》音乐课件","path":"/categories/音乐/中班打击乐《老巫婆的汤》音乐课件_中班.html","views":14908,"date":"2019-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班打击乐《老巫婆的汤》音乐课件/ppt/20260130201500_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐打击乐 老巫婆的汤","path":"/categories/音乐/中班音乐打击乐 老巫婆的汤_中班.html","views":15978,"date":"2018-01-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐打击乐_老巫婆的汤/ppt/20260131123932_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中大班音乐 夏天的声音","path":"/categories/音乐/中大班音乐 夏天的声音_中班.html","views":8126,"date":"2017-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班音乐-夏天的声音/ppt/20260130201445_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班 音乐 咔嚓，来拍照","path":"/categories/音乐/中班 音乐 咔嚓，来拍照_中班.html","views":89371,"date":"2017-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_音乐_咔嚓，来拍照/ppt/20260131123615_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"拉拉钩 音乐社会 中班","path":"/categories/音乐/拉拉钩 音乐社会 中班_中班.html","views":9371,"date":"2017-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/拉拉钩_音乐社会_中班/ppt/20260131013242_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"我们是中班小朋友 音乐 中班","path":"/categories/音乐/我们是中班小朋友 音乐 中班_中班.html","views":14918,"date":"2017-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我们是中班小朋友_音乐_中班/ppt/20260130234619_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班音乐狗熊吃面包","path":"/categories/音乐/中班音乐狗熊吃面包_中班.html","views":16651,"date":"2016-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班音乐狗熊吃面包/ppt/20260130201536_ppt_cover_wm.jpg","categories":["音乐","中班"]},{"title":"中班语言《春姑娘吹泡泡》PPT课件 plus 教案 plus 配音 plus 背景音乐","path":"/categories/音乐/中班语言《春姑娘吹泡泡》PPT课件 plus 教案 plus 配音 plus 背景音乐_中班.html","views":12324,"date":"2016-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班语言《春姑娘吹泡泡》PPT课件_plus_教案_plus_配音_plus_背景音乐/ppt/20260131012346_ppt_cover_wm.jpg","categories":["音乐","中班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

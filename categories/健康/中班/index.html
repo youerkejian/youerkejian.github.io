@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：中班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"中班健康——我们不玩火","path":"/categories/健康/中班健康——我们不玩火_中班.html","views":12939,"date":"2025-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康——我们不玩火/ppt/20260130220445_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"和椅子交朋友","path":"/categories/通用/和椅子交朋友_通用.html","views":14414,"date":"2025-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/和椅子交朋友/ppt/20260130220841_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《小猪生病了》","path":"/categories/健康/中班健康《小猪生病了》_中班.html","views":17944,"date":"2024-01-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《小猪生病了》/ppt/20260130220455_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班语言健康 害羞的番茄 含有声PPT","path":"/categories/健康/56中班语言健康 害羞的番茄 含有声PPT plus 儿歌音频 plus 教案_中班.html","views":9969,"date":"2020-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/56中班语言健康-害羞的番茄-含有声PPT_plus_儿歌音频_plus_教案/ppt/20260130233502_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《生气汤》","path":"/categories/健康/中班健康《生气汤》_中班.html","views":8916,"date":"2020-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《生气汤》/ppt/20260130220500_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《一盔一带安全出行》","path":"/categories/健康/中班健康《一盔一带安全出行》_中班.html","views":4360,"date":"2019-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《一盔一带安全出行》/ppt/20260130220450_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"防溺水 小中大班 健康","path":"/categories/健康/防溺水 小中大班 健康_中班.html","views":9634,"date":"2019-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防溺水-小中大班-健康/ppt/20260130201812_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/健康/《防火小达人》小中大班 健康安全_中班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《水果变变变》小中大 健康","path":"/categories/健康/《水果变变变》小中大 健康_中班.html","views":15339,"date":"2017-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《水果变变变》小中大-健康/ppt/20260130201404_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"小中健康《防地震安全》","path":"/categories/健康/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["健康","中班"]}];
+    const allPosts = [{"title":"中班健康《我会洗手》","path":"/categories/健康/中班健康《我会洗手》_中班.html","views":85993,"date":"2025-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《我会洗手》/ppt/20260131123631_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康领域《爱护我们的眼睛》","path":"/categories/健康/中班健康领域《爱护我们的眼睛》_中班.html","views":4300,"date":"2025-09-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康领域《爱护我们的眼睛》/ppt/20260131123657_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康——我们不玩火","path":"/categories/健康/中班健康——我们不玩火_中班.html","views":12939,"date":"2025-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康——我们不玩火/ppt/20260130220445_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"和椅子交朋友","path":"/categories/通用/和椅子交朋友_通用.html","views":14414,"date":"2025-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/和椅子交朋友/ppt/20260130220841_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《我爱午睡》","path":"/categories/健康/中班健康《我爱午睡》_中班.html","views":32459,"date":"2024-02-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《我爱午睡》/ppt/20260131123636_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"小中班 健康 卫生小侦探","path":"/categories/健康/小中班 健康 卫生小侦探_中班.html","views":27911,"date":"2024-01-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班-健康-卫生小侦探/ppt/20260131124634_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《小猪生病了》","path":"/categories/健康/中班健康《小猪生病了》_中班.html","views":17944,"date":"2024-01-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《小猪生病了》/ppt/20260130220455_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康领域《危险行为我不做》","path":"/categories/健康/中班健康领域《危险行为我不做》_中班.html","views":13146,"date":"2022-12-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康领域《危险行为我不做》/ppt/20260131123645_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《情绪温度计》","path":"/categories/健康/中班健康《情绪温度计》_中班.html","views":6262,"date":"2020-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《情绪温度计》/ppt/20260131123627_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班语言健康 害羞的番茄 含有声PPT","path":"/categories/健康/56中班语言健康 害羞的番茄 含有声PPT plus 儿歌音频 plus 教案_中班.html","views":9969,"date":"2020-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/56中班语言健康-害羞的番茄-含有声PPT_plus_儿歌音频_plus_教案/ppt/20260130233502_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康领域《我的小手最干净》","path":"/categories/健康/中班健康领域《我的小手最干净》_中班.html","views":17230,"date":"2020-05-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康领域《我的小手最干净》/ppt/20260131123650_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《生气汤》","path":"/categories/健康/中班健康《生气汤》_中班.html","views":8916,"date":"2020-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《生气汤》/ppt/20260130220500_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《一盔一带安全出行》","path":"/categories/健康/中班健康《一盔一带安全出行》_中班.html","views":4360,"date":"2019-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《一盔一带安全出行》/ppt/20260130220450_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"防溺水 小中大班 健康","path":"/categories/健康/防溺水 小中大班 健康_中班.html","views":9634,"date":"2019-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防溺水-小中大班-健康/ppt/20260130201812_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/健康/《防火小达人》小中大班 健康安全_中班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"国庆中秋假期安全 健康","path":"/categories/健康/国庆中秋假期安全 健康_中班.html","views":7381,"date":"2018-07-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/国庆中秋假期安全_健康/ppt/20260131124015_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"《水果变变变》小中大 健康","path":"/categories/健康/《水果变变变》小中大 健康_中班.html","views":15339,"date":"2017-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《水果变变变》小中大-健康/ppt/20260130201404_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"小中健康《防地震安全》","path":"/categories/健康/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["健康","中班"]},{"title":"中班健康《食物王国》","path":"/categories/健康/中班健康《食物王国》_中班.html","views":13101,"date":"2016-05-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班健康《食物王国》/ppt/20260131123640_ppt_cover_wm.jpg","categories":["健康","中班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

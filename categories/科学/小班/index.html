@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"缤纷彩虹糖 科学 小班","path":"/categories/科学/缤纷彩虹糖 科学 小班_小班.html","views":25071,"date":"2024-08-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/缤纷彩虹糖_科学_小班/ppt/20260131013601_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"彩色世界真奇妙 科学 小班","path":"/categories/科学/彩色世界真奇妙 科学 小班_小班.html","views":11016,"date":"2024-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/彩色世界真奇妙_科学_小班/ppt/20260131013142_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《认识圆形》ppt plus 教案","path":"/categories/科学/小班科学《认识圆形》ppt plus 教案_小班.html","views":8905,"date":"2024-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《认识圆形》ppt_plus_教案/ppt/20260131013103_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"冷冷的冰 科学健康 小班","path":"/categories/科学/冷冷的冰 科学健康 小班_小班.html","views":12294,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冷冷的冰_科学健康_小班/ppt/20260130220834_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"我的标记 社会科学 小班","path":"/categories/科学/我的标记 社会科学 小班_小班.html","views":12425,"date":"2023-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的标记_社会科学_小班/ppt/20260131013224_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"凹凹凸凸的镜子 科学 小班","path":"/categories/科学/凹凹凸凸的镜子 科学 小班_小班.html","views":10775,"date":"2021-07-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/凹凹凸凸的镜子_科学_小班/ppt/20260131012445_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《小动物找尾巴》","path":"/categories/科学/小班科学《小动物找尾巴》_小班.html","views":18409,"date":"2020-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《小动物找尾巴》/ppt/20260130234329_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《正方形宝宝》ppt plus 教案","path":"/categories/科学/小班科学《正方形宝宝》ppt plus 教案_小班.html","views":18969,"date":"2020-05-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《正方形宝宝》ppt_plus_教案/ppt/20260131013054_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《有趣的溶解》","path":"/categories/科学/小班科学《有趣的溶解》_小班.html","views":12425,"date":"2019-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《有趣的溶解》/ppt/20260130221430_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"大大大，小小小 科学 小班","path":"/categories/科学/大大大，小小小 科学 小班_小班.html","views":9539,"date":"2019-05-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大大大，小小小_科学_小班/ppt/20260130234003_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小中科学 可爱的蚕宝宝","path":"/categories/科学/小中科学 可爱的蚕宝宝_通用.html","views":18145,"date":"2018-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中科学-可爱的蚕宝宝/ppt/20260130201652_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"我会制造风 科学 小班","path":"/categories/科学/我会制造风 科学 小班_小班.html","views":15999,"date":"2018-04-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我会制造风_科学_小班/ppt/20260131013154_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"爱吃空气的火苗 科学 小班","path":"/categories/科学/爱吃空气的火苗 科学 小班_小班.html","views":9544,"date":"2018-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱吃空气的火苗_科学_小班/ppt/20260131013456_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班 健康科学 香香的蔬菜","path":"/categories/科学/小班 健康科学 香香的蔬菜_小班.html","views":9337,"date":"2018-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_健康科学_香香的蔬菜/ppt/20260130234215_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"春雨中的小动物 科学语言 小班","path":"/categories/科学/春雨中的小动物 科学语言 小班_小班.html","views":13552,"date":"2016-09-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春雨中的小动物_科学语言_小班/ppt/20260131013321_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"可爱的大熊猫 科学社会 小班","path":"/categories/科学/可爱的大熊猫 科学社会 小班_小班.html","views":14335,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/可爱的大熊猫_科学社会_小班/ppt/20260130233953_ppt_cover_wm.jpg","categories":["科学","小班"]}];
+    const allPosts = [{"title":"缤纷彩虹糖 科学 小班","path":"/categories/科学/缤纷彩虹糖 科学 小班_小班.html","views":25071,"date":"2024-08-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/缤纷彩虹糖_科学_小班/ppt/20260131013601_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"彩色世界真奇妙 科学 小班","path":"/categories/科学/彩色世界真奇妙 科学 小班_小班.html","views":11016,"date":"2024-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/彩色世界真奇妙_科学_小班/ppt/20260131013142_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《认识圆形》ppt plus 教案","path":"/categories/科学/小班科学《认识圆形》ppt plus 教案_小班.html","views":8905,"date":"2024-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《认识圆形》ppt_plus_教案/ppt/20260131013103_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"冷冷的冰 科学健康 小班","path":"/categories/科学/冷冷的冰 科学健康 小班_小班.html","views":12294,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冷冷的冰_科学健康_小班/ppt/20260130220834_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"我的标记 社会科学 小班","path":"/categories/科学/我的标记 社会科学 小班_小班.html","views":12425,"date":"2023-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的标记_社会科学_小班/ppt/20260131013224_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班 科学 奇妙的声音","path":"/categories/科学/小班 科学 奇妙的声音_小班.html","views":8040,"date":"2022-02-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_科学_奇妙的声音/ppt/20260131124652_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"凹凹凸凸的镜子 科学 小班","path":"/categories/科学/凹凹凸凸的镜子 科学 小班_小班.html","views":10775,"date":"2021-07-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/凹凹凸凸的镜子_科学_小班/ppt/20260131012445_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"冬爷爷来了 语言科学 小班","path":"/categories/科学/冬爷爷来了 语言科学 小班_小班.html","views":13116,"date":"2021-01-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬爷爷来了_语言科学_小班/ppt/20260131124008_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《小动物找尾巴》","path":"/categories/科学/小班科学《小动物找尾巴》_小班.html","views":18409,"date":"2020-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《小动物找尾巴》/ppt/20260130234329_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《正方形宝宝》ppt plus 教案","path":"/categories/科学/小班科学《正方形宝宝》ppt plus 教案_小班.html","views":18969,"date":"2020-05-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《正方形宝宝》ppt_plus_教案/ppt/20260131013054_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《纸吸水比赛》","path":"/categories/科学/小班科学《纸吸水比赛》_小班.html","views":4356,"date":"2020-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《纸吸水比赛》/ppt/20260131124949_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班科学《有趣的溶解》","path":"/categories/科学/小班科学《有趣的溶解》_小班.html","views":12425,"date":"2019-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班科学《有趣的溶解》/ppt/20260130221430_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"大大大，小小小 科学 小班","path":"/categories/科学/大大大，小小小 科学 小班_小班.html","views":9539,"date":"2019-05-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大大大，小小小_科学_小班/ppt/20260130234003_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小中科学 可爱的蚕宝宝","path":"/categories/科学/小中科学 可爱的蚕宝宝_通用.html","views":18145,"date":"2018-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中科学-可爱的蚕宝宝/ppt/20260130201652_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"我会制造风 科学 小班","path":"/categories/科学/我会制造风 科学 小班_小班.html","views":15999,"date":"2018-04-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我会制造风_科学_小班/ppt/20260131013154_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"爱吃空气的火苗 科学 小班","path":"/categories/科学/爱吃空气的火苗 科学 小班_小班.html","views":9544,"date":"2018-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱吃空气的火苗_科学_小班/ppt/20260131013456_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班 健康科学 香香的蔬菜","path":"/categories/科学/小班 健康科学 香香的蔬菜_小班.html","views":9337,"date":"2018-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_健康科学_香香的蔬菜/ppt/20260130234215_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"小班 健康科学 动物王国大冒险","path":"/categories/科学/小班 健康科学 动物王国大冒险_小班.html","views":12099,"date":"2017-12-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_健康科学_动物王国大冒险/ppt/20260131124646_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"春雨中的小动物 科学语言 小班","path":"/categories/科学/春雨中的小动物 科学语言 小班_小班.html","views":13552,"date":"2016-09-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春雨中的小动物_科学语言_小班/ppt/20260131013321_ppt_cover_wm.jpg","categories":["科学","小班"]},{"title":"可爱的大熊猫 科学社会 小班","path":"/categories/科学/可爱的大熊猫 科学社会 小班_小班.html","views":14335,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/可爱的大熊猫_科学社会_小班/ppt/20260130233953_ppt_cover_wm.jpg","categories":["科学","小班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

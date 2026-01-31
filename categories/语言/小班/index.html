@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"小班语言《小猪的野餐》","path":"/categories/语言/小班语言《小猪的野餐》_小班.html","views":9608,"date":"2025-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《小猪的野餐》/ppt/20260130201739_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《太阳爱吃冰淇淋》","path":"/categories/语言/小班语言《太阳爱吃冰淇淋》_小班.html","views":14633,"date":"2025-08-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《太阳爱吃冰淇淋》/ppt/20260130221516_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《清凉办法多》","path":"/categories/语言/小班语言《清凉办法多》_小班.html","views":9456,"date":"2025-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《清凉办法多》/ppt/20260130234349_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《月亮巴巴》","path":"/categories/语言/小班语言《月亮巴巴》_小班.html","views":11123,"date":"2024-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《月亮巴巴》/ppt/20260130221529_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《好饿的小蛇》","path":"/categories/语言/小班语言《好饿的小蛇》_小班.html","views":9963,"date":"2023-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《好饿的小蛇》/ppt/20260130221523_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《西兰花先生的理发店》（2个版本）","path":"/categories/语言/S0344小班语言《西兰花先生的理发店》（2个版本）视频 plus 教案 plus 课件 plus 打印图_小班.html","views":13577,"date":"2023-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/S0344小班语言《西兰花先生的理发店》（2个版本）视频_plus_教案_plus_课件_plus_打印图/ppt/20260130233720_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言游戏《咔嚓咔嚓！》","path":"/categories/语言/小班语言游戏《咔嚓咔嚓！》_小班.html","views":15760,"date":"2023-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言游戏《咔嚓咔嚓！》/ppt/20260130221542_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言 一朵云帽子 有声动态PPT课件 故事配音 纸具打印 教案","path":"/categories/语言/小班语言 一朵云帽子 有声动态PPT课件 plus 故事配音（配乐版） plus 纸具打印 plus 教案_小班.html","views":7209,"date":"2022-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言-一朵云帽子-有声动态PPT课件_plus_故事配音（配乐版）_plus_纸具打印_plus_教案/ppt/20260130234344_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言 小熊不刷牙","path":"/categories/语言/小班语言 小熊不刷牙_小班.html","views":11999,"date":"2020-11-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言-小熊不刷牙/ppt/20260131013112_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"放风筝 语言 小班","path":"/categories/语言/放风筝 语言 小班_小班.html","views":6960,"date":"2020-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/放风筝_语言_小班/ppt/20260130234721_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《肥皂泡泡》","path":"/categories/语言/小班语言《肥皂泡泡》_小班.html","views":12143,"date":"2018-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《肥皂泡泡》/ppt/20260130221535_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《冬爷爷的礼物》","path":"/categories/语言/小班语言《冬爷爷的礼物》_小班.html","views":7927,"date":"2018-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《冬爷爷的礼物》/ppt/20260130221510_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言游戏《咔嚓咔嚓！》","path":"/categories/语言/小班语言游戏《咔嚓咔嚓！》2023视频 plus 教案 plus 课件_小班.html","views":15715,"date":"2017-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言游戏《咔嚓咔嚓！》2023视频_plus_教案_plus_课件/ppt/20260130234355_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"春雨中的小动物 科学语言 小班","path":"/categories/语言/春雨中的小动物 科学语言 小班_小班.html","views":13552,"date":"2016-09-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春雨中的小动物_科学语言_小班/ppt/20260131013321_ppt_cover_wm.jpg","categories":["语言","小班"]}];
+    const allPosts = [{"title":"小班语言《小猪的野餐》","path":"/categories/语言/小班语言《小猪的野餐》_小班.html","views":9608,"date":"2025-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《小猪的野餐》/ppt/20260130201739_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"月亮的味道 小班语言","path":"/categories/语言/月亮的味道 小班语言_小班.html","views":15304,"date":"2025-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/月亮的味道-小班语言/ppt/20260131125238_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《太阳爱吃冰淇淋》","path":"/categories/语言/小班语言《太阳爱吃冰淇淋》_小班.html","views":14633,"date":"2025-08-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《太阳爱吃冰淇淋》/ppt/20260130221516_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《清凉办法多》","path":"/categories/语言/小班语言《清凉办法多》_小班.html","views":9456,"date":"2025-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《清凉办法多》/ppt/20260130234349_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《月亮巴巴》","path":"/categories/语言/小班语言《月亮巴巴》_小班.html","views":11123,"date":"2024-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《月亮巴巴》/ppt/20260130221529_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《春天的颜色》","path":"/categories/语言/小班语言《春天的颜色》PPT课件 plus 教案 plus 音乐_小班.html","views":13485,"date":"2024-12-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《春天的颜色》PPT课件_plus_教案_plus_音乐/ppt/20260131125019_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《好饿的小蛇》","path":"/categories/语言/小班语言《好饿的小蛇》_小班.html","views":9963,"date":"2023-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《好饿的小蛇》/ppt/20260130221523_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《西兰花先生的理发店》（2个版本）","path":"/categories/语言/S0344小班语言《西兰花先生的理发店》（2个版本）视频 plus 教案 plus 课件 plus 打印图_小班.html","views":13577,"date":"2023-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/S0344小班语言《西兰花先生的理发店》（2个版本）视频_plus_教案_plus_课件_plus_打印图/ppt/20260130233720_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言游戏《咔嚓咔嚓！》","path":"/categories/语言/小班语言游戏《咔嚓咔嚓！》_小班.html","views":15760,"date":"2023-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言游戏《咔嚓咔嚓！》/ppt/20260130221542_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言 一朵云帽子 有声动态PPT课件 故事配音 纸具打印 教案","path":"/categories/语言/小班语言 一朵云帽子 有声动态PPT课件 plus 故事配音（配乐版） plus 纸具打印 plus 教案_小班.html","views":7209,"date":"2022-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言-一朵云帽子-有声动态PPT课件_plus_故事配音（配乐版）_plus_纸具打印_plus_教案/ppt/20260130234344_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"冬爷爷来了 语言科学 小班","path":"/categories/语言/冬爷爷来了 语言科学 小班_小班.html","views":13116,"date":"2021-01-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬爷爷来了_语言科学_小班/ppt/20260131124008_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言 小熊不刷牙","path":"/categories/语言/小班语言 小熊不刷牙_小班.html","views":11999,"date":"2020-11-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言-小熊不刷牙/ppt/20260131013112_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"放风筝 语言 小班","path":"/categories/语言/放风筝 语言 小班_小班.html","views":6960,"date":"2020-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/放风筝_语言_小班/ppt/20260130234721_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《肥皂泡泡》","path":"/categories/语言/小班语言《肥皂泡泡》_小班.html","views":12143,"date":"2018-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《肥皂泡泡》/ppt/20260130221535_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《从头动到脚》","path":"/categories/语言/小班语言《从头动到脚》_小班.html","views":9672,"date":"2018-07-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《从头动到脚》/ppt/20260131125010_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《冬爷爷的礼物》","path":"/categories/语言/小班语言《冬爷爷的礼物》_小班.html","views":7927,"date":"2018-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《冬爷爷的礼物》/ppt/20260130221510_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《我会变》","path":"/categories/语言/小班语言《我会变》_小班.html","views":14070,"date":"2017-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《我会变》/ppt/20260131125014_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《诞生啦！》","path":"/categories/语言/小班语言《诞生啦！》_小班.html","views":12360,"date":"2017-05-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《诞生啦！》/ppt/20260131125028_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言游戏《咔嚓咔嚓！》","path":"/categories/语言/小班语言游戏《咔嚓咔嚓！》2023视频 plus 教案 plus 课件_小班.html","views":15715,"date":"2017-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言游戏《咔嚓咔嚓！》2023视频_plus_教案_plus_课件/ppt/20260130234355_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"春雨中的小动物 科学语言 小班","path":"/categories/语言/春雨中的小动物 科学语言 小班_小班.html","views":13552,"date":"2016-09-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春雨中的小动物_科学语言_小班/ppt/20260131013321_ppt_cover_wm.jpg","categories":["语言","小班"]},{"title":"小班语言《海豚》","path":"/categories/语言/小班语言《海豚》_小班.html","views":6324,"date":"2016-04-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《海豚》/ppt/20260131125024_ppt_cover_wm.jpg","categories":["语言","小班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

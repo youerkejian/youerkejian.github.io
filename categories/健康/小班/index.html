@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"小班.健康 如果不吃青菜","path":"/categories/健康/小班.健康 如果不吃青菜_小班.html","views":16571,"date":"2025-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班.健康-如果不吃青菜/ppt/20260130201711_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"和椅子交朋友","path":"/categories/通用/和椅子交朋友_通用.html","views":14414,"date":"2025-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/和椅子交朋友/ppt/20260130220841_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康 和纸巾做朋友","path":"/categories/健康/小班 健康 和纸巾做朋友_小班.html","views":14248,"date":"2025-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班-健康-和纸巾做朋友/ppt/20260130201704_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"冷冷的冰 科学健康 小班","path":"/categories/健康/冷冷的冰 科学健康 小班_小班.html","views":12294,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冷冷的冰_科学健康_小班/ppt/20260130220834_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小中大班-健康领域《保护眼睛》","path":"/categories/健康/健康领域《保护眼睛》_通用.html","views":12587,"date":"2022-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/健康领域《保护眼睛》/ppt/20260130220827_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"爱跳舞的机器人 健康音乐 小班","path":"/categories/健康/爱跳舞的机器人 健康音乐 小班_小班.html","views":5292,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱跳舞的机器人_健康音乐_小班/ppt/20260131013502_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"北风爷爷别神气 音乐健康 小班","path":"/categories/健康/北风爷爷别神气 音乐健康 小班_小班.html","views":10233,"date":"2022-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/北风爷爷别神气_音乐健康_小班/ppt/20260131012502_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康安全《坚果宝宝》","path":"/categories/健康/小班 健康安全《坚果宝宝》_小班.html","views":18499,"date":"2021-09-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班-健康安全《坚果宝宝》/ppt/20260130234209_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"我的椅子朋友","path":"/categories/通用/我的椅子朋友_通用.html","views":17378,"date":"2021-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的椅子朋友/ppt/20260130221646_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《保护牙齿》","path":"/categories/健康/小班健康《保护牙齿》_小班.html","views":12326,"date":"2021-04-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《保护牙齿》/ppt/20260131013040_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"我会漱口 健康 小班","path":"/categories/健康/我会漱口 健康 小班_小班.html","views":16725,"date":"2020-03-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我会漱口_健康_小班/ppt/20260131013206_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"防溺水 小中大班 健康","path":"/categories/健康/防溺水 小中大班 健康_小班.html","views":9634,"date":"2019-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防溺水-小中大班-健康/ppt/20260130201812_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班.健康《如果不吃青菜》","path":"/categories/健康/小班.健康《如果不吃青菜》_小班.html","views":114967,"date":"2019-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班.健康《如果不吃青菜》/ppt/20260130201718_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/健康/《防火小达人》小中大班 健康安全_小班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康科学 香香的蔬菜","path":"/categories/健康/小班 健康科学 香香的蔬菜_小班.html","views":9337,"date":"2018-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_健康科学_香香的蔬菜/ppt/20260130234215_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《尝尝看，特别香》","path":"/categories/健康/小班健康《尝尝看，特别香》_小班.html","views":9409,"date":"2017-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《尝尝看，特别香》/ppt/20260130221325_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"《水果变变变》小中大 健康","path":"/categories/健康/《水果变变变》小中大 健康_小班.html","views":15339,"date":"2017-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《水果变变变》小中大-健康/ppt/20260130201404_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小中大班-健康《预防甲流我知道》","path":"/categories/健康/健康《预防甲流我知道》_通用.html","views":17776,"date":"2016-10-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/健康《预防甲流我知道》/ppt/20260130220820_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小中健康《防地震安全》","path":"/categories/健康/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["健康","小班"]}];
+    const allPosts = [{"title":"小班.健康 如果不吃青菜","path":"/categories/健康/小班.健康 如果不吃青菜_小班.html","views":16571,"date":"2025-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班.健康-如果不吃青菜/ppt/20260130201711_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"和椅子交朋友","path":"/categories/通用/和椅子交朋友_通用.html","views":14414,"date":"2025-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/和椅子交朋友/ppt/20260130220841_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康 和纸巾做朋友","path":"/categories/健康/小班 健康 和纸巾做朋友_小班.html","views":14248,"date":"2025-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班-健康-和纸巾做朋友/ppt/20260130201704_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《我爱喝水》","path":"/categories/健康/小班健康《我爱喝水》_小班.html","views":9684,"date":"2025-02-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《我爱喝水》/ppt/20260131124744_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《口罩小卫士》","path":"/categories/健康/小班健康《口罩小卫士》2025 视频 plus 教案 plus PPT课件 plus 希沃课件_小班.html","views":4804,"date":"2023-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《口罩小卫士》2025_视频_plus_教案_plus_PPT课件_plus_希沃课件/ppt/20260131124729_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"冷冷的冰 科学健康 小班","path":"/categories/健康/冷冷的冰 科学健康 小班_小班.html","views":12294,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冷冷的冰_科学健康_小班/ppt/20260130220834_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小中大班-健康领域《保护眼睛》","path":"/categories/健康/健康领域《保护眼睛》_通用.html","views":12587,"date":"2022-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/健康领域《保护眼睛》/ppt/20260130220827_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"爱跳舞的机器人 健康音乐 小班","path":"/categories/健康/爱跳舞的机器人 健康音乐 小班_小班.html","views":5292,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱跳舞的机器人_健康音乐_小班/ppt/20260131013502_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"北风爷爷别神气 音乐健康 小班","path":"/categories/健康/北风爷爷别神气 音乐健康 小班_小班.html","views":10233,"date":"2022-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/北风爷爷别神气_音乐健康_小班/ppt/20260131012502_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康安全《坚果宝宝》","path":"/categories/健康/小班 健康安全《坚果宝宝》_小班.html","views":18499,"date":"2021-09-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班-健康安全《坚果宝宝》/ppt/20260130234209_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"我的椅子朋友","path":"/categories/通用/我的椅子朋友_通用.html","views":17378,"date":"2021-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的椅子朋友/ppt/20260130221646_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《吃饭》","path":"/categories/健康/小班健康《吃饭》_小班.html","views":92652,"date":"2021-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《吃饭》/ppt/20260131124734_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《保护牙齿》","path":"/categories/健康/小班健康《保护牙齿》_小班.html","views":12326,"date":"2021-04-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《保护牙齿》/ppt/20260131013040_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"我会漱口 健康 小班","path":"/categories/健康/我会漱口 健康 小班_小班.html","views":16725,"date":"2020-03-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我会漱口_健康_小班/ppt/20260131013206_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"防溺水 小中大班 健康","path":"/categories/健康/防溺水 小中大班 健康_小班.html","views":9634,"date":"2019-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防溺水-小中大班-健康/ppt/20260130201812_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班.健康《如果不吃青菜》","path":"/categories/健康/小班.健康《如果不吃青菜》_小班.html","views":114967,"date":"2019-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班.健康《如果不吃青菜》/ppt/20260130201718_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"《防火小达人》小中大班 健康安全","path":"/categories/健康/《防火小达人》小中大班 健康安全_小班.html","views":10873,"date":"2019-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防火小达人》小中大班-健康安全/ppt/20260130201434_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"我爱喝水 健康 小班","path":"/categories/健康/我爱喝水 健康 小班_小班.html","views":14089,"date":"2018-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我爱喝水_健康_小班/ppt/20260131125158_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班春分健康《欢送春牛》","path":"/categories/健康/小班春分健康《欢送春牛》_小班.html","views":13243,"date":"2018-02-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班春分健康《欢送春牛》/ppt/20260131124829_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康科学 香香的蔬菜","path":"/categories/健康/小班 健康科学 香香的蔬菜_小班.html","views":9337,"date":"2018-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_健康科学_香香的蔬菜/ppt/20260130234215_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《我会漱口》","path":"/categories/健康/小班健康《我会漱口》_小班.html","views":5635,"date":"2018-01-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《我会漱口》/ppt/20260131124739_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班 健康科学 动物王国大冒险","path":"/categories/健康/小班 健康科学 动物王国大冒险_小班.html","views":12099,"date":"2017-12-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_健康科学_动物王国大冒险/ppt/20260131124646_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小班健康《尝尝看，特别香》","path":"/categories/健康/小班健康《尝尝看，特别香》_小班.html","views":9409,"date":"2017-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班健康《尝尝看，特别香》/ppt/20260130221325_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"《水果变变变》小中大 健康","path":"/categories/健康/《水果变变变》小中大 健康_小班.html","views":15339,"date":"2017-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《水果变变变》小中大-健康/ppt/20260130201404_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小中大班-健康《预防甲流我知道》","path":"/categories/健康/健康《预防甲流我知道》_通用.html","views":17776,"date":"2016-10-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/健康《预防甲流我知道》/ppt/20260130220820_ppt_cover_wm.jpg","categories":["健康","小班"]},{"title":"小中健康《防地震安全》","path":"/categories/健康/小中健康《防地震安全》_通用.html","views":15971,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中健康《防地震安全》/ppt/20260130201638_ppt_cover_wm.jpg","categories":["健康","小班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>

@@ -296,6 +296,16 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 广告轮播区域 (新增) -->
+<div class="ad-slider-container">
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1.png" alt="广告1" class="ad-img">
+    </div>
+    <div class="ad-slide fade">
+        <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E5%88%86%E7%B1%BB%E9%A1%B5%E5%B9%BF%E5%91%8A%E5%9B%BE/%E6%9C%AA%E5%91%BD%E5%90%8D%E7%9A%84%E8%AE%BE%E8%AE%A1%20%282%29.png" alt="广告2" class="ad-img">
+    </div>
+</div>
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：家长会</h1>
@@ -316,12 +326,12 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 (完全保留原样 + 新增轮播代码) -->
 <script>
-    const allPosts = [{"title":"幼儿园中班秋季家长会—除了面对面还要肩并肩","path":"/categories/家长会/幼儿园中班秋季家长会—除了面对面还要肩并肩_通用.html","views":14822,"date":"2024-01-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园中班秋季家长会—除了面对面还要肩并肩/ppt/20260130234424_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会——美好遇见 携手出发","path":"/categories/家长会/小班秋季家长会——美好遇见 携手出发_通用.html","views":18222,"date":"2023-08-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会——美好遇见_携手出发/ppt/20260130234248_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"幼儿园中班秋季上学期家长会课件ppt配套发言稿主题式体验式","path":"/categories/家长会/幼儿园中班秋季上学期家长会课件ppt配套发言稿主题式体验式_通用.html","views":11115,"date":"2023-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园中班秋季上学期家长会课件ppt配套发言稿主题式体验式/ppt/20260130234409_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"大班秋季家长会《我有我的节奏，往前走就好》","path":"/categories/家长会/53大班秋季家长会《我有我的节奏，往前走就好》_通用.html","views":4004,"date":"2023-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/JZH53大班秋季家长会《我有我的节奏，往前走就好》/ppt/20260130233529_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会—大手牵小手","path":"/categories/家长会/小班秋季家长会—大手牵小手_通用.html","views":15985,"date":"2022-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会—大手牵小手/ppt/20260130234257_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"《人生第一次，上学》家长会ppt","path":"/categories/家长会/《人生第一次，上学》家长会ppt plus 纪录片_通用.html","views":17752,"date":"2022-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《人生第一次，上学》家长会ppt_plus_纪录片/ppt/20260130233734_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"幼儿园秋季小班托班新生家长会-没有一朵花从一开始-课件ppt发言稿","path":"/categories/家长会/幼儿园秋季小班托班新生家长会课件ppt发言稿没有一朵花从一开始_通用.html","views":4132,"date":"2021-03-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园秋季小班托班新生家长会课件ppt发言稿没有一朵花从一开始/ppt/20260130234611_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"《嗨！大班，开启新篇章》幼儿园大班秋季家长会课件ppt配套发言稿","path":"/categories/家长会/幼儿园大班秋季家长会课件ppt配套发言稿《嗨大班，开启新篇章》_通用.html","views":7533,"date":"2021-03-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园大班秋季家长会课件ppt配套发言稿《嗨大班，开启新篇章》/ppt/20260130234454_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"幼儿园秋季大班第一学期家长会课件ppt发言稿《与众不同的颜色》","path":"/categories/家长会/幼儿园秋季大班第一学期家长会课件ppt发言稿《与众不同的颜色》_通用.html","views":12499,"date":"2020-04-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园秋季大班第一学期家长会课件ppt发言稿《与众不同的颜色》/ppt/20260130234557_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"中班家长会 春天里的每一朵花","path":"/categories/家长会/中班家长会 春天里的每一朵花_通用.html","views":12464,"date":"2020-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班家长会_春天里的每一朵花/ppt/20260130233815_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会——故事从此刻开始","path":"/categories/家长会/小班秋季家长会——故事从此刻开始_通用.html","views":14705,"date":"2020-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会——故事从此刻开始/ppt/20260130234234_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"中班家长会《做温暖的陪伴者》PPT发言稿","path":"/categories/家长会/中班家长会《做温暖的陪伴者》PPT plus 发言稿_通用.html","views":9092,"date":"2019-07-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班家长会《做温暖的陪伴者》PPT_plus_发言稿/ppt/20260130233825_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"中班秋季家长会《故事开始的第二年》","path":"/categories/家长会/中班秋季家长会《故事开始的第二年》_通用.html","views":13992,"date":"2017-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班秋季家长会《故事开始的第二年》/ppt/20260130233859_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会—牵一只蜗牛去散步","path":"/categories/家长会/小班秋季家长会—牵一只蜗牛去散步_通用.html","views":14138,"date":"2017-02-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会—牵一只蜗牛去散步/ppt/20260130234306_ppt_cover_wm.jpg","categories":["家长会"]}];
+    const allPosts = [{"title":"幼儿园中班秋季家长会—除了面对面还要肩并肩","path":"/categories/家长会/幼儿园中班秋季家长会—除了面对面还要肩并肩_通用.html","views":14822,"date":"2024-01-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园中班秋季家长会—除了面对面还要肩并肩/ppt/20260130234424_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会——美好遇见 携手出发","path":"/categories/家长会/小班秋季家长会——美好遇见 携手出发_通用.html","views":18222,"date":"2023-08-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会——美好遇见_携手出发/ppt/20260130234248_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"幼儿园中班秋季上学期家长会课件ppt配套发言稿主题式体验式","path":"/categories/家长会/幼儿园中班秋季上学期家长会课件ppt配套发言稿主题式体验式_通用.html","views":11115,"date":"2023-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园中班秋季上学期家长会课件ppt配套发言稿主题式体验式/ppt/20260130234409_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"大班秋季家长会《我有我的节奏，往前走就好》","path":"/categories/家长会/53大班秋季家长会《我有我的节奏，往前走就好》_通用.html","views":4004,"date":"2023-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/JZH53大班秋季家长会《我有我的节奏，往前走就好》/ppt/20260130233529_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会—大手牵小手","path":"/categories/家长会/小班秋季家长会—大手牵小手_通用.html","views":15985,"date":"2022-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会—大手牵小手/ppt/20260130234257_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"《人生第一次，上学》家长会ppt","path":"/categories/家长会/《人生第一次，上学》家长会ppt plus 纪录片_通用.html","views":17752,"date":"2022-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《人生第一次，上学》家长会ppt_plus_纪录片/ppt/20260130233734_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"幼儿园秋季小班托班新生家长会-没有一朵花从一开始-课件ppt发言稿","path":"/categories/家长会/幼儿园秋季小班托班新生家长会课件ppt发言稿没有一朵花从一开始_通用.html","views":4132,"date":"2021-03-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园秋季小班托班新生家长会课件ppt发言稿没有一朵花从一开始/ppt/20260130234611_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"《嗨！大班，开启新篇章》幼儿园大班秋季家长会课件ppt配套发言稿","path":"/categories/家长会/幼儿园大班秋季家长会课件ppt配套发言稿《嗨大班，开启新篇章》_通用.html","views":7533,"date":"2021-03-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园大班秋季家长会课件ppt配套发言稿《嗨大班，开启新篇章》/ppt/20260130234454_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"幼儿园秋季大班第一学期家长会课件ppt发言稿《与众不同的颜色》","path":"/categories/家长会/幼儿园秋季大班第一学期家长会课件ppt发言稿《与众不同的颜色》_通用.html","views":12499,"date":"2020-04-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园秋季大班第一学期家长会课件ppt发言稿《与众不同的颜色》/ppt/20260130234557_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"中班家长会 春天里的每一朵花","path":"/categories/家长会/中班家长会 春天里的每一朵花_通用.html","views":12464,"date":"2020-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班家长会_春天里的每一朵花/ppt/20260130233815_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会——故事从此刻开始","path":"/categories/家长会/小班秋季家长会——故事从此刻开始_通用.html","views":14705,"date":"2020-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会——故事从此刻开始/ppt/20260130234234_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"中班家长会《做温暖的陪伴者》PPT发言稿","path":"/categories/家长会/中班家长会《做温暖的陪伴者》PPT plus 发言稿_通用.html","views":9092,"date":"2019-07-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班家长会《做温暖的陪伴者》PPT_plus_发言稿/ppt/20260130233825_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"中班秋季家长会《故事开始的第二年》","path":"/categories/家长会/中班秋季家长会《故事开始的第二年》_通用.html","views":13992,"date":"2017-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班秋季家长会《故事开始的第二年》/ppt/20260130233859_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季家长会—牵一只蜗牛去散步","path":"/categories/家长会/小班秋季家长会—牵一只蜗牛去散步_通用.html","views":14138,"date":"2017-02-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季家长会—牵一只蜗牛去散步/ppt/20260130234306_ppt_cover_wm.jpg","categories":["家长会"]},{"title":"小班秋季新生家长会《小班，你好》ppt＋发言稿","path":"/categories/家长会/小班秋季新生家长会《小班，你好》ppt＋发言稿_通用.html","views":13763,"date":"2017-02-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班秋季新生家长会《小班，你好》ppt＋发言稿/ppt/20260131124942_ppt_cover_wm.jpg","categories":["家长会"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +371,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
@@ -374,6 +384,42 @@ function handleSearchClick(e) {
     }
 
     renderCategoryPosts();
+
+    // 🌟 广告轮播逻辑 (新增)
+    let slideIndex = 0;
+    let slideInterval;
+    const slides = document.getElementsByClassName("ad-slide");
+
+    function showSlides() {
+        if (!slides || slides.length === 0) return;
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        
+        slides[slideIndex].style.display = "block";  
+        
+        slideIndex++;
+        if (slideIndex >= slides.length) {
+            slideIndex = 0;
+        }
+        
+        slideInterval = setTimeout(showSlides, 3000); 
+    }
+
+    // 初始化轮播
+    showSlides();
+
+    // 鼠标悬停暂停轮播
+    const sliderContainer = document.querySelector('.ad-slider-container');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearTimeout(slideInterval);
+        });
+        sliderContainer.addEventListener('mouseleave', () => {
+            showSlides();
+        });
+    }
 </script>
 
         </div>
