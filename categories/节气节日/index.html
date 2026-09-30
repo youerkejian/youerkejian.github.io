@@ -321,7 +321,7 @@ function handleSearchClick(e) {
     const allPosts = [{"title":"二十四节气《春分》","path":"/categories/通用/二十四节气《春分》_通用.html","views":18259,"date":"2024-11-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/二十四节气《春分》/ppt/20260130220814_ppt_cover_wm.jpg","categories":["节气节日"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +361,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }

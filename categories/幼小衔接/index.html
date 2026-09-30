@@ -318,10 +318,10 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成","path":"/categories/幼小衔接/幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成_通用.html","views":11877,"date":"2023-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成/ppt/20260130234505_ppt_cover_wm.jpg","categories":["幼小衔接"]}];
+    const allPosts = [{"title":"大班语言幼小衔接 《一年级一点都不可怕》","path":"/categories/语言/大班语言幼小衔接 《一年级一点都不可怕》_通用.html","views":7454,"date":"2025-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言幼小衔接_《一年级一点都不可怕》/ppt/20260131124501_ppt_cover_wm.jpg","categories":["幼小衔接"]},{"title":"幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成","path":"/categories/幼小衔接/幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成_通用.html","views":11877,"date":"2023-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成/ppt/20260130234505_ppt_cover_wm.jpg","categories":["幼小衔接"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +361,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }

@@ -318,10 +318,10 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"敲染春天 美术 中班","path":"/categories/通用/敲染春天 美术 中班_中班.html","views":114301,"date":"2025-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/敲染春天_美术_中班/ppt/20260130221652_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"中班艺术《有趣的万圣节》","path":"/categories/艺术/中班艺术《有趣的万圣节》_中班.html","views":17047,"date":"2020-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班艺术《有趣的万圣节》/ppt/20260130220710_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"中班美术《细菌大作战》","path":"/categories/通用/中班美术《细菌大作战》_中班.html","views":14565,"date":"2016-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班美术《细菌大作战》/ppt/20260130233906_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"小手变变变 小手趣变身 美术 中班","path":"/categories/通用/小手变变变 小手趣变身 美术 中班_中班.html","views":6565,"date":"2016-09-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小手变变变_小手趣变身_美术_中班/ppt/20260130234204_ppt_cover_wm.jpg","categories":["美术","中班"]}];
+    const allPosts = [{"title":"敲染春天 美术 中班","path":"/categories/通用/敲染春天 美术 中班_中班.html","views":114301,"date":"2025-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/敲染春天_美术_中班/ppt/20260130221652_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"中班美术领域《大雪》","path":"/categories/通用/中班美术领域《大雪》_中班.html","views":7522,"date":"2023-05-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班美术领域《大雪》/ppt/20260131123829_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"小手趣变身 美术 中班","path":"/categories/通用/小手趣变身 美术 中班_中班.html","views":7275,"date":"2023-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小手趣变身_美术_中班/ppt/20260131124640_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"中班艺术《有趣的万圣节》","path":"/categories/艺术/中班艺术《有趣的万圣节》_中班.html","views":17047,"date":"2020-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班艺术《有趣的万圣节》/ppt/20260130220710_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"中班 美术 泡泡变身秀","path":"/categories/通用/中班 美术 泡泡变身秀_中班.html","views":16934,"date":"2017-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_美术_泡泡变身秀/ppt/20260131123605_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"迎春花 美术 中班","path":"/categories/通用/迎春花 美术 中班_中班.html","views":11455,"date":"2016-12-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/迎春花_美术_中班/ppt/20260131125339_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"中班美术《细菌大作战》","path":"/categories/通用/中班美术《细菌大作战》_中班.html","views":14565,"date":"2016-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班美术《细菌大作战》/ppt/20260130233906_ppt_cover_wm.jpg","categories":["美术","中班"]},{"title":"小手变变变 小手趣变身 美术 中班","path":"/categories/通用/小手变变变 小手趣变身 美术 中班_中班.html","views":6565,"date":"2016-09-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小手变变变_小手趣变身_美术_中班/ppt/20260130234204_ppt_cover_wm.jpg","categories":["美术","中班"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +361,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }

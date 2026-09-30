@@ -318,10 +318,10 @@ function handleSearchClick(e) {
 
 <!-- 分类页逻辑脚本 (完全保留原样) -->
 <script>
-    const allPosts = [{"title":"小班绘本《早晚问好》","path":"/categories/通用/小班绘本《早晚问好》_小班.html","views":10888,"date":"2025-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班绘本《早晚问好》/ppt/20260130201731_ppt_cover_wm.jpg","categories":["绘本课程"]},{"title":"我喜欢我自己 绘本","path":"/categories/通用/我喜欢我自己 绘本_通用.html","views":5654,"date":"2017-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我喜欢我自己-绘本/ppt/20260130234642_ppt_cover_wm.jpg","categories":["绘本课程"]}];
+    const allPosts = [{"title":"小班绘本《早晚问好》","path":"/categories/通用/小班绘本《早晚问好》_小班.html","views":10888,"date":"2025-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班绘本《早晚问好》/ppt/20260130201731_ppt_cover_wm.jpg","categories":["绘本课程"]},{"title":"绘本课程 神奇的变色龙","path":"/categories/绘本课程/绘本课程 神奇的变色龙_通用.html","views":9887,"date":"2024-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/绘本课程-神奇的变色龙/ppt/20260131125313_ppt_cover_wm.jpg","categories":["绘本课程"]},{"title":"我喜欢我自己 绘本","path":"/categories/通用/我喜欢我自己 绘本_通用.html","views":5654,"date":"2017-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我喜欢我自己-绘本/ppt/20260130234642_ppt_cover_wm.jpg","categories":["绘本课程"]}];
 
     let currentPage = 1;
-    const itemsPerPage = 20; 
+    const itemsPerPage = 12; 
 
     function renderCategoryPosts() {
         const container = document.getElementById('category-posts-container');
@@ -361,7 +361,7 @@ function handleSearchClick(e) {
             });
         }
 
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
+        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
         document.getElementById('cat-prev-btn').disabled = currentPage === 1;
         document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
