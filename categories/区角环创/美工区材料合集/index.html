@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：美工区材料合集</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"恐龙蛋","path":"/categories/区角环创/恐龙蛋.html","views":42364,"date":"2025-10-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_d841a7df/grid_20260222125757_1.jpg","categories":["区角环创","美工区材料合集","恐龙蛋"]},{"title":"海边形状","path":"/categories/区角环创/海边形状.html","views":29427,"date":"2025-09-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ab0de9ce/grid_20260222125840_1.jpg","categories":["区角环创","美工区材料合集","海边形状"]},{"title":"冬季背包","path":"/categories/区角环创/冬季背包.html","views":3905,"date":"2025-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_53537d31/grid_20260222125537_1.jpg","categories":["区角环创","美工区材料合集","冬季背包"]},{"title":"汽车数字排序","path":"/categories/区角环创/汽车数字排序.html","views":48746,"date":"2025-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_988bef48/grid_20260222125837_1.jpg","categories":["区角环创","美工区材料合集","汽车数字排序"]},{"title":"20以内花瓣","path":"/categories/区角环创/20以内花瓣.html","views":40364,"date":"2025-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/20/grid_20260222125429_1.jpg","categories":["区角环创","美工区材料合集","20以内花瓣"]},{"title":"凉拖","path":"/categories/区角环创/凉拖.html","views":48214,"date":"2024-12-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_feb9ff1b/grid_20260222125609_1.jpg","categories":["区角环创","美工区材料合集","凉拖"]},{"title":"找数字 涂色","path":"/categories/区角环创/找数字 涂色.html","views":14390,"date":"2024-10-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_8ed96235/grid_20260222125816_1.jpg","categories":["区角环创","美工区材料合集","找数字 涂色"]},{"title":"美工区-动物主题","path":"/categories/区角环创/美工区-动物主题.html","views":44463,"date":"2024-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-/grid_20260222125939_1.jpg","categories":["区角环创","美工区材料合集","美工区-动物主题"]},{"title":"简笔画 连线可打印素材","path":"/categories/区角环创/简笔画 连线可打印素材.html","views":11292,"date":"2024-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_d0007f89/grid_20260222125846_1.jpg","categories":["区角环创","美工区材料合集","简笔画 连线可打印素材"]},{"title":"绘本-棕熊-4P","path":"/categories/区角环创/绘本-棕熊-4P.html","views":41795,"date":"2024-02-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-_-4P/grid_20260222125936_1.jpg","categories":["区角环创","美工区材料合集","绘本-棕熊-4P"]},{"title":"手指画数字(1)","path":"/categories/区角环创/手指画数字(1).html","views":2934,"date":"2024-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/1/grid_20260222125814_1.jpg","categories":["区角环创","美工区材料合集","手指画数字(1)"]},{"title":"服务用车-2P","path":"/categories/区角环创/服务用车-2P.html","views":18315,"date":"2023-11-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-2P/grid_20260222125832_1.jpg","categories":["区角环创","美工区材料合集","服务用车-2P"]},{"title":"美工区","path":"/categories/区角环创/美工区.html","views":1521,"date":"2023-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_af76df04/grid_20260222125938_1.jpg","categories":["区角环创","美工区材料合集","美工区"]},{"title":"机器人形状配对","path":"/categories/区角环创/机器人形状配对.html","views":47402,"date":"2023-02-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_8d51bd42/grid_20260222125834_1.jpg","categories":["区角环创","美工区材料合集","机器人形状配对"]},{"title":"彩虹形状配对","path":"/categories/区角环创/彩虹形状配对.html","views":46276,"date":"2022-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_4ca28da3/grid_20260222125754_1.jpg","categories":["区角环创","美工区材料合集","彩虹形状配对"]},{"title":"季节主题-6P","path":"/categories/区角环创/季节主题-6P.html","views":37551,"date":"2022-05-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-6P/grid_20260222125611_1.jpg","categories":["区角环创","美工区材料合集","季节主题-6P"]},{"title":"火箭-2P","path":"/categories/区角环创/火箭-2P.html","views":31240,"date":"2022-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-2P/grid_20260222125842_1.jpg","categories":["区角环创","美工区材料合集","火箭-2P"]},{"title":"手套配对","path":"/categories/区角环创/手套配对.html","views":3502,"date":"2022-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ce114349/grid_20260222125812_1.jpg","categories":["区角环创","美工区材料合集","手套配对"]},{"title":"公车百数板","path":"/categories/区角环创/公车百数板.html","views":8765,"date":"2021-07-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_7477c85f/grid_20260222125533_1.jpg","categories":["区角环创","美工区材料合集","公车百数板"]},{"title":"国庆主题画彩色涂色共10份","path":"/categories/区角环创/国庆主题画彩色涂色共10份.html","views":36486,"date":"2021-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/10/grid_20260222125611_1.jpg","categories":["区角环创","美工区材料合集","国庆主题画彩色涂色共10份"]},{"title":"昆虫剪纸","path":"/categories/区角环创/昆虫剪纸.html","views":47736,"date":"2020-12-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_130ddb74/grid_20260222125824_1.jpg","categories":["区角环创","美工区材料合集","昆虫剪纸"]},{"title":"学习日历","path":"/categories/区角环创/学习日历.html","views":22748,"date":"2020-07-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_e39ff2fb/grid_20260222125614_1.jpg","categories":["区角环创","美工区材料合集","学习日历"]},{"title":"晾衣绳 6种颜色","path":"/categories/区角环创/晾衣绳 6种颜色.html","views":32762,"date":"2020-06-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/6/grid_20260222125830_1.jpg","categories":["区角环创","美工区材料合集","晾衣绳 6种颜色"]},{"title":"数草莓-蛋糕","path":"/categories/区角环创/数草莓-蛋糕.html","views":20883,"date":"2020-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-/grid_20260222125822_1.jpg","categories":["区角环创","美工区材料合集","数草莓-蛋糕"]},{"title":"我妈妈","path":"/categories/区角环创/我妈妈.html","views":36903,"date":"2020-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_c40ea433/grid_20260222125800_1.jpg","categories":["区角环创","美工区材料合集","我妈妈"]},{"title":"彩色圆点","path":"/categories/区角环创/彩色圆点.html","views":22155,"date":"2020-03-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_fbf8592b/grid_20260222125745_1.jpg","categories":["区角环创","美工区材料合集","彩色圆点"]},{"title":"餐具配对","path":"/categories/区角环创/餐具配对.html","views":10109,"date":"2019-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_e986fb69/grid_20260222130039_1.jpg","categories":["区角环创","美工区材料合集","餐具配对"]},{"title":"美工区涂色素材","path":"/categories/区角环创/美工区涂色素材.html","views":16983,"date":"2019-05-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_a05a7689/grid_20260222130006_1.jpg","categories":["区角环创","美工区材料合集","美工区涂色素材"]},{"title":"运笔练习素材","path":"/categories/区角环创/运笔练习素材.html","views":30912,"date":"2019-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ed11386d/grid_20260222130028_1.jpg","categories":["区角环创","美工区材料合集","运笔练习素材"]},{"title":"剪纸","path":"/categories/区角环创/剪纸.html","views":10378,"date":"2018-08-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_afab446d/grid_20260222125610_1.jpg","categories":["区角环创","美工区材料合集","剪纸"]},{"title":"水果形状配对","path":"/categories/区角环创/水果形状配对.html","views":14495,"date":"2017-10-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_83e47c57/grid_20260222125835_1.jpg","categories":["区角环创","美工区材料合集","水果形状配对"]},{"title":"蜂窝","path":"/categories/区角环创/蜂窝.html","views":15489,"date":"2017-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_31bd92fd/grid_20260222130017_1.jpg","categories":["区角环创","美工区材料合集","蜂窝"]},{"title":"海盗主题-4P","path":"/categories/区角环创/海盗主题-4P.html","views":1861,"date":"2017-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-4P/grid_20260222125839_1.jpg","categories":["区角环创","美工区材料合集","海盗主题-4P"]},{"title":"西瓜剪纸","path":"/categories/区角环创/西瓜剪纸.html","views":42055,"date":"2017-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_9f8f579e/grid_20260222130025_1.jpg","categories":["区角环创","美工区材料合集","西瓜剪纸"]},{"title":"交通工具拼图","path":"/categories/区角环创/交通工具拼图.html","views":18635,"date":"2017-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_6718838a/grid_20260222125528_1.jpg","categories":["区角环创","美工区材料合集","交通工具拼图"]},{"title":"春天主题 形状颜色数字(1)","path":"/categories/区角环创/春天主题 形状颜色数字(1).html","views":31375,"date":"2016-10-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/1/grid_20260222125825_1.jpg","categories":["区角环创","美工区材料合集","春天主题 形状颜色数字(1)"]},{"title":"超级英雄配对拼图","path":"/categories/区角环创/超级英雄配对拼图.html","views":5135,"date":"2016-05-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_539db7f9/grid_20260222130027_1.jpg","categories":["区角环创","美工区材料合集","超级英雄配对拼图"]},{"title":"线描画","path":"/categories/区角环创/线描画.html","views":6324,"date":"2016-02-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_541681d8/grid_20260222125853_1.jpg","categories":["区角环创","美工区材料合集","线描画"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"恐龙蛋","path":"/categories/区角环创/恐龙蛋.html","views":42364,"date":"2025-10-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_d841a7df/grid_20260222125757_1.jpg","categories":["区角环创","美工区材料合集","恐龙蛋"]},{"title":"海边形状","path":"/categories/区角环创/海边形状.html","views":29427,"date":"2025-09-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ab0de9ce/grid_20260222125840_1.jpg","categories":["区角环创","美工区材料合集","海边形状"]},{"title":"冬季背包","path":"/categories/区角环创/冬季背包.html","views":3905,"date":"2025-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_53537d31/grid_20260222125537_1.jpg","categories":["区角环创","美工区材料合集","冬季背包"]},{"title":"汽车数字排序","path":"/categories/区角环创/汽车数字排序.html","views":48746,"date":"2025-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_988bef48/grid_20260222125837_1.jpg","categories":["区角环创","美工区材料合集","汽车数字排序"]},{"title":"20以内花瓣","path":"/categories/区角环创/20以内花瓣.html","views":40364,"date":"2025-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/20/grid_20260222125429_1.jpg","categories":["区角环创","美工区材料合集","20以内花瓣"]},{"title":"凉拖","path":"/categories/区角环创/凉拖.html","views":48214,"date":"2024-12-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_feb9ff1b/grid_20260222125609_1.jpg","categories":["区角环创","美工区材料合集","凉拖"]},{"title":"找数字 涂色","path":"/categories/区角环创/找数字 涂色.html","views":14390,"date":"2024-10-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_8ed96235/grid_20260222125816_1.jpg","categories":["区角环创","美工区材料合集","找数字 涂色"]},{"title":"美工区-动物主题","path":"/categories/区角环创/美工区-动物主题.html","views":44463,"date":"2024-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-/grid_20260222125939_1.jpg","categories":["区角环创","美工区材料合集","美工区-动物主题"]},{"title":"简笔画 连线可打印素材","path":"/categories/区角环创/简笔画 连线可打印素材.html","views":11292,"date":"2024-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_d0007f89/grid_20260222125846_1.jpg","categories":["区角环创","美工区材料合集","简笔画 连线可打印素材"]},{"title":"绘本-棕熊-4P","path":"/categories/区角环创/绘本-棕熊-4P.html","views":41795,"date":"2024-02-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-_-4P/grid_20260222125936_1.jpg","categories":["区角环创","美工区材料合集","绘本-棕熊-4P"]},{"title":"手指画数字(1)","path":"/categories/区角环创/手指画数字(1).html","views":2934,"date":"2024-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/1/grid_20260222125814_1.jpg","categories":["区角环创","美工区材料合集","手指画数字(1)"]},{"title":"服务用车-2P","path":"/categories/区角环创/服务用车-2P.html","views":18315,"date":"2023-11-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-2P/grid_20260222125832_1.jpg","categories":["区角环创","美工区材料合集","服务用车-2P"]},{"title":"美工区","path":"/categories/区角环创/美工区.html","views":1521,"date":"2023-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_af76df04/grid_20260222125938_1.jpg","categories":["区角环创","美工区材料合集","美工区"]},{"title":"机器人形状配对","path":"/categories/区角环创/机器人形状配对.html","views":47402,"date":"2023-02-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_8d51bd42/grid_20260222125834_1.jpg","categories":["区角环创","美工区材料合集","机器人形状配对"]},{"title":"彩虹形状配对","path":"/categories/区角环创/彩虹形状配对.html","views":46276,"date":"2022-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_4ca28da3/grid_20260222125754_1.jpg","categories":["区角环创","美工区材料合集","彩虹形状配对"]},{"title":"季节主题-6P","path":"/categories/区角环创/季节主题-6P.html","views":37551,"date":"2022-05-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-6P/grid_20260222125611_1.jpg","categories":["区角环创","美工区材料合集","季节主题-6P"]},{"title":"火箭-2P","path":"/categories/区角环创/火箭-2P.html","views":31240,"date":"2022-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-2P/grid_20260222125842_1.jpg","categories":["区角环创","美工区材料合集","火箭-2P"]},{"title":"手套配对","path":"/categories/区角环创/手套配对.html","views":3502,"date":"2022-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ce114349/grid_20260222125812_1.jpg","categories":["区角环创","美工区材料合集","手套配对"]},{"title":"公车百数板","path":"/categories/区角环创/公车百数板.html","views":8765,"date":"2021-07-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_7477c85f/grid_20260222125533_1.jpg","categories":["区角环创","美工区材料合集","公车百数板"]},{"title":"国庆主题画彩色涂色共10份","path":"/categories/区角环创/国庆主题画彩色涂色共10份.html","views":36486,"date":"2021-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/10/grid_20260222125611_1.jpg","categories":["区角环创","美工区材料合集","国庆主题画彩色涂色共10份"]},{"title":"昆虫剪纸","path":"/categories/区角环创/昆虫剪纸.html","views":47736,"date":"2020-12-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_130ddb74/grid_20260222125824_1.jpg","categories":["区角环创","美工区材料合集","昆虫剪纸"]},{"title":"学习日历","path":"/categories/区角环创/学习日历.html","views":22748,"date":"2020-07-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_e39ff2fb/grid_20260222125614_1.jpg","categories":["区角环创","美工区材料合集","学习日历"]},{"title":"晾衣绳 6种颜色","path":"/categories/区角环创/晾衣绳 6种颜色.html","views":32762,"date":"2020-06-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/6/grid_20260222125830_1.jpg","categories":["区角环创","美工区材料合集","晾衣绳 6种颜色"]},{"title":"数草莓-蛋糕","path":"/categories/区角环创/数草莓-蛋糕.html","views":20883,"date":"2020-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-/grid_20260222125822_1.jpg","categories":["区角环创","美工区材料合集","数草莓-蛋糕"]},{"title":"我妈妈","path":"/categories/区角环创/我妈妈.html","views":36903,"date":"2020-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_c40ea433/grid_20260222125800_1.jpg","categories":["区角环创","美工区材料合集","我妈妈"]},{"title":"彩色圆点","path":"/categories/区角环创/彩色圆点.html","views":22155,"date":"2020-03-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_fbf8592b/grid_20260222125745_1.jpg","categories":["区角环创","美工区材料合集","彩色圆点"]},{"title":"餐具配对","path":"/categories/区角环创/餐具配对.html","views":10109,"date":"2019-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_e986fb69/grid_20260222130039_1.jpg","categories":["区角环创","美工区材料合集","餐具配对"]},{"title":"美工区涂色素材","path":"/categories/区角环创/美工区涂色素材.html","views":16983,"date":"2019-05-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_a05a7689/grid_20260222130006_1.jpg","categories":["区角环创","美工区材料合集","美工区涂色素材"]},{"title":"运笔练习素材","path":"/categories/区角环创/运笔练习素材.html","views":30912,"date":"2019-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ed11386d/grid_20260222130028_1.jpg","categories":["区角环创","美工区材料合集","运笔练习素材"]},{"title":"剪纸","path":"/categories/区角环创/剪纸.html","views":10378,"date":"2018-08-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_afab446d/grid_20260222125610_1.jpg","categories":["区角环创","美工区材料合集","剪纸"]},{"title":"水果形状配对","path":"/categories/区角环创/水果形状配对.html","views":14495,"date":"2017-10-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_83e47c57/grid_20260222125835_1.jpg","categories":["区角环创","美工区材料合集","水果形状配对"]},{"title":"蜂窝","path":"/categories/区角环创/蜂窝.html","views":15489,"date":"2017-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_31bd92fd/grid_20260222130017_1.jpg","categories":["区角环创","美工区材料合集","蜂窝"]},{"title":"海盗主题-4P","path":"/categories/区角环创/海盗主题-4P.html","views":1861,"date":"2017-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/-4P/grid_20260222125839_1.jpg","categories":["区角环创","美工区材料合集","海盗主题-4P"]},{"title":"西瓜剪纸","path":"/categories/区角环创/西瓜剪纸.html","views":42055,"date":"2017-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_9f8f579e/grid_20260222130025_1.jpg","categories":["区角环创","美工区材料合集","西瓜剪纸"]},{"title":"交通工具拼图","path":"/categories/区角环创/交通工具拼图.html","views":18635,"date":"2017-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_6718838a/grid_20260222125528_1.jpg","categories":["区角环创","美工区材料合集","交通工具拼图"]},{"title":"春天主题 形状颜色数字(1)","path":"/categories/区角环创/春天主题 形状颜色数字(1).html","views":31375,"date":"2016-10-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/1/grid_20260222125825_1.jpg","categories":["区角环创","美工区材料合集","春天主题 形状颜色数字(1)"]},{"title":"超级英雄配对拼图","path":"/categories/区角环创/超级英雄配对拼图.html","views":5135,"date":"2016-05-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_539db7f9/grid_20260222130027_1.jpg","categories":["区角环创","美工区材料合集","超级英雄配对拼图"]},{"title":"线描画","path":"/categories/区角环创/线描画.html","views":6324,"date":"2016-02-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_541681d8/grid_20260222125853_1.jpg","categories":["区角环创","美工区材料合集","线描画"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

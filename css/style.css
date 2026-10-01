@@ -1096,3 +1096,90 @@ main img {
         padding: 0.4rem 1rem;
     }
 }
+
+/* ================================================================
+   统一状态组件（暂无数据 / 加载中 / 出错 / 404）
+   说明：这是全站唯一的状态样式来源。
+   页面里的 JS 通过 _partial/ui.ejs 中的 renderState() 函数
+   自动生成下面这些结构，你只需维护这里的样式即可。
+   结构：<div class="state-block"> 图标/spinner + h3 + p + 按钮 </div>
+   ================================================================ */
+.state-block {
+    grid-column: 1 / -1;              /* 在卡片网格里占满一整行 */
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    color: #999;
+}
+
+.state-block .state-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    line-height: 1;
+}
+
+.state-block h3 {
+    color: #666;
+    margin-bottom: 8px;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.state-block p {
+    color: #999;
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+}
+
+/* 状态里的操作按钮 */
+.state-block .state-btn {
+    display: inline-block;
+    padding: 9px 26px;
+    background: #3498db;
+    color: #fff;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.state-block .state-btn:hover {
+    background: #2980b9;
+}
+
+/* 两个按钮并排时的间距（404 页用） */
+.state-block .state-btn + .state-btn {
+    margin-left: 10px;
+}
+
+/* 加载中转圈动画 */
+.state-block .spinner {
+    width: 38px;
+    height: 38px;
+    margin: 0 auto 14px;
+    border: 4px solid #e3e8ee;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: state-spin 0.8s linear infinite;
+}
+
+@keyframes state-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 404 特大数字 */
+.state-block.state-404 .state-code {
+    display: block;
+    font-size: 5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+.state-block.state-404 h3 {
+    font-size: 1.4rem;
+}

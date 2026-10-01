@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：节气课件</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"中大班_社会科学_二十四节气","path":"/categories/节气课件/中大班_社会科学_二十四节气.html","views":12597,"date":"2025-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_二十四节气/ppt_covers/20260219152638_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_霜降","path":"/categories/节气课件/中大班_社会科学_霜降.html","views":18360,"date":"2025-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_霜降/ppt_covers/20260219152821_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_科学_春分","path":"/categories/节气课件/中大班_科学_春分.html","views":8687,"date":"2025-08-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_科学_春分/ppt_covers/20260219152837_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会美术_有趣的冬至","path":"/categories/节气课件/中大班_社会美术_有趣的冬至.html","views":17570,"date":"2025-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会美术_有趣的冬至/ppt_covers/20260219152829_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小暑","path":"/categories/节气课件/小暑.html","views":4533,"date":"2025-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小暑/ppt_covers/20260219153430_ppt_5_cover.jpg","categories":["节气课件"]},{"title":"立夏","path":"/categories/节气课件/立夏.html","views":10311,"date":"2025-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立夏/ppt_covers/20260219153722_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_秋分","path":"/categories/节气课件/中大班_社会科学_秋分.html","views":4987,"date":"2025-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_秋分/ppt_covers/20260219152724_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会健康_小满","path":"/categories/节气课件/中大班_社会健康_小满.html","views":15891,"date":"2025-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会健康_小满/ppt_covers/20260219152632_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"冬至","path":"/categories/节气课件/冬至.html","views":12532,"date":"2024-08-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬至/ppt_covers/20260219152939_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"寒露","path":"/categories/节气课件/寒露.html","views":9059,"date":"2024-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/寒露/ppt_covers/20260219153225_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立冬","path":"/categories/节气课件/中大班_社会科学_立冬.html","views":4251,"date":"2024-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立冬/ppt_covers/20260219152730_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"大班_社会_冬至到","path":"/categories/节气课件/大班_社会_冬至到.html","views":18917,"date":"2024-02-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班_社会_冬至到/ppt_covers/20260219153156_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"谷雨","path":"/categories/节气课件/谷雨.html","views":15938,"date":"2023-12-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/谷雨/ppt_covers/20260219153914_ppt_4_cover.jpg","categories":["节气课件"]},{"title":"小满","path":"/categories/节气课件/小满.html","views":18057,"date":"2023-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小满/ppt_covers/20260219153435_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"绘本-冬至节-微视频-教案-课件-反思","path":"/categories/节气课件/绘本-冬至节-微视频-教案-课件-反思.html","views":14211,"date":"2023-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/绘本-冬至节-微视频-教案-课件-反思/ppt_covers/20260219153751_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小寒节气课件教育教学","path":"/categories/节气课件/小寒节气课件教育教学.html","views":7926,"date":"2023-09-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小寒节气课件教育教学/ppt_covers/20260219153353_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"冬至主题班会","path":"/categories/节气课件/冬至主题班会.html","views":19444,"date":"2023-08-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬至主题班会/ppt_covers/20260219152957_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立春","path":"/categories/节气课件/中大班_社会科学_立春.html","views":6909,"date":"2023-07-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立春/ppt_covers/20260219152744_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"霜降","path":"/categories/节气课件/霜降.html","views":14371,"date":"2023-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/霜降/ppt_covers/20260219154027_ppt_6_cover.jpg","categories":["节气课件"]},{"title":"小中大班_科学社会_夏至","path":"/categories/节气课件/小中大班_科学社会_夏至.html","views":13606,"date":"2022-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中大班_科学社会_夏至/ppt_covers/20260219153301_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"雨水","path":"/categories/节气课件/雨水.html","views":7855,"date":"2022-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/雨水/ppt_covers/20260219153949_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"大寒","path":"/categories/节气课件/大寒.html","views":57223,"date":"2022-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大寒/ppt_covers/20260219153102_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"二十四节气-大雪-课件教案","path":"/categories/节气课件/二十四节气-大雪-课件教案.html","views":13772,"date":"2022-09-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/二十四节气-大雪-课件教案/ppt_covers/20260219152852_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小中大班_社会美术_过冬至啦","path":"/categories/节气课件/小中大班_社会美术_过冬至啦.html","views":17517,"date":"2021-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中大班_社会美术_过冬至啦/ppt_covers/20260219153252_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"蓝色插画卡通幼儿园大雪","path":"/categories/节气课件/蓝色插画卡通幼儿园大雪.html","views":10996,"date":"2021-10-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/蓝色插画卡通幼儿园大雪/ppt_covers/20260219153842_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_科学社会_谷雨","path":"/categories/节气课件/中大班_科学社会_谷雨.html","views":7868,"date":"2021-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_科学社会_谷雨/ppt_covers/20260219152844_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"立春-节气","path":"/categories/节气课件/立春-节气.html","views":19164,"date":"2021-04-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立春-节气/ppt_covers/20260219153741_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立夏","path":"/categories/节气课件/中大班_社会科学_立夏.html","views":4455,"date":"2021-03-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立夏/ppt_covers/20260219152737_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"白露","path":"/categories/节气课件/白露.html","views":8098,"date":"2020-06-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/白露/ppt_covers/20260219153654_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"大暑","path":"/categories/节气课件/大暑.html","views":10630,"date":"2020-05-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大暑/ppt_covers/20260219153153_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"二十四节气之立冬","path":"/categories/节气课件/二十四节气之立冬.html","views":8155,"date":"2020-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/二十四节气之立冬/ppt_covers/20260219152917_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_大寒","path":"/categories/节气课件/中大班_社会科学_大寒.html","views":14518,"date":"2020-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_大寒/ppt_covers/20260219152651_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"惊蛰","path":"/categories/节气课件/惊蛰.html","views":9815,"date":"2020-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/惊蛰/ppt_covers/20260219153606_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_芒种","path":"/categories/节气课件/中大班_社会科学_芒种.html","views":13915,"date":"2019-12-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_芒种/ppt_covers/20260219152802_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_小暑","path":"/categories/节气课件/中大班_社会科学_小暑.html","views":9906,"date":"2019-08-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_小暑/ppt_covers/20260219152710_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小寒","path":"/categories/节气课件/小寒.html","views":7860,"date":"2019-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小寒/ppt_covers/20260219153318_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"小中班_社会健康_温暖过冬至","path":"/categories/节气课件/小中班_社会健康_温暖过冬至.html","views":11257,"date":"2019-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班_社会健康_温暖过冬至/ppt_covers/20260219153307_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"芒种","path":"/categories/节气课件/芒种.html","views":6012,"date":"2019-06-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/芒种/ppt_covers/20260219153827_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_寒露","path":"/categories/节气课件/中大班_社会科学_寒露.html","views":4491,"date":"2019-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_寒露/ppt_covers/20260219152703_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"节气-秋分","path":"/categories/节气课件/节气-秋分.html","views":15309,"date":"2018-11-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/节气-秋分/ppt_covers/20260219153800_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小雪PPT","path":"/categories/节气课件/小雪PPT.html","views":16814,"date":"2018-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小雪PPT/ppt_covers/20260219153500_ppt_5_cover.jpg","categories":["节气课件"]},{"title":"幼儿园二十四节气之小雪","path":"/categories/节气课件/幼儿园二十四节气之小雪.html","views":13330,"date":"2018-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园二十四节气之小雪/ppt_covers/20260219153545_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立秋","path":"/categories/节气课件/中大班_社会科学_立秋.html","views":5252,"date":"2018-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立秋/ppt_covers/20260219152754_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"立冬","path":"/categories/节气课件/立冬.html","views":12752,"date":"2017-10-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立冬/ppt_covers/20260219153711_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"夏至课件PPT","path":"/categories/节气课件/夏至课件PPT.html","views":17459,"date":"2017-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/夏至课件PPT/ppt_covers/20260219153034_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_惊蛰","path":"/categories/节气课件/中大班_社会科学_惊蛰.html","views":14591,"date":"2017-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_惊蛰/ppt_covers/20260219152717_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"大雪PPT","path":"/categories/节气课件/大雪PPT.html","views":7724,"date":"2017-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大雪PPT/ppt_covers/20260219153205_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"处暑","path":"/categories/节气课件/处暑.html","views":13474,"date":"2016-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/处暑/ppt_covers/20260219153007_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_冬至","path":"/categories/节气课件/中大班_社会科学_冬至.html","views":13259,"date":"2016-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_冬至/ppt_covers/20260219152645_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"春分","path":"/categories/节气课件/春分.html","views":13036,"date":"2016-09-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春分/ppt_covers/20260219153631_ppt_4_cover.jpg","categories":["节气课件"]},{"title":"立秋","path":"/categories/节气课件/立秋.html","views":15937,"date":"2016-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立秋/ppt_covers/20260219153747_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_大暑","path":"/categories/节气课件/中大班_社会科学_大暑.html","views":17733,"date":"2016-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_大暑/ppt_covers/20260219152658_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"幼儿园二十四节气霜降","path":"/categories/节气课件/幼儿园二十四节气霜降.html","views":14684,"date":"2016-07-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园二十四节气霜降/ppt_covers/20260219153555_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_雨水","path":"/categories/节气课件/中大班_社会科学_雨水.html","views":16201,"date":"2016-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_雨水/ppt_covers/20260219152811_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"立春","path":"/categories/节气课件/立春.html","views":55448,"date":"2016-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立春/ppt_covers/20260219153733_ppt_1_cover.jpg","categories":["节气课件"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"中大班_社会科学_二十四节气","path":"/categories/节气课件/中大班_社会科学_二十四节气.html","views":12597,"date":"2025-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_二十四节气/ppt_covers/20260219152638_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_霜降","path":"/categories/节气课件/中大班_社会科学_霜降.html","views":18360,"date":"2025-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_霜降/ppt_covers/20260219152821_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_科学_春分","path":"/categories/节气课件/中大班_科学_春分.html","views":8687,"date":"2025-08-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_科学_春分/ppt_covers/20260219152837_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会美术_有趣的冬至","path":"/categories/节气课件/中大班_社会美术_有趣的冬至.html","views":17570,"date":"2025-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会美术_有趣的冬至/ppt_covers/20260219152829_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小暑","path":"/categories/节气课件/小暑.html","views":4533,"date":"2025-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小暑/ppt_covers/20260219153430_ppt_5_cover.jpg","categories":["节气课件"]},{"title":"立夏","path":"/categories/节气课件/立夏.html","views":10311,"date":"2025-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立夏/ppt_covers/20260219153722_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_秋分","path":"/categories/节气课件/中大班_社会科学_秋分.html","views":4987,"date":"2025-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_秋分/ppt_covers/20260219152724_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会健康_小满","path":"/categories/节气课件/中大班_社会健康_小满.html","views":15891,"date":"2025-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会健康_小满/ppt_covers/20260219152632_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"冬至","path":"/categories/节气课件/冬至.html","views":12532,"date":"2024-08-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬至/ppt_covers/20260219152939_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"寒露","path":"/categories/节气课件/寒露.html","views":9059,"date":"2024-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/寒露/ppt_covers/20260219153225_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立冬","path":"/categories/节气课件/中大班_社会科学_立冬.html","views":4251,"date":"2024-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立冬/ppt_covers/20260219152730_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"大班_社会_冬至到","path":"/categories/节气课件/大班_社会_冬至到.html","views":18917,"date":"2024-02-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班_社会_冬至到/ppt_covers/20260219153156_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"谷雨","path":"/categories/节气课件/谷雨.html","views":15938,"date":"2023-12-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/谷雨/ppt_covers/20260219153914_ppt_4_cover.jpg","categories":["节气课件"]},{"title":"小满","path":"/categories/节气课件/小满.html","views":18057,"date":"2023-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小满/ppt_covers/20260219153435_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"绘本-冬至节-微视频-教案-课件-反思","path":"/categories/节气课件/绘本-冬至节-微视频-教案-课件-反思.html","views":14211,"date":"2023-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/绘本-冬至节-微视频-教案-课件-反思/ppt_covers/20260219153751_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小寒节气课件教育教学","path":"/categories/节气课件/小寒节气课件教育教学.html","views":7926,"date":"2023-09-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小寒节气课件教育教学/ppt_covers/20260219153353_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"冬至主题班会","path":"/categories/节气课件/冬至主题班会.html","views":19444,"date":"2023-08-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/冬至主题班会/ppt_covers/20260219152957_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立春","path":"/categories/节气课件/中大班_社会科学_立春.html","views":6909,"date":"2023-07-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立春/ppt_covers/20260219152744_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"霜降","path":"/categories/节气课件/霜降.html","views":14371,"date":"2023-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/霜降/ppt_covers/20260219154027_ppt_6_cover.jpg","categories":["节气课件"]},{"title":"小中大班_科学社会_夏至","path":"/categories/节气课件/小中大班_科学社会_夏至.html","views":13606,"date":"2022-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中大班_科学社会_夏至/ppt_covers/20260219153301_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"雨水","path":"/categories/节气课件/雨水.html","views":7855,"date":"2022-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/雨水/ppt_covers/20260219153949_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"大寒","path":"/categories/节气课件/大寒.html","views":57223,"date":"2022-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大寒/ppt_covers/20260219153102_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"二十四节气-大雪-课件教案","path":"/categories/节气课件/二十四节气-大雪-课件教案.html","views":13772,"date":"2022-09-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/二十四节气-大雪-课件教案/ppt_covers/20260219152852_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小中大班_社会美术_过冬至啦","path":"/categories/节气课件/小中大班_社会美术_过冬至啦.html","views":17517,"date":"2021-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中大班_社会美术_过冬至啦/ppt_covers/20260219153252_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"蓝色插画卡通幼儿园大雪","path":"/categories/节气课件/蓝色插画卡通幼儿园大雪.html","views":10996,"date":"2021-10-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/蓝色插画卡通幼儿园大雪/ppt_covers/20260219153842_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_科学社会_谷雨","path":"/categories/节气课件/中大班_科学社会_谷雨.html","views":7868,"date":"2021-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_科学社会_谷雨/ppt_covers/20260219152844_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"立春-节气","path":"/categories/节气课件/立春-节气.html","views":19164,"date":"2021-04-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立春-节气/ppt_covers/20260219153741_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立夏","path":"/categories/节气课件/中大班_社会科学_立夏.html","views":4455,"date":"2021-03-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立夏/ppt_covers/20260219152737_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"白露","path":"/categories/节气课件/白露.html","views":8098,"date":"2020-06-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/白露/ppt_covers/20260219153654_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"大暑","path":"/categories/节气课件/大暑.html","views":10630,"date":"2020-05-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大暑/ppt_covers/20260219153153_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"二十四节气之立冬","path":"/categories/节气课件/二十四节气之立冬.html","views":8155,"date":"2020-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/二十四节气之立冬/ppt_covers/20260219152917_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_大寒","path":"/categories/节气课件/中大班_社会科学_大寒.html","views":14518,"date":"2020-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_大寒/ppt_covers/20260219152651_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"惊蛰","path":"/categories/节气课件/惊蛰.html","views":9815,"date":"2020-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/惊蛰/ppt_covers/20260219153606_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_芒种","path":"/categories/节气课件/中大班_社会科学_芒种.html","views":13915,"date":"2019-12-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_芒种/ppt_covers/20260219152802_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_小暑","path":"/categories/节气课件/中大班_社会科学_小暑.html","views":9906,"date":"2019-08-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_小暑/ppt_covers/20260219152710_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小寒","path":"/categories/节气课件/小寒.html","views":7860,"date":"2019-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小寒/ppt_covers/20260219153318_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"小中班_社会健康_温暖过冬至","path":"/categories/节气课件/小中班_社会健康_温暖过冬至.html","views":11257,"date":"2019-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班_社会健康_温暖过冬至/ppt_covers/20260219153307_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"芒种","path":"/categories/节气课件/芒种.html","views":6012,"date":"2019-06-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/芒种/ppt_covers/20260219153827_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_寒露","path":"/categories/节气课件/中大班_社会科学_寒露.html","views":4491,"date":"2019-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_寒露/ppt_covers/20260219152703_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"节气-秋分","path":"/categories/节气课件/节气-秋分.html","views":15309,"date":"2018-11-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/节气-秋分/ppt_covers/20260219153800_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"小雪PPT","path":"/categories/节气课件/小雪PPT.html","views":16814,"date":"2018-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小雪PPT/ppt_covers/20260219153500_ppt_5_cover.jpg","categories":["节气课件"]},{"title":"幼儿园二十四节气之小雪","path":"/categories/节气课件/幼儿园二十四节气之小雪.html","views":13330,"date":"2018-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园二十四节气之小雪/ppt_covers/20260219153545_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_立秋","path":"/categories/节气课件/中大班_社会科学_立秋.html","views":5252,"date":"2018-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_立秋/ppt_covers/20260219152754_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"立冬","path":"/categories/节气课件/立冬.html","views":12752,"date":"2017-10-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立冬/ppt_covers/20260219153711_ppt_3_cover.jpg","categories":["节气课件"]},{"title":"夏至课件PPT","path":"/categories/节气课件/夏至课件PPT.html","views":17459,"date":"2017-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/夏至课件PPT/ppt_covers/20260219153034_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_惊蛰","path":"/categories/节气课件/中大班_社会科学_惊蛰.html","views":14591,"date":"2017-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_惊蛰/ppt_covers/20260219152717_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"大雪PPT","path":"/categories/节气课件/大雪PPT.html","views":7724,"date":"2017-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大雪PPT/ppt_covers/20260219153205_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"处暑","path":"/categories/节气课件/处暑.html","views":13474,"date":"2016-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/处暑/ppt_covers/20260219153007_ppt_2_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_冬至","path":"/categories/节气课件/中大班_社会科学_冬至.html","views":13259,"date":"2016-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_冬至/ppt_covers/20260219152645_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"春分","path":"/categories/节气课件/春分.html","views":13036,"date":"2016-09-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/春分/ppt_covers/20260219153631_ppt_4_cover.jpg","categories":["节气课件"]},{"title":"立秋","path":"/categories/节气课件/立秋.html","views":15937,"date":"2016-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立秋/ppt_covers/20260219153747_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_大暑","path":"/categories/节气课件/中大班_社会科学_大暑.html","views":17733,"date":"2016-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_大暑/ppt_covers/20260219152658_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"幼儿园二十四节气霜降","path":"/categories/节气课件/幼儿园二十四节气霜降.html","views":14684,"date":"2016-07-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园二十四节气霜降/ppt_covers/20260219153555_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"中大班_社会科学_雨水","path":"/categories/节气课件/中大班_社会科学_雨水.html","views":16201,"date":"2016-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中大班_社会科学_雨水/ppt_covers/20260219152811_ppt_1_cover.jpg","categories":["节气课件"]},{"title":"立春","path":"/categories/节气课件/立春.html","views":55448,"date":"2016-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/立春/ppt_covers/20260219153733_ppt_1_cover.jpg","categories":["节气课件"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

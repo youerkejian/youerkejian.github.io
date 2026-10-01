@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：中班</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"022可爱小太阳中班家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/022可爱小太阳中班家长会PPTppt讲稿.html","views":6851,"date":"2025-12-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/022可爱小太阳中班家长会PPTppt讲稿/ppt_1_cover/20260221003626_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"007中班下学期开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/007中班下学期开学家长会ppt讲稿.html","views":17027,"date":"2025-07-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/007中班下学期开学家长会ppt讲稿/ppt_1_cover/20260221003339_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"026中班春季开学家长会PPT-家园携手共育新苗-ppt讲稿","path":"/categories/家长会/第二学期/中班/026中班春季开学家长会PPT-家园携手共育新苗-ppt讲稿.html","views":14447,"date":"2025-06-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/026中班春季开学家长会PPT-家园携手共育新苗-ppt讲稿/ppt_1_cover/20260221003709_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"021中班下学期家长会PPT猫头鹰ppt讲稿","path":"/categories/家长会/第二学期/中班/021中班下学期家长会PPT猫头鹰ppt讲稿.html","views":17540,"date":"2025-01-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/021中班下学期家长会PPT猫头鹰ppt讲稿/ppt_1_cover/20260221003615_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"016以爱之名遇见成长中班下学期家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/016以爱之名遇见成长中班下学期家长会课件ppt讲稿.html","views":10988,"date":"2024-05-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/016以爱之名遇见成长中班下学期家长会课件ppt讲稿/ppt_1_cover/20260221003508_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"020狮子中班家长会pptppt讲稿","path":"/categories/家长会/第二学期/中班/020狮子中班家长会pptppt讲稿.html","views":11840,"date":"2023-08-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/020狮子中班家长会pptppt讲稿/ppt_1_cover/20260221003603_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"017中班春季蓝色小清新家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/017中班春季蓝色小清新家长会ppt讲稿.html","views":10604,"date":"2023-02-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/017中班春季蓝色小清新家长会ppt讲稿/ppt_1_cover/20260221003537_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"008中班家长会pptppt讲稿","path":"/categories/家长会/第二学期/中班/008中班家长会pptppt讲稿.html","views":13154,"date":"2022-10-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/008中班家长会pptppt讲稿/ppt_1_cover/20260221003349_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"028中班春季开学家长会PPT彩色森林ppt讲稿","path":"/categories/家长会/第二学期/中班/028中班春季开学家长会PPT彩色森林ppt讲稿.html","views":16321,"date":"2022-07-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/028中班春季开学家长会PPT彩色森林ppt讲稿/ppt_1_cover/20260221003731_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"014中班春季开学家长会1新绿色ppt讲稿","path":"/categories/家长会/第二学期/中班/014中班春季开学家长会1新绿色ppt讲稿.html","views":7813,"date":"2022-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/014中班春季开学家长会1新绿色ppt讲稿/ppt_1_cover/20260221003456_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"029中班春季开学家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/029中班春季开学家长会PPTppt讲稿.html","views":13080,"date":"2022-03-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/029中班春季开学家长会PPTppt讲稿/ppt_1_cover/20260221003741_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"019中班下学期家长会恐龙ppt讲稿","path":"/categories/家长会/第二学期/中班/019中班下学期家长会恐龙ppt讲稿.html","views":5071,"date":"2022-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/019中班下学期家长会恐龙ppt讲稿/ppt_1_cover/20260221003554_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"012中班家长会为爱相约共育花开ppt讲稿","path":"/categories/家长会/第二学期/中班/012中班家长会为爱相约共育花开ppt讲稿.html","views":5823,"date":"2021-12-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/012中班家长会为爱相约共育花开ppt讲稿/ppt_1_cover/20260221003436_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"011中班下学期开学家长会-见证精彩-PPTppt讲稿","path":"/categories/家长会/第二学期/中班/011中班下学期开学家长会-见证精彩-PPTppt讲稿.html","views":5064,"date":"2021-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/011中班下学期开学家长会-见证精彩-PPTppt讲稿/ppt_1_cover/20260221003428_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"015幼儿园中班家长会PPT精品版ppt讲稿","path":"/categories/家长会/第二学期/中班/015幼儿园中班家长会PPT精品版ppt讲稿.html","views":28732,"date":"2021-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/015幼儿园中班家长会PPT精品版ppt讲稿/ppt_1_cover/20260221003502_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"024中班家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/024中班家长会PPTppt讲稿.html","views":9304,"date":"2021-03-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/024中班家长会PPTppt讲稿/ppt_1_cover/20260221003644_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"001中班春季开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/001中班春季开学家长会ppt讲稿.html","views":6011,"date":"2021-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001中班春季开学家长会ppt讲稿/ppt_1_cover/20260221003206_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"003中班家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/003中班家长会课件ppt讲稿.html","views":12745,"date":"2020-05-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/003中班家长会课件ppt讲稿/ppt_1_cover/20260221003254_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"013家园齐携手中班下家长会狐狸新ppt讲稿","path":"/categories/家长会/第二学期/中班/013家园齐携手中班下家长会狐狸新ppt讲稿.html","views":13906,"date":"2020-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/013家园齐携手中班下家长会狐狸新ppt讲稿/ppt_1_cover/20260221003446_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"023中班家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/023中班家长会PPTppt讲稿.html","views":6729,"date":"2019-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/023中班家长会PPTppt讲稿/ppt_1_cover/20260221003634_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"031中班春季开学家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/031中班春季开学家长会PPTppt讲稿.html","views":9768,"date":"2019-11-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/031中班春季开学家长会PPTppt讲稿/ppt_1_cover/20260221003802_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"027中班春季开学家长会PPT-携手同行静待花开-ppt讲稿","path":"/categories/家长会/第二学期/中班/027中班春季开学家长会PPT-携手同行静待花开-ppt讲稿.html","views":15355,"date":"2019-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/027中班春季开学家长会PPT-携手同行静待花开-ppt讲稿/ppt_1_cover/20260221003722_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"009中班春季开学互动式家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/009中班春季开学互动式家长会课件ppt讲稿.html","views":7721,"date":"2019-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/009中班春季开学互动式家长会课件ppt讲稿/ppt_1_cover/20260221003358_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"005中班春季家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/005中班春季家长会ppt讲稿.html","views":11648,"date":"2019-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/005中班春季家长会ppt讲稿/ppt_1_cover/20260221003317_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"032中班春季开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/032中班春季开学家长会ppt讲稿.html","views":9149,"date":"2018-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/032中班春季开学家长会ppt讲稿/ppt_1_cover/20260221003809_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"004中班家长会春暖花开携手未来ppt讲稿","path":"/categories/家长会/第二学期/中班/004中班家长会春暖花开携手未来ppt讲稿.html","views":15795,"date":"2018-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/004中班家长会春暖花开携手未来ppt讲稿/ppt_1_cover/20260221003303_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"025-心相遇童成长-中班春季开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/025-心相遇童成长-中班春季开学家长会ppt讲稿.html","views":17150,"date":"2018-11-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/025-心相遇童成长-中班春季开学家长会ppt讲稿/ppt_1_cover/20260221003658_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"018中班下学期家长会PPT双向奔赴ppt讲稿","path":"/categories/家长会/第二学期/中班/018中班下学期家长会PPT双向奔赴ppt讲稿.html","views":19892,"date":"2018-05-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/018中班下学期家长会PPT双向奔赴ppt讲稿/ppt_1_cover/20260221003545_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"006中班下学期家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/006中班下学期家长会ppt讲稿.html","views":13678,"date":"2017-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/006中班下学期家长会ppt讲稿/ppt_1_cover/20260221003328_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"030中班春季开学家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/030中班春季开学家长会PPTppt讲稿.html","views":19642,"date":"2017-07-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/030中班春季开学家长会PPTppt讲稿/ppt_1_cover/20260221003755_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"002中班下学期家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/002中班下学期家长会课件ppt讲稿.html","views":19472,"date":"2016-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002中班下学期家长会课件ppt讲稿/ppt_1_cover/20260221003233_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"010中班第二学期家长会绿色ppt讲稿","path":"/categories/家长会/第二学期/中班/010中班第二学期家长会绿色ppt讲稿.html","views":116275,"date":"2016-04-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/010中班第二学期家长会绿色ppt讲稿/ppt_1_cover/20260221003412_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"022可爱小太阳中班家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/022可爱小太阳中班家长会PPTppt讲稿.html","views":6851,"date":"2025-12-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/022可爱小太阳中班家长会PPTppt讲稿/ppt_1_cover/20260221003626_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"007中班下学期开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/007中班下学期开学家长会ppt讲稿.html","views":17027,"date":"2025-07-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/007中班下学期开学家长会ppt讲稿/ppt_1_cover/20260221003339_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"026中班春季开学家长会PPT-家园携手共育新苗-ppt讲稿","path":"/categories/家长会/第二学期/中班/026中班春季开学家长会PPT-家园携手共育新苗-ppt讲稿.html","views":14447,"date":"2025-06-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/026中班春季开学家长会PPT-家园携手共育新苗-ppt讲稿/ppt_1_cover/20260221003709_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"021中班下学期家长会PPT猫头鹰ppt讲稿","path":"/categories/家长会/第二学期/中班/021中班下学期家长会PPT猫头鹰ppt讲稿.html","views":17540,"date":"2025-01-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/021中班下学期家长会PPT猫头鹰ppt讲稿/ppt_1_cover/20260221003615_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"016以爱之名遇见成长中班下学期家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/016以爱之名遇见成长中班下学期家长会课件ppt讲稿.html","views":10988,"date":"2024-05-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/016以爱之名遇见成长中班下学期家长会课件ppt讲稿/ppt_1_cover/20260221003508_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"020狮子中班家长会pptppt讲稿","path":"/categories/家长会/第二学期/中班/020狮子中班家长会pptppt讲稿.html","views":11840,"date":"2023-08-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/020狮子中班家长会pptppt讲稿/ppt_1_cover/20260221003603_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"017中班春季蓝色小清新家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/017中班春季蓝色小清新家长会ppt讲稿.html","views":10604,"date":"2023-02-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/017中班春季蓝色小清新家长会ppt讲稿/ppt_1_cover/20260221003537_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"008中班家长会pptppt讲稿","path":"/categories/家长会/第二学期/中班/008中班家长会pptppt讲稿.html","views":13154,"date":"2022-10-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/008中班家长会pptppt讲稿/ppt_1_cover/20260221003349_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"028中班春季开学家长会PPT彩色森林ppt讲稿","path":"/categories/家长会/第二学期/中班/028中班春季开学家长会PPT彩色森林ppt讲稿.html","views":16321,"date":"2022-07-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/028中班春季开学家长会PPT彩色森林ppt讲稿/ppt_1_cover/20260221003731_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"014中班春季开学家长会1新绿色ppt讲稿","path":"/categories/家长会/第二学期/中班/014中班春季开学家长会1新绿色ppt讲稿.html","views":7813,"date":"2022-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/014中班春季开学家长会1新绿色ppt讲稿/ppt_1_cover/20260221003456_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"029中班春季开学家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/029中班春季开学家长会PPTppt讲稿.html","views":13080,"date":"2022-03-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/029中班春季开学家长会PPTppt讲稿/ppt_1_cover/20260221003741_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"019中班下学期家长会恐龙ppt讲稿","path":"/categories/家长会/第二学期/中班/019中班下学期家长会恐龙ppt讲稿.html","views":5071,"date":"2022-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/019中班下学期家长会恐龙ppt讲稿/ppt_1_cover/20260221003554_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"012中班家长会为爱相约共育花开ppt讲稿","path":"/categories/家长会/第二学期/中班/012中班家长会为爱相约共育花开ppt讲稿.html","views":5823,"date":"2021-12-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/012中班家长会为爱相约共育花开ppt讲稿/ppt_1_cover/20260221003436_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"011中班下学期开学家长会-见证精彩-PPTppt讲稿","path":"/categories/家长会/第二学期/中班/011中班下学期开学家长会-见证精彩-PPTppt讲稿.html","views":5064,"date":"2021-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/011中班下学期开学家长会-见证精彩-PPTppt讲稿/ppt_1_cover/20260221003428_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"015幼儿园中班家长会PPT精品版ppt讲稿","path":"/categories/家长会/第二学期/中班/015幼儿园中班家长会PPT精品版ppt讲稿.html","views":28732,"date":"2021-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/015幼儿园中班家长会PPT精品版ppt讲稿/ppt_1_cover/20260221003502_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"024中班家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/024中班家长会PPTppt讲稿.html","views":9304,"date":"2021-03-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/024中班家长会PPTppt讲稿/ppt_1_cover/20260221003644_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"001中班春季开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/001中班春季开学家长会ppt讲稿.html","views":6011,"date":"2021-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001中班春季开学家长会ppt讲稿/ppt_1_cover/20260221003206_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"003中班家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/003中班家长会课件ppt讲稿.html","views":12745,"date":"2020-05-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/003中班家长会课件ppt讲稿/ppt_1_cover/20260221003254_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"013家园齐携手中班下家长会狐狸新ppt讲稿","path":"/categories/家长会/第二学期/中班/013家园齐携手中班下家长会狐狸新ppt讲稿.html","views":13906,"date":"2020-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/013家园齐携手中班下家长会狐狸新ppt讲稿/ppt_1_cover/20260221003446_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"023中班家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/023中班家长会PPTppt讲稿.html","views":6729,"date":"2019-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/023中班家长会PPTppt讲稿/ppt_1_cover/20260221003634_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"031中班春季开学家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/031中班春季开学家长会PPTppt讲稿.html","views":9768,"date":"2019-11-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/031中班春季开学家长会PPTppt讲稿/ppt_1_cover/20260221003802_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"027中班春季开学家长会PPT-携手同行静待花开-ppt讲稿","path":"/categories/家长会/第二学期/中班/027中班春季开学家长会PPT-携手同行静待花开-ppt讲稿.html","views":15355,"date":"2019-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/027中班春季开学家长会PPT-携手同行静待花开-ppt讲稿/ppt_1_cover/20260221003722_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"009中班春季开学互动式家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/009中班春季开学互动式家长会课件ppt讲稿.html","views":7721,"date":"2019-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/009中班春季开学互动式家长会课件ppt讲稿/ppt_1_cover/20260221003358_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"005中班春季家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/005中班春季家长会ppt讲稿.html","views":11648,"date":"2019-03-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/005中班春季家长会ppt讲稿/ppt_1_cover/20260221003317_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"032中班春季开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/032中班春季开学家长会ppt讲稿.html","views":9149,"date":"2018-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/032中班春季开学家长会ppt讲稿/ppt_1_cover/20260221003809_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"004中班家长会春暖花开携手未来ppt讲稿","path":"/categories/家长会/第二学期/中班/004中班家长会春暖花开携手未来ppt讲稿.html","views":15795,"date":"2018-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/004中班家长会春暖花开携手未来ppt讲稿/ppt_1_cover/20260221003303_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"025-心相遇童成长-中班春季开学家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/025-心相遇童成长-中班春季开学家长会ppt讲稿.html","views":17150,"date":"2018-11-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/025-心相遇童成长-中班春季开学家长会ppt讲稿/ppt_1_cover/20260221003658_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"018中班下学期家长会PPT双向奔赴ppt讲稿","path":"/categories/家长会/第二学期/中班/018中班下学期家长会PPT双向奔赴ppt讲稿.html","views":19892,"date":"2018-05-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/018中班下学期家长会PPT双向奔赴ppt讲稿/ppt_1_cover/20260221003545_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"006中班下学期家长会ppt讲稿","path":"/categories/家长会/第二学期/中班/006中班下学期家长会ppt讲稿.html","views":13678,"date":"2017-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/006中班下学期家长会ppt讲稿/ppt_1_cover/20260221003328_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"030中班春季开学家长会PPTppt讲稿","path":"/categories/家长会/第二学期/中班/030中班春季开学家长会PPTppt讲稿.html","views":19642,"date":"2017-07-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/030中班春季开学家长会PPTppt讲稿/ppt_1_cover/20260221003755_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"002中班下学期家长会课件ppt讲稿","path":"/categories/家长会/第二学期/中班/002中班下学期家长会课件ppt讲稿.html","views":19472,"date":"2016-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002中班下学期家长会课件ppt讲稿/ppt_1_cover/20260221003233_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]},{"title":"010中班第二学期家长会绿色ppt讲稿","path":"/categories/家长会/第二学期/中班/010中班第二学期家长会绿色ppt讲稿.html","views":116275,"date":"2016-04-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/010中班第二学期家长会绿色ppt讲稿/ppt_1_cover/20260221003412_ppt_cover_wm.jpg","categories":["家长会","第二学期","中班"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"005小班家长会双向奔赴共育未来ppt讲稿","path":"/categories/家长会/第一学期/小班/005小班家长会双向奔赴共育未来ppt讲稿.html","views":12839,"date":"2026-02-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/005小班家长会双向奔赴共育未来ppt讲稿/ppt_1_cover/20260221012041_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"017新学期小班家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/017新学期小班家长会ppt讲稿.html","views":17900,"date":"2025-12-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/017新学期小班家长会ppt讲稿/ppt_1_cover/20260221012417_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"048秋季新生家长会-今天起我就长大啦-ppt发言稿","path":"/categories/家长会/第一学期/小班/048秋季新生家长会-今天起我就长大啦-ppt发言稿.html","views":18140,"date":"2025-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/048秋季新生家长会-今天起我就长大啦-ppt发言稿/ppt_1_cover/20260221013151_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"035小班新生家长会1PPT发言稿","path":"/categories/家长会/第一学期/小班/035小班新生家长会1PPT发言稿.html","views":15271,"date":"2025-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/035小班新生家长会1PPT发言稿/ppt_1_cover/20260221012852_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"033小班新生家长会你好闪光的小孩","path":"/categories/家长会/第一学期/小班/033小班新生家长会你好闪光的小孩.html","views":16088,"date":"2025-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/033小班新生家长会你好闪光的小孩/ppt_1_cover/20260221012808_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"034小班新生家长会花缓缓开","path":"/categories/家长会/第一学期/小班/034小班新生家长会花缓缓开.html","views":4004,"date":"2024-12-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/034小班新生家长会花缓缓开/ppt_1_cover/20260221012818_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"002幼儿园新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/002幼儿园新生家长会ppt讲稿.html","views":5217,"date":"2024-06-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002幼儿园新生家长会ppt讲稿/ppt_1_cover/20260221012002_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"020小班家长会小恐龙ppt讲稿","path":"/categories/家长会/第一学期/小班/020小班家长会小恐龙ppt讲稿.html","views":11827,"date":"2023-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/020小班家长会小恐龙ppt讲稿/ppt_1_cover/20260221012510_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"042小班开学家长会恐龙故事从此刻开始","path":"/categories/家长会/第一学期/小班/042小班开学家长会恐龙故事从此刻开始.html","views":8984,"date":"2023-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/042小班开学家长会恐龙故事从此刻开始/ppt_1_cover/20260221013019_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"004小班新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/004小班新生家长会PPTppt讲稿.html","views":16440,"date":"2023-02-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/004小班新生家长会PPTppt讲稿/ppt_1_cover/20260221012029_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"025小班沟通从心开始ppt讲稿","path":"/categories/家长会/第一学期/小班/025小班沟通从心开始ppt讲稿.html","views":6193,"date":"2023-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/025小班沟通从心开始ppt讲稿/ppt_1_cover/20260221012627_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"008小班新生家长会PPT通用ppt讲稿","path":"/categories/家长会/第一学期/小班/008小班新生家长会PPT通用ppt讲稿.html","views":10254,"date":"2022-11-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/008小班新生家长会PPT通用ppt讲稿/ppt_1_cover/20260221012120_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"021-遇见成长蓄力启航-2023小班新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/021-遇见成长蓄力启航-2023小班新生家长会ppt讲稿.html","views":8607,"date":"2022-11-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/021-遇见成长蓄力启航-2023小班新生家长会ppt讲稿/ppt_1_cover/20260221012525_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"032秋季小班家长会-宝贝你可以慢慢长大-ppt发言稿","path":"/categories/家长会/第一学期/小班/032秋季小班家长会-宝贝你可以慢慢长大-ppt发言稿.html","views":76038,"date":"2022-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/032秋季小班家长会-宝贝你可以慢慢长大-ppt发言稿/ppt_1_cover/20260221012800_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"026小班新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/026小班新生家长会PPTppt讲稿.html","views":14458,"date":"2022-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/026小班新生家长会PPTppt讲稿/ppt_1_cover/20260221012640_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"041小班秋季学期新生家长会","path":"/categories/家长会/第一学期/小班/041小班秋季学期新生家长会.html","views":11031,"date":"2022-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/041小班秋季学期新生家长会/ppt_1_cover/20260221013004_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"045-嗨合伙人初见面-秋季开学小班新生家长会","path":"/categories/家长会/第一学期/小班/045-嗨合伙人初见面-秋季开学小班新生家长会.html","views":71355,"date":"2022-06-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/045-嗨合伙人初见面-秋季开学小班新生家长会/ppt_1_cover/20260221013110_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"047-小花培养计划-2024秋季小班托班家长会","path":"/categories/家长会/第一学期/小班/047-小花培养计划-2024秋季小班托班家长会.html","views":17628,"date":"2022-05-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/047-小花培养计划-2024秋季小班托班家长会/ppt_1_cover/20260221013136_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"030新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/030新生家长会PPTppt讲稿.html","views":9069,"date":"2021-11-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/030新生家长会PPTppt讲稿/ppt_1_cover/20260221012736_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"022-幼见美好共赴新程-小班秋季新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/022-幼见美好共赴新程-小班秋季新生家长会ppt讲稿.html","views":11550,"date":"2021-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/022-幼见美好共赴新程-小班秋季新生家长会ppt讲稿/ppt_1_cover/20260221012542_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"006淡黄可爱小班开学家长会pptppt讲稿","path":"/categories/家长会/第一学期/小班/006淡黄可爱小班开学家长会pptppt讲稿.html","views":11343,"date":"2021-03-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/006淡黄可爱小班开学家长会pptppt讲稿/ppt_1_cover/20260221012054_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"016新生家长见面会ppt讲稿","path":"/categories/家长会/第一学期/小班/016新生家长见面会ppt讲稿.html","views":26826,"date":"2021-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/016新生家长见面会ppt讲稿/ppt_1_cover/20260221012400_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"053-第一次上学-小班上学期家长会","path":"/categories/家长会/第一学期/小班/053-第一次上学-小班上学期家长会.html","views":7837,"date":"2021-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/053-第一次上学-小班上学期家长会/ppt_1_cover/20260221013307_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"003小班秋季新生家长会pptppt讲稿","path":"/categories/家长会/第一学期/小班/003小班秋季新生家长会pptppt讲稿.html","views":19991,"date":"2021-01-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/003小班秋季新生家长会pptppt讲稿/ppt_1_cover/20260221012016_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"039秋季小班家长会-你的爱里藏着他的未来-ppt发言稿","path":"/categories/家长会/第一学期/小班/039秋季小班家长会-你的爱里藏着他的未来-ppt发言稿.html","views":5625,"date":"2020-11-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/039秋季小班家长会-你的爱里藏着他的未来-ppt发言稿/ppt_1_cover/20260221012936_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"001小班新生入园上学期家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/001小班新生入园上学期家长会ppt讲稿.html","views":12711,"date":"2020-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001小班新生入园上学期家长会ppt讲稿/ppt_1_cover/20260221011956_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"010小班上学期新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/010小班上学期新生家长会ppt讲稿.html","views":98153,"date":"2020-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/010小班上学期新生家长会ppt讲稿/ppt_1_cover/20260221012148_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"011小班家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/011小班家长会ppt讲稿.html","views":4736,"date":"2020-09-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/011小班家长会ppt讲稿/ppt_1_cover/20260221012201_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"040秋季小班家长会-宝贝你可以慢慢长大","path":"/categories/家长会/第一学期/小班/040秋季小班家长会-宝贝你可以慢慢长大.html","views":8432,"date":"2020-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/040秋季小班家长会-宝贝你可以慢慢长大/ppt_1_cover/20260221012947_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"023小班新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/023小班新生家长会ppt讲稿.html","views":16547,"date":"2019-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/023小班新生家长会ppt讲稿/ppt_1_cover/20260221012555_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"043这样爱我刚刚好小班上新生家长会","path":"/categories/家长会/第一学期/小班/043这样爱我刚刚好小班上新生家长会.html","views":12546,"date":"2019-10-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/043这样爱我刚刚好小班上新生家长会/ppt_1_cover/20260221013036_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"044小班秋季开学家长会故事从此刻开始","path":"/categories/家长会/第一学期/小班/044小班秋季开学家长会故事从此刻开始.html","views":8613,"date":"2019-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/044小班秋季开学家长会故事从此刻开始/ppt_1_cover/20260221013053_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"009幼儿园小班新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/009幼儿园小班新生家长会ppt讲稿.html","views":37564,"date":"2019-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/009幼儿园小班新生家长会ppt讲稿/ppt_1_cover/20260221012134_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"050小班秋季新生家长会嗨是人生第一次啊","path":"/categories/家长会/第一学期/小班/050小班秋季新生家长会嗨是人生第一次啊.html","views":15982,"date":"2019-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/050小班秋季新生家长会嗨是人生第一次啊/ppt_1_cover/20260221013226_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"027小班家长会PPT小象ppt讲稿","path":"/categories/家长会/第一学期/小班/027小班家长会PPT小象ppt讲稿.html","views":7225,"date":"2019-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/027小班家长会PPT小象ppt讲稿/ppt_1_cover/20260221012655_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"037秋季新生家长会缓解入园焦虑-人生第一次上学-家长会ppt纪录片发言稿","path":"/categories/家长会/第一学期/小班/037秋季新生家长会缓解入园焦虑-人生第一次上学-家长会ppt纪录片发言稿.html","views":13346,"date":"2018-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/037秋季新生家长会缓解入园焦虑-人生第一次上学-家长会ppt纪录片发言稿/ppt_1_cover/20260221012917_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"007小班家长会-用心陪伴静待花开-ppt讲稿","path":"/categories/家长会/第一学期/小班/007小班家长会-用心陪伴静待花开-ppt讲稿.html","views":16967,"date":"2018-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/007小班家长会-用心陪伴静待花开-ppt讲稿/ppt_1_cover/20260221012108_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"019一场爱与信任的相遇ppt讲稿","path":"/categories/家长会/第一学期/小班/019一场爱与信任的相遇ppt讲稿.html","views":9488,"date":"2018-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/019一场爱与信任的相遇ppt讲稿/ppt_1_cover/20260221012454_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"036秋季新生家长会-幸福童年从这里开始-ppt发言稿","path":"/categories/家长会/第一学期/小班/036秋季新生家长会-幸福童年从这里开始-ppt发言稿.html","views":13416,"date":"2018-07-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/036秋季新生家长会-幸福童年从这里开始-ppt发言稿/ppt_1_cover/20260221012901_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"013小班第一学期新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/013小班第一学期新生家长会ppt讲稿.html","views":13754,"date":"2018-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/013小班第一学期新生家长会ppt讲稿/ppt_1_cover/20260221012305_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"029小班上学期家长会让故事在相遇中开始ppt讲稿","path":"/categories/家长会/第一学期/小班/029小班上学期家长会让故事在相遇中开始ppt讲稿.html","views":6360,"date":"2018-02-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/029小班上学期家长会让故事在相遇中开始ppt讲稿/ppt_1_cover/20260221012728_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"014小班秋季新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/014小班秋季新生家长会PPTppt讲稿.html","views":8799,"date":"2018-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/014小班秋季新生家长会PPTppt讲稿/ppt_1_cover/20260221012322_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"052家长会小班","path":"/categories/家长会/第一学期/小班/052家长会小班.html","views":11196,"date":"2018-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/052家长会小班/ppt_1_cover/20260221013253_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"024幼儿园小班开学新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/024幼儿园小班开学新生家长会PPTppt讲稿.html","views":18912,"date":"2017-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/024幼儿园小班开学新生家长会PPTppt讲稿/ppt_1_cover/20260221012611_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"038秋季小班家长会-童年很短用爱填满-ppt发言稿","path":"/categories/家长会/第一学期/小班/038秋季小班家长会-童年很短用爱填满-ppt发言稿.html","views":17437,"date":"2017-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/038秋季小班家长会-童年很短用爱填满-ppt发言稿/ppt_1_cover/20260221012927_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"049小班秋季开学家长会-不慌不忙按时长大","path":"/categories/家长会/第一学期/小班/049小班秋季开学家长会-不慌不忙按时长大.html","views":18749,"date":"2017-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/049小班秋季开学家长会-不慌不忙按时长大/ppt_1_cover/20260221013210_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"031秋季小班家长会-慢慢亦漫漫-ppt发言稿","path":"/categories/家长会/第一学期/小班/031秋季小班家长会-慢慢亦漫漫-ppt发言稿.html","views":16670,"date":"2017-07-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/031秋季小班家长会-慢慢亦漫漫-ppt发言稿/ppt_1_cover/20260221012748_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"046-童年短暂宝贝可以慢慢长大-秋季小班家长会","path":"/categories/家长会/第一学期/小班/046-童年短暂宝贝可以慢慢长大-秋季小班家长会.html","views":7500,"date":"2017-07-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/046-童年短暂宝贝可以慢慢长大-秋季小班家长会/ppt_1_cover/20260221013124_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"012小班新生家长会pptppt讲稿","path":"/categories/家长会/第一学期/小班/012小班新生家长会pptppt讲稿.html","views":19914,"date":"2017-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/012小班新生家长会pptppt讲稿/ppt_1_cover/20260221012254_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"051新生家长会-遇见-PPT发言稿","path":"/categories/家长会/第一学期/小班/051新生家长会-遇见-PPT发言稿.html","views":19670,"date":"2017-03-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/051新生家长会-遇见-PPT发言稿/ppt_1_cover/20260221013243_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"018-故事从此刻开始-小班秋季开学家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/018-故事从此刻开始-小班秋季开学家长会ppt讲稿.html","views":8773,"date":"2017-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/018-故事从此刻开始-小班秋季开学家长会ppt讲稿/ppt_1_cover/20260221012427_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"028小班上学期新生家长会-爱与信任-PPTppt讲稿","path":"/categories/家长会/第一学期/小班/028小班上学期新生家长会-爱与信任-PPTppt讲稿.html","views":9035,"date":"2016-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/028小班上学期新生家长会-爱与信任-PPTppt讲稿/ppt_1_cover/20260221012711_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"015小班上学期开学家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/015小班上学期开学家长会ppt讲稿.html","views":7737,"date":"2016-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/015小班上学期开学家长会ppt讲稿/ppt_1_cover/20260221012336_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"005小班家长会双向奔赴共育未来ppt讲稿","path":"/categories/家长会/第一学期/小班/005小班家长会双向奔赴共育未来ppt讲稿.html","views":12839,"date":"2026-02-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/005小班家长会双向奔赴共育未来ppt讲稿/ppt_1_cover/20260221012041_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"017新学期小班家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/017新学期小班家长会ppt讲稿.html","views":17900,"date":"2025-12-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/017新学期小班家长会ppt讲稿/ppt_1_cover/20260221012417_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"048秋季新生家长会-今天起我就长大啦-ppt发言稿","path":"/categories/家长会/第一学期/小班/048秋季新生家长会-今天起我就长大啦-ppt发言稿.html","views":18140,"date":"2025-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/048秋季新生家长会-今天起我就长大啦-ppt发言稿/ppt_1_cover/20260221013151_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"035小班新生家长会1PPT发言稿","path":"/categories/家长会/第一学期/小班/035小班新生家长会1PPT发言稿.html","views":15271,"date":"2025-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/035小班新生家长会1PPT发言稿/ppt_1_cover/20260221012852_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"033小班新生家长会你好闪光的小孩","path":"/categories/家长会/第一学期/小班/033小班新生家长会你好闪光的小孩.html","views":16088,"date":"2025-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/033小班新生家长会你好闪光的小孩/ppt_1_cover/20260221012808_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"034小班新生家长会花缓缓开","path":"/categories/家长会/第一学期/小班/034小班新生家长会花缓缓开.html","views":4004,"date":"2024-12-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/034小班新生家长会花缓缓开/ppt_1_cover/20260221012818_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"002幼儿园新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/002幼儿园新生家长会ppt讲稿.html","views":5217,"date":"2024-06-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002幼儿园新生家长会ppt讲稿/ppt_1_cover/20260221012002_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"020小班家长会小恐龙ppt讲稿","path":"/categories/家长会/第一学期/小班/020小班家长会小恐龙ppt讲稿.html","views":11827,"date":"2023-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/020小班家长会小恐龙ppt讲稿/ppt_1_cover/20260221012510_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"042小班开学家长会恐龙故事从此刻开始","path":"/categories/家长会/第一学期/小班/042小班开学家长会恐龙故事从此刻开始.html","views":8984,"date":"2023-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/042小班开学家长会恐龙故事从此刻开始/ppt_1_cover/20260221013019_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"004小班新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/004小班新生家长会PPTppt讲稿.html","views":16440,"date":"2023-02-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/004小班新生家长会PPTppt讲稿/ppt_1_cover/20260221012029_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"025小班沟通从心开始ppt讲稿","path":"/categories/家长会/第一学期/小班/025小班沟通从心开始ppt讲稿.html","views":6193,"date":"2023-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/025小班沟通从心开始ppt讲稿/ppt_1_cover/20260221012627_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"008小班新生家长会PPT通用ppt讲稿","path":"/categories/家长会/第一学期/小班/008小班新生家长会PPT通用ppt讲稿.html","views":10254,"date":"2022-11-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/008小班新生家长会PPT通用ppt讲稿/ppt_1_cover/20260221012120_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"021-遇见成长蓄力启航-2023小班新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/021-遇见成长蓄力启航-2023小班新生家长会ppt讲稿.html","views":8607,"date":"2022-11-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/021-遇见成长蓄力启航-2023小班新生家长会ppt讲稿/ppt_1_cover/20260221012525_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"032秋季小班家长会-宝贝你可以慢慢长大-ppt发言稿","path":"/categories/家长会/第一学期/小班/032秋季小班家长会-宝贝你可以慢慢长大-ppt发言稿.html","views":76038,"date":"2022-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/032秋季小班家长会-宝贝你可以慢慢长大-ppt发言稿/ppt_1_cover/20260221012800_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"026小班新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/026小班新生家长会PPTppt讲稿.html","views":14458,"date":"2022-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/026小班新生家长会PPTppt讲稿/ppt_1_cover/20260221012640_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"041小班秋季学期新生家长会","path":"/categories/家长会/第一学期/小班/041小班秋季学期新生家长会.html","views":11031,"date":"2022-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/041小班秋季学期新生家长会/ppt_1_cover/20260221013004_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"045-嗨合伙人初见面-秋季开学小班新生家长会","path":"/categories/家长会/第一学期/小班/045-嗨合伙人初见面-秋季开学小班新生家长会.html","views":71355,"date":"2022-06-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/045-嗨合伙人初见面-秋季开学小班新生家长会/ppt_1_cover/20260221013110_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"047-小花培养计划-2024秋季小班托班家长会","path":"/categories/家长会/第一学期/小班/047-小花培养计划-2024秋季小班托班家长会.html","views":17628,"date":"2022-05-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/047-小花培养计划-2024秋季小班托班家长会/ppt_1_cover/20260221013136_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"030新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/030新生家长会PPTppt讲稿.html","views":9069,"date":"2021-11-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/030新生家长会PPTppt讲稿/ppt_1_cover/20260221012736_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"022-幼见美好共赴新程-小班秋季新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/022-幼见美好共赴新程-小班秋季新生家长会ppt讲稿.html","views":11550,"date":"2021-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/022-幼见美好共赴新程-小班秋季新生家长会ppt讲稿/ppt_1_cover/20260221012542_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"006淡黄可爱小班开学家长会pptppt讲稿","path":"/categories/家长会/第一学期/小班/006淡黄可爱小班开学家长会pptppt讲稿.html","views":11343,"date":"2021-03-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/006淡黄可爱小班开学家长会pptppt讲稿/ppt_1_cover/20260221012054_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"016新生家长见面会ppt讲稿","path":"/categories/家长会/第一学期/小班/016新生家长见面会ppt讲稿.html","views":26826,"date":"2021-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/016新生家长见面会ppt讲稿/ppt_1_cover/20260221012400_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"053-第一次上学-小班上学期家长会","path":"/categories/家长会/第一学期/小班/053-第一次上学-小班上学期家长会.html","views":7837,"date":"2021-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/053-第一次上学-小班上学期家长会/ppt_1_cover/20260221013307_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"003小班秋季新生家长会pptppt讲稿","path":"/categories/家长会/第一学期/小班/003小班秋季新生家长会pptppt讲稿.html","views":19991,"date":"2021-01-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/003小班秋季新生家长会pptppt讲稿/ppt_1_cover/20260221012016_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"039秋季小班家长会-你的爱里藏着他的未来-ppt发言稿","path":"/categories/家长会/第一学期/小班/039秋季小班家长会-你的爱里藏着他的未来-ppt发言稿.html","views":5625,"date":"2020-11-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/039秋季小班家长会-你的爱里藏着他的未来-ppt发言稿/ppt_1_cover/20260221012936_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"001小班新生入园上学期家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/001小班新生入园上学期家长会ppt讲稿.html","views":12711,"date":"2020-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001小班新生入园上学期家长会ppt讲稿/ppt_1_cover/20260221011956_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"010小班上学期新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/010小班上学期新生家长会ppt讲稿.html","views":98153,"date":"2020-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/010小班上学期新生家长会ppt讲稿/ppt_1_cover/20260221012148_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"011小班家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/011小班家长会ppt讲稿.html","views":4736,"date":"2020-09-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/011小班家长会ppt讲稿/ppt_1_cover/20260221012201_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"040秋季小班家长会-宝贝你可以慢慢长大","path":"/categories/家长会/第一学期/小班/040秋季小班家长会-宝贝你可以慢慢长大.html","views":8432,"date":"2020-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/040秋季小班家长会-宝贝你可以慢慢长大/ppt_1_cover/20260221012947_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"023小班新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/023小班新生家长会ppt讲稿.html","views":16547,"date":"2019-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/023小班新生家长会ppt讲稿/ppt_1_cover/20260221012555_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"043这样爱我刚刚好小班上新生家长会","path":"/categories/家长会/第一学期/小班/043这样爱我刚刚好小班上新生家长会.html","views":12546,"date":"2019-10-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/043这样爱我刚刚好小班上新生家长会/ppt_1_cover/20260221013036_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"044小班秋季开学家长会故事从此刻开始","path":"/categories/家长会/第一学期/小班/044小班秋季开学家长会故事从此刻开始.html","views":8613,"date":"2019-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/044小班秋季开学家长会故事从此刻开始/ppt_1_cover/20260221013053_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"009幼儿园小班新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/009幼儿园小班新生家长会ppt讲稿.html","views":37564,"date":"2019-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/009幼儿园小班新生家长会ppt讲稿/ppt_1_cover/20260221012134_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"050小班秋季新生家长会嗨是人生第一次啊","path":"/categories/家长会/第一学期/小班/050小班秋季新生家长会嗨是人生第一次啊.html","views":15982,"date":"2019-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/050小班秋季新生家长会嗨是人生第一次啊/ppt_1_cover/20260221013226_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"027小班家长会PPT小象ppt讲稿","path":"/categories/家长会/第一学期/小班/027小班家长会PPT小象ppt讲稿.html","views":7225,"date":"2019-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/027小班家长会PPT小象ppt讲稿/ppt_1_cover/20260221012655_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"037秋季新生家长会缓解入园焦虑-人生第一次上学-家长会ppt纪录片发言稿","path":"/categories/家长会/第一学期/小班/037秋季新生家长会缓解入园焦虑-人生第一次上学-家长会ppt纪录片发言稿.html","views":13346,"date":"2018-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/037秋季新生家长会缓解入园焦虑-人生第一次上学-家长会ppt纪录片发言稿/ppt_1_cover/20260221012917_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"007小班家长会-用心陪伴静待花开-ppt讲稿","path":"/categories/家长会/第一学期/小班/007小班家长会-用心陪伴静待花开-ppt讲稿.html","views":16967,"date":"2018-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/007小班家长会-用心陪伴静待花开-ppt讲稿/ppt_1_cover/20260221012108_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"019一场爱与信任的相遇ppt讲稿","path":"/categories/家长会/第一学期/小班/019一场爱与信任的相遇ppt讲稿.html","views":9488,"date":"2018-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/019一场爱与信任的相遇ppt讲稿/ppt_1_cover/20260221012454_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"036秋季新生家长会-幸福童年从这里开始-ppt发言稿","path":"/categories/家长会/第一学期/小班/036秋季新生家长会-幸福童年从这里开始-ppt发言稿.html","views":13416,"date":"2018-07-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/036秋季新生家长会-幸福童年从这里开始-ppt发言稿/ppt_1_cover/20260221012901_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"013小班第一学期新生家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/013小班第一学期新生家长会ppt讲稿.html","views":13754,"date":"2018-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/013小班第一学期新生家长会ppt讲稿/ppt_1_cover/20260221012305_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"029小班上学期家长会让故事在相遇中开始ppt讲稿","path":"/categories/家长会/第一学期/小班/029小班上学期家长会让故事在相遇中开始ppt讲稿.html","views":6360,"date":"2018-02-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/029小班上学期家长会让故事在相遇中开始ppt讲稿/ppt_1_cover/20260221012728_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"014小班秋季新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/014小班秋季新生家长会PPTppt讲稿.html","views":8799,"date":"2018-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/014小班秋季新生家长会PPTppt讲稿/ppt_1_cover/20260221012322_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"052家长会小班","path":"/categories/家长会/第一学期/小班/052家长会小班.html","views":11196,"date":"2018-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/052家长会小班/ppt_1_cover/20260221013253_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"024幼儿园小班开学新生家长会PPTppt讲稿","path":"/categories/家长会/第一学期/小班/024幼儿园小班开学新生家长会PPTppt讲稿.html","views":18912,"date":"2017-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/024幼儿园小班开学新生家长会PPTppt讲稿/ppt_1_cover/20260221012611_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"038秋季小班家长会-童年很短用爱填满-ppt发言稿","path":"/categories/家长会/第一学期/小班/038秋季小班家长会-童年很短用爱填满-ppt发言稿.html","views":17437,"date":"2017-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/038秋季小班家长会-童年很短用爱填满-ppt发言稿/ppt_1_cover/20260221012927_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"049小班秋季开学家长会-不慌不忙按时长大","path":"/categories/家长会/第一学期/小班/049小班秋季开学家长会-不慌不忙按时长大.html","views":18749,"date":"2017-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/049小班秋季开学家长会-不慌不忙按时长大/ppt_1_cover/20260221013210_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"031秋季小班家长会-慢慢亦漫漫-ppt发言稿","path":"/categories/家长会/第一学期/小班/031秋季小班家长会-慢慢亦漫漫-ppt发言稿.html","views":16670,"date":"2017-07-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/031秋季小班家长会-慢慢亦漫漫-ppt发言稿/ppt_1_cover/20260221012748_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"046-童年短暂宝贝可以慢慢长大-秋季小班家长会","path":"/categories/家长会/第一学期/小班/046-童年短暂宝贝可以慢慢长大-秋季小班家长会.html","views":7500,"date":"2017-07-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/046-童年短暂宝贝可以慢慢长大-秋季小班家长会/ppt_1_cover/20260221013124_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"012小班新生家长会pptppt讲稿","path":"/categories/家长会/第一学期/小班/012小班新生家长会pptppt讲稿.html","views":19914,"date":"2017-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/012小班新生家长会pptppt讲稿/ppt_1_cover/20260221012254_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"051新生家长会-遇见-PPT发言稿","path":"/categories/家长会/第一学期/小班/051新生家长会-遇见-PPT发言稿.html","views":19670,"date":"2017-03-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/051新生家长会-遇见-PPT发言稿/ppt_1_cover/20260221013243_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"018-故事从此刻开始-小班秋季开学家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/018-故事从此刻开始-小班秋季开学家长会ppt讲稿.html","views":8773,"date":"2017-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/018-故事从此刻开始-小班秋季开学家长会ppt讲稿/ppt_1_cover/20260221012427_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"028小班上学期新生家长会-爱与信任-PPTppt讲稿","path":"/categories/家长会/第一学期/小班/028小班上学期新生家长会-爱与信任-PPTppt讲稿.html","views":9035,"date":"2016-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/028小班上学期新生家长会-爱与信任-PPTppt讲稿/ppt_1_cover/20260221012711_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]},{"title":"015小班上学期开学家长会ppt讲稿","path":"/categories/家长会/第一学期/小班/015小班上学期开学家长会ppt讲稿.html","views":7737,"date":"2016-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/015小班上学期开学家长会ppt讲稿/ppt_1_cover/20260221012336_ppt_cover_wm.jpg","categories":["家长会","第一学期","小班"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：中班</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"中班美工区推进-装饰白板-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-装饰白板-3次.html","views":118207,"date":"2026-01-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_32/20260222212229_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-百变管道-5次","path":"/categories/区域游戏推进/中班/中班活动区推进-百变管道-5次.html","views":7593,"date":"2025-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_14/20260222212133_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动性活动区推进-小车向前冲-4次","path":"/categories/区域游戏推进/中班/中班运动性活动区推进-小车向前冲-4次.html","views":6490,"date":"2025-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_37/20260222212246_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班建构区推进-烧烤-2次","path":"/categories/区域游戏推进/中班/中班建构区推进-烧烤-2次.html","views":15708,"date":"2025-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_3/20260222212100_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-摇摇乐-3次","path":"/categories/区域游戏推进/中班/中班益智区推进-摇摇乐-3次.html","views":6176,"date":"2025-10-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_16/20260222212138_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-好玩的磁铁-10次","path":"/categories/区域游戏推进/中班/中班科学区推进-好玩的磁铁-10次.html","views":14086,"date":"2025-07-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_22/20260222212157_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-簸箕棋-3次","path":"/categories/区域游戏推进/中班/中班益智区推进-簸箕棋-3次.html","views":9065,"date":"2024-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_19/20260222212149_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班操作区推进-搭搭乐-4次","path":"/categories/区域游戏推进/中班/中班操作区推进-搭搭乐-4次.html","views":6049,"date":"2024-10-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_9/20260222212116_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-有趣的水管-6次","path":"/categories/区域游戏推进/中班/中班活动区推进-有趣的水管-6次.html","views":9886,"date":"2024-06-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_11/20260222212124_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动性活动区推进-树屋乐园-3次","path":"/categories/区域游戏推进/中班/中班运动性活动区推进-树屋乐园-3次.html","views":8027,"date":"2024-05-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_39/20260222212251_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索性活动区推进-农家乐-3次","path":"/categories/区域游戏推进/中班/中班探索性活动区推进-农家乐-3次.html","views":7572,"date":"2024-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_6/20260222212107_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-串珠子-2次","path":"/categories/区域游戏推进/中班/中班美工区推进-串珠子-2次.html","views":18686,"date":"2023-09-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_28/20260222212216_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班表演区推进-三只蝴蝶-4次","path":"/categories/区域游戏推进/中班/中班表演区推进-三只蝴蝶-4次.html","views":100152,"date":"2023-05-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_33/20260222212233_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动性活动区推进-摆动奶罐-3次","path":"/categories/区域游戏推进/中班/中班运动性活动区推进-摆动奶罐-3次.html","views":7518,"date":"2023-04-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_38/20260222212248_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动区推进-走竹梯-3次","path":"/categories/区域游戏推进/中班/中班运动区推进-走竹梯-3次.html","views":10971,"date":"2023-02-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_36/20260222212243_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班生活区推进-厨房小帮手-4次","path":"/categories/区域游戏推进/中班/中班生活区推进-厨房小帮手-4次.html","views":15955,"date":"2023-02-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_15/20260222212135_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-造纸桥-4次","path":"/categories/区域游戏推进/中班/中班科学区推进-造纸桥-4次.html","views":17460,"date":"2022-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_26/20260222212210_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-小球站稳了-3次","path":"/categories/区域游戏推进/中班/中班科学区推进-小球站稳了-3次.html","views":12171,"date":"2022-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_23/20260222212201_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索区推进-好玩的圆筒区-4次","path":"/categories/区域游戏推进/中班/中班探索区推进-好玩的圆筒区-4次.html","views":16347,"date":"2022-07-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_4/20260222212103_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-瓶瓶罐罐魔法秀-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-瓶瓶罐罐魔法秀-3次.html","views":14785,"date":"2022-05-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_31/20260222212226_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-迷迷乐-3次","path":"/categories/区域游戏推进/中班/中班益智区推进-迷迷乐-3次.html","views":17711,"date":"2022-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_21/20260222212153_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-有趣的绳子-4次","path":"/categories/区域游戏推进/中班/中班益智区推进-有趣的绳子-4次.html","views":17709,"date":"2021-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_17/20260222212142_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-百变纸片-4次","path":"/categories/区域游戏推进/中班/中班益智区推进-百变纸片-4次.html","views":15146,"date":"2021-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_18/20260222212146_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-有趣的昆虫-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-有趣的昆虫-3次.html","views":11894,"date":"2020-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_30/20260222212223_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-有趣的管子-3次","path":"/categories/区域游戏推进/中班/中班活动区推进-有趣的管子-3次.html","views":102913,"date":"2020-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_12/20260222212128_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班角色区推进-美滋滋火锅店-5次","path":"/categories/区域游戏推进/中班/中班角色区推进-美滋滋火锅店-5次.html","views":9601,"date":"2020-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_35/20260222212240_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班建构区推进-小小建筑师-3次","path":"/categories/区域游戏推进/中班/中班建构区推进-小小建筑师-3次.html","views":15158,"date":"2019-08-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_2/20260222212057_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索性活动区推进-玩谷豆-3次","path":"/categories/区域游戏推进/中班/中班探索性活动区推进-玩谷豆-3次.html","views":8262,"date":"2018-07-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_8/20260222212113_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班表演游戏推进-十一只猫做苦工-3次","path":"/categories/区域游戏推进/中班/中班表演游戏推进-十一只猫做苦工-3次.html","views":11299,"date":"2018-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_34/20260222212237_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-陀螺战士-4次","path":"/categories/区域游戏推进/中班/中班科学区推进-陀螺战士-4次.html","views":6234,"date":"2018-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_27/20260222212213_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班区域推进-好玩的盒子-4次","path":"/categories/区域游戏推进/中班/中班区域推进-好玩的盒子-4次.html","views":17463,"date":"2018-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_1/20260222212054_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-制作生日蛋糕-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-制作生日蛋糕-3次.html","views":9241,"date":"2017-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_29/20260222212220_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-气球的沉与浮-3次","path":"/categories/区域游戏推进/中班/中班科学区推进-气球的沉与浮-3次.html","views":7570,"date":"2017-07-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_25/20260222212207_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索性活动区推进-滚动乐园-3次","path":"/categories/区域游戏推进/中班/中班探索性活动区推进-滚动乐园-3次.html","views":6930,"date":"2017-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_7/20260222212110_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-有趣的陀螺-3次","path":"/categories/区域游戏推进/中班/中班科学区推进-有趣的陀螺-3次.html","views":12312,"date":"2016-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_24/20260222212204_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-夹子变身记-6次","path":"/categories/区域游戏推进/中班/中班活动区推进-夹子变身记-6次.html","views":9876,"date":"2016-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_10/20260222212121_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索区推进-彩色叠叠高-3次","path":"/categories/区域游戏推进/中班/中班探索区推进-彩色叠叠高-3次.html","views":5445,"date":"2016-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_5/20260222212105_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-蚂蚁找食物-4次","path":"/categories/区域游戏推进/中班/中班益智区推进-蚂蚁找食物-4次.html","views":9576,"date":"2016-06-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_20/20260222212151_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-森林寻宝-4次","path":"/categories/区域游戏推进/中班/中班活动区推进-森林寻宝-4次.html","views":17648,"date":"2016-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_13/20260222212130_文稿_01.jpg","categories":["区域游戏推进","中班"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"中班美工区推进-装饰白板-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-装饰白板-3次.html","views":118207,"date":"2026-01-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_32/20260222212229_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-百变管道-5次","path":"/categories/区域游戏推进/中班/中班活动区推进-百变管道-5次.html","views":7593,"date":"2025-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_14/20260222212133_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动性活动区推进-小车向前冲-4次","path":"/categories/区域游戏推进/中班/中班运动性活动区推进-小车向前冲-4次.html","views":6490,"date":"2025-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_37/20260222212246_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班建构区推进-烧烤-2次","path":"/categories/区域游戏推进/中班/中班建构区推进-烧烤-2次.html","views":15708,"date":"2025-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_3/20260222212100_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-摇摇乐-3次","path":"/categories/区域游戏推进/中班/中班益智区推进-摇摇乐-3次.html","views":6176,"date":"2025-10-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_16/20260222212138_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-好玩的磁铁-10次","path":"/categories/区域游戏推进/中班/中班科学区推进-好玩的磁铁-10次.html","views":14086,"date":"2025-07-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_22/20260222212157_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-簸箕棋-3次","path":"/categories/区域游戏推进/中班/中班益智区推进-簸箕棋-3次.html","views":9065,"date":"2024-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_19/20260222212149_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班操作区推进-搭搭乐-4次","path":"/categories/区域游戏推进/中班/中班操作区推进-搭搭乐-4次.html","views":6049,"date":"2024-10-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_9/20260222212116_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-有趣的水管-6次","path":"/categories/区域游戏推进/中班/中班活动区推进-有趣的水管-6次.html","views":9886,"date":"2024-06-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_11/20260222212124_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动性活动区推进-树屋乐园-3次","path":"/categories/区域游戏推进/中班/中班运动性活动区推进-树屋乐园-3次.html","views":8027,"date":"2024-05-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_39/20260222212251_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索性活动区推进-农家乐-3次","path":"/categories/区域游戏推进/中班/中班探索性活动区推进-农家乐-3次.html","views":7572,"date":"2024-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_6/20260222212107_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-串珠子-2次","path":"/categories/区域游戏推进/中班/中班美工区推进-串珠子-2次.html","views":18686,"date":"2023-09-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_28/20260222212216_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班表演区推进-三只蝴蝶-4次","path":"/categories/区域游戏推进/中班/中班表演区推进-三只蝴蝶-4次.html","views":100152,"date":"2023-05-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_33/20260222212233_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动性活动区推进-摆动奶罐-3次","path":"/categories/区域游戏推进/中班/中班运动性活动区推进-摆动奶罐-3次.html","views":7518,"date":"2023-04-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_38/20260222212248_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班运动区推进-走竹梯-3次","path":"/categories/区域游戏推进/中班/中班运动区推进-走竹梯-3次.html","views":10971,"date":"2023-02-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_36/20260222212243_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班生活区推进-厨房小帮手-4次","path":"/categories/区域游戏推进/中班/中班生活区推进-厨房小帮手-4次.html","views":15955,"date":"2023-02-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_15/20260222212135_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-造纸桥-4次","path":"/categories/区域游戏推进/中班/中班科学区推进-造纸桥-4次.html","views":17460,"date":"2022-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_26/20260222212210_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-小球站稳了-3次","path":"/categories/区域游戏推进/中班/中班科学区推进-小球站稳了-3次.html","views":12171,"date":"2022-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_23/20260222212201_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索区推进-好玩的圆筒区-4次","path":"/categories/区域游戏推进/中班/中班探索区推进-好玩的圆筒区-4次.html","views":16347,"date":"2022-07-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_4/20260222212103_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-瓶瓶罐罐魔法秀-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-瓶瓶罐罐魔法秀-3次.html","views":14785,"date":"2022-05-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_31/20260222212226_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-迷迷乐-3次","path":"/categories/区域游戏推进/中班/中班益智区推进-迷迷乐-3次.html","views":17711,"date":"2022-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_21/20260222212153_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-有趣的绳子-4次","path":"/categories/区域游戏推进/中班/中班益智区推进-有趣的绳子-4次.html","views":17709,"date":"2021-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_17/20260222212142_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-百变纸片-4次","path":"/categories/区域游戏推进/中班/中班益智区推进-百变纸片-4次.html","views":15146,"date":"2021-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_18/20260222212146_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-有趣的昆虫-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-有趣的昆虫-3次.html","views":11894,"date":"2020-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_30/20260222212223_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-有趣的管子-3次","path":"/categories/区域游戏推进/中班/中班活动区推进-有趣的管子-3次.html","views":102913,"date":"2020-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_12/20260222212128_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班角色区推进-美滋滋火锅店-5次","path":"/categories/区域游戏推进/中班/中班角色区推进-美滋滋火锅店-5次.html","views":9601,"date":"2020-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_35/20260222212240_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班建构区推进-小小建筑师-3次","path":"/categories/区域游戏推进/中班/中班建构区推进-小小建筑师-3次.html","views":15158,"date":"2019-08-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_2/20260222212057_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索性活动区推进-玩谷豆-3次","path":"/categories/区域游戏推进/中班/中班探索性活动区推进-玩谷豆-3次.html","views":8262,"date":"2018-07-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_8/20260222212113_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班表演游戏推进-十一只猫做苦工-3次","path":"/categories/区域游戏推进/中班/中班表演游戏推进-十一只猫做苦工-3次.html","views":11299,"date":"2018-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_34/20260222212237_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-陀螺战士-4次","path":"/categories/区域游戏推进/中班/中班科学区推进-陀螺战士-4次.html","views":6234,"date":"2018-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_27/20260222212213_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班区域推进-好玩的盒子-4次","path":"/categories/区域游戏推进/中班/中班区域推进-好玩的盒子-4次.html","views":17463,"date":"2018-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_1/20260222212054_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班美工区推进-制作生日蛋糕-3次","path":"/categories/区域游戏推进/中班/中班美工区推进-制作生日蛋糕-3次.html","views":9241,"date":"2017-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_29/20260222212220_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-气球的沉与浮-3次","path":"/categories/区域游戏推进/中班/中班科学区推进-气球的沉与浮-3次.html","views":7570,"date":"2017-07-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_25/20260222212207_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索性活动区推进-滚动乐园-3次","path":"/categories/区域游戏推进/中班/中班探索性活动区推进-滚动乐园-3次.html","views":6930,"date":"2017-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_7/20260222212110_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班科学区推进-有趣的陀螺-3次","path":"/categories/区域游戏推进/中班/中班科学区推进-有趣的陀螺-3次.html","views":12312,"date":"2016-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_24/20260222212204_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-夹子变身记-6次","path":"/categories/区域游戏推进/中班/中班活动区推进-夹子变身记-6次.html","views":9876,"date":"2016-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_10/20260222212121_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班探索区推进-彩色叠叠高-3次","path":"/categories/区域游戏推进/中班/中班探索区推进-彩色叠叠高-3次.html","views":5445,"date":"2016-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_5/20260222212105_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班益智区推进-蚂蚁找食物-4次","path":"/categories/区域游戏推进/中班/中班益智区推进-蚂蚁找食物-4次.html","views":9576,"date":"2016-06-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_20/20260222212151_文稿_01.jpg","categories":["区域游戏推进","中班"]},{"title":"中班活动区推进-森林寻宝-4次","path":"/categories/区域游戏推进/中班/中班活动区推进-森林寻宝-4次.html","views":17648,"date":"2016-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/doc_13/20260222212130_文稿_01.jpg","categories":["区域游戏推进","中班"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

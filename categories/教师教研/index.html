@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：教师教研</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"幼儿园领导述廉述职报告","path":"/categories/教师教研/幼儿园领导述廉述职报告.html","views":16510,"date":"2025-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园领导述廉述职报告/ppt_1_cover/20260222171748_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园五大领域指导培训","path":"/categories/教师教研/幼儿园五大领域指导培训.html","views":6104,"date":"2025-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园五大领域指导培训/ppt_1_cover/20260222171555_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园队列练习内容和要求","path":"/categories/教师教研/幼儿园队列练习内容和要求.html","views":18431,"date":"2025-01-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园队列练习内容和要求/ppt_1_cover/20260222171732_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园班主任工作经验分享交流","path":"/categories/教师教研/幼儿园班主任工作经验分享交流.html","views":16073,"date":"2024-12-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园班主任工作经验分享交流/ppt_1_cover/20260222171656_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"儿童视角下的主题墙环境创设","path":"/categories/教师教研/儿童视角下的主题墙环境创设.html","views":13053,"date":"2024-09-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/儿童视角下的主题墙环境创设/ppt_1_cover/20260222171413_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园24节气课程活动","path":"/categories/教师教研/幼儿园24节气课程活动.html","views":16205,"date":"2024-07-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园24节气课程活动/ppt_1_cover/20260222171546_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"儿童体育动作技能教学与指导","path":"/categories/教师教研/儿童体育动作技能教学与指导.html","views":10743,"date":"2024-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/儿童体育动作技能教学与指导/ppt_1_cover/20260222171403_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿教师教育教学口语","path":"/categories/教师教研/幼儿教师教育教学口语.html","views":12989,"date":"2023-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿教师教育教学口语/ppt_1_cover/20260222171755_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教师专业标准培训","path":"/categories/教师教研/幼儿园教师专业标准培训.html","views":13934,"date":"2023-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教师专业标准培训/ppt_1_cover/20260222171626_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何有效师幼互动","path":"/categories/教师教研/如何有效师幼互动.html","views":110752,"date":"2023-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何有效师幼互动/ppt_1_cover/20260222171456_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"安吉游戏的组织指导与评价","path":"/categories/教师教研/安吉游戏的组织指导与评价.html","views":7557,"date":"2023-02-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/安吉游戏的组织指导与评价/ppt_1_cover/20260222171528_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园美术教育活动设计与指导","path":"/categories/教师教研/幼儿园美术教育活动设计与指导.html","views":18025,"date":"2022-04-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园美术教育活动设计与指导/ppt_1_cover/20260222171709_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园音乐律动与音乐游戏","path":"/categories/教师教研/幼儿园音乐律动与音乐游戏.html","views":14430,"date":"2022-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园音乐律动与音乐游戏/ppt_1_cover/20260222171740_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园家委会","path":"/categories/教师教研/幼儿园家委会.html","views":10200,"date":"2022-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园家委会/ppt_1_cover/20260222171607_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"以儿童为本的幼儿表征","path":"/categories/教师教研/以儿童为本的幼儿表征.html","views":12639,"date":"2021-08-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/以儿童为本的幼儿表征/ppt_1_cover/20260222171352_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园自主游戏的观察与记录","path":"/categories/教师教研/幼儿园自主游戏的观察与记录.html","views":7897,"date":"2020-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园自主游戏的观察与记录/ppt_1_cover/20260222171725_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教师情绪管理","path":"/categories/教师教研/幼儿园教师情绪管理.html","views":10566,"date":"2020-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教师情绪管理/ppt_1_cover/20260222171635_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"培养幼儿自理能力PPT讲稿","path":"/categories/教师教研/培养幼儿自理能力PPT讲稿.html","views":4592,"date":"2019-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/培养幼儿自理能力PPT讲稿/ppt_1_cover/20260222172827_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何培养幼儿的行为习惯","path":"/categories/教师教研/如何培养幼儿的行为习惯.html","views":6277,"date":"2019-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何培养幼儿的行为习惯/ppt_1_cover/20260222171440_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"早操编排与幼儿发展的深度探究","path":"/categories/教师教研/早操编排与幼儿发展的深度探究.html","views":19864,"date":"2018-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/早操编排与幼儿发展的深度探究/ppt_1_cover/20260222171825_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教研与园本教研","path":"/categories/教师教研/幼儿园教研与园本教研.html","views":5413,"date":"2018-02-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教研与园本教研/ppt_1_cover/20260222171647_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何正确的运用物质奖励？","path":"/categories/教师教研/如何正确的运用物质奖励？.html","views":11614,"date":"2018-01-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何正确的运用物质奖励？/ppt_1_cover/20260222171507_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿自主游戏中教师的支持策略","path":"/categories/教师教研/幼儿自主游戏中教师的支持策略.html","views":16254,"date":"2017-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿自主游戏中教师的支持策略/ppt_1_cover/20260222171802_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教学主任工作总结述职报告","path":"/categories/教师教研/幼儿园教学主任工作总结述职报告.html","views":11542,"date":"2017-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教学主任工作总结述职报告/ppt_1_cover/20260222171619_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何观察记录和分析","path":"/categories/教师教研/如何观察记录和分析.html","views":15801,"date":"2017-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何观察记录和分析/ppt_1_cover/20260222171518_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"新教师备课教研培训","path":"/categories/教师教研/新教师备课教研培训.html","views":4431,"date":"2017-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/新教师备课教研培训/ppt_1_cover/20260222171819_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何开展幼儿园区域活动","path":"/categories/教师教研/如何开展幼儿园区域活动.html","views":6520,"date":"2017-02-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何开展幼儿园区域活动/ppt_1_cover/20260222171448_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"奥尔夫音乐教学法","path":"/categories/教师教研/奥尔夫音乐教学法.html","views":9930,"date":"2017-02-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/奥尔夫音乐教学法/ppt_1_cover/20260222171431_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"师德师风建设讲稿","path":"/categories/教师教研/师德师风建设讲稿.html","views":5451,"date":"2016-07-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/师德师风建设讲稿/ppt_1_cover/20260222171537_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"教研培训-如何写好课程故事","path":"/categories/教师教研/教研培训-如何写好课程故事.html","views":19588,"date":"2016-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/教研培训-如何写好课程故事/ppt_1_cover/20260222172837_ppt_cover_wm.jpg","categories":["教师教研"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"幼儿园领导述廉述职报告","path":"/categories/教师教研/幼儿园领导述廉述职报告.html","views":16510,"date":"2025-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园领导述廉述职报告/ppt_1_cover/20260222171748_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园五大领域指导培训","path":"/categories/教师教研/幼儿园五大领域指导培训.html","views":6104,"date":"2025-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园五大领域指导培训/ppt_1_cover/20260222171555_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园队列练习内容和要求","path":"/categories/教师教研/幼儿园队列练习内容和要求.html","views":18431,"date":"2025-01-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园队列练习内容和要求/ppt_1_cover/20260222171732_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园班主任工作经验分享交流","path":"/categories/教师教研/幼儿园班主任工作经验分享交流.html","views":16073,"date":"2024-12-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园班主任工作经验分享交流/ppt_1_cover/20260222171656_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"儿童视角下的主题墙环境创设","path":"/categories/教师教研/儿童视角下的主题墙环境创设.html","views":13053,"date":"2024-09-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/儿童视角下的主题墙环境创设/ppt_1_cover/20260222171413_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园24节气课程活动","path":"/categories/教师教研/幼儿园24节气课程活动.html","views":16205,"date":"2024-07-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园24节气课程活动/ppt_1_cover/20260222171546_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"儿童体育动作技能教学与指导","path":"/categories/教师教研/儿童体育动作技能教学与指导.html","views":10743,"date":"2024-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/儿童体育动作技能教学与指导/ppt_1_cover/20260222171403_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿教师教育教学口语","path":"/categories/教师教研/幼儿教师教育教学口语.html","views":12989,"date":"2023-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿教师教育教学口语/ppt_1_cover/20260222171755_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教师专业标准培训","path":"/categories/教师教研/幼儿园教师专业标准培训.html","views":13934,"date":"2023-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教师专业标准培训/ppt_1_cover/20260222171626_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何有效师幼互动","path":"/categories/教师教研/如何有效师幼互动.html","views":110752,"date":"2023-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何有效师幼互动/ppt_1_cover/20260222171456_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"安吉游戏的组织指导与评价","path":"/categories/教师教研/安吉游戏的组织指导与评价.html","views":7557,"date":"2023-02-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/安吉游戏的组织指导与评价/ppt_1_cover/20260222171528_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园美术教育活动设计与指导","path":"/categories/教师教研/幼儿园美术教育活动设计与指导.html","views":18025,"date":"2022-04-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园美术教育活动设计与指导/ppt_1_cover/20260222171709_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园音乐律动与音乐游戏","path":"/categories/教师教研/幼儿园音乐律动与音乐游戏.html","views":14430,"date":"2022-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园音乐律动与音乐游戏/ppt_1_cover/20260222171740_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园家委会","path":"/categories/教师教研/幼儿园家委会.html","views":10200,"date":"2022-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园家委会/ppt_1_cover/20260222171607_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"以儿童为本的幼儿表征","path":"/categories/教师教研/以儿童为本的幼儿表征.html","views":12639,"date":"2021-08-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/以儿童为本的幼儿表征/ppt_1_cover/20260222171352_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园自主游戏的观察与记录","path":"/categories/教师教研/幼儿园自主游戏的观察与记录.html","views":7897,"date":"2020-03-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园自主游戏的观察与记录/ppt_1_cover/20260222171725_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教师情绪管理","path":"/categories/教师教研/幼儿园教师情绪管理.html","views":10566,"date":"2020-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教师情绪管理/ppt_1_cover/20260222171635_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"培养幼儿自理能力PPT讲稿","path":"/categories/教师教研/培养幼儿自理能力PPT讲稿.html","views":4592,"date":"2019-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/培养幼儿自理能力PPT讲稿/ppt_1_cover/20260222172827_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何培养幼儿的行为习惯","path":"/categories/教师教研/如何培养幼儿的行为习惯.html","views":6277,"date":"2019-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何培养幼儿的行为习惯/ppt_1_cover/20260222171440_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"早操编排与幼儿发展的深度探究","path":"/categories/教师教研/早操编排与幼儿发展的深度探究.html","views":19864,"date":"2018-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/早操编排与幼儿发展的深度探究/ppt_1_cover/20260222171825_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教研与园本教研","path":"/categories/教师教研/幼儿园教研与园本教研.html","views":5413,"date":"2018-02-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教研与园本教研/ppt_1_cover/20260222171647_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何正确的运用物质奖励？","path":"/categories/教师教研/如何正确的运用物质奖励？.html","views":11614,"date":"2018-01-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何正确的运用物质奖励？/ppt_1_cover/20260222171507_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿自主游戏中教师的支持策略","path":"/categories/教师教研/幼儿自主游戏中教师的支持策略.html","views":16254,"date":"2017-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿自主游戏中教师的支持策略/ppt_1_cover/20260222171802_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"幼儿园教学主任工作总结述职报告","path":"/categories/教师教研/幼儿园教学主任工作总结述职报告.html","views":11542,"date":"2017-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园教学主任工作总结述职报告/ppt_1_cover/20260222171619_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何观察记录和分析","path":"/categories/教师教研/如何观察记录和分析.html","views":15801,"date":"2017-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何观察记录和分析/ppt_1_cover/20260222171518_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"新教师备课教研培训","path":"/categories/教师教研/新教师备课教研培训.html","views":4431,"date":"2017-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/新教师备课教研培训/ppt_1_cover/20260222171819_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"如何开展幼儿园区域活动","path":"/categories/教师教研/如何开展幼儿园区域活动.html","views":6520,"date":"2017-02-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/如何开展幼儿园区域活动/ppt_1_cover/20260222171448_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"奥尔夫音乐教学法","path":"/categories/教师教研/奥尔夫音乐教学法.html","views":9930,"date":"2017-02-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/奥尔夫音乐教学法/ppt_1_cover/20260222171431_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"师德师风建设讲稿","path":"/categories/教师教研/师德师风建设讲稿.html","views":5451,"date":"2016-07-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/师德师风建设讲稿/ppt_1_cover/20260222171537_ppt_cover_wm.jpg","categories":["教师教研"]},{"title":"教研培训-如何写好课程故事","path":"/categories/教师教研/教研培训-如何写好课程故事.html","views":19588,"date":"2016-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/教研培训-如何写好课程故事/ppt_1_cover/20260222172837_ppt_cover_wm.jpg","categories":["教师教研"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

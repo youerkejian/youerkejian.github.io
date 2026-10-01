@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：中班</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"爱要大胆说出来 社会语言中班","path":"/categories/社会/爱要大胆说出来 社会语言中班_中班.html","views":33587,"date":"2026-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爱要大胆说出来-社会语言中班/ppt/20260220155425_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"好事情 社会语言中班","path":"/categories/社会/好事情 社会语言中班_中班.html","views":11557,"date":"2026-01-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/好事情-社会语言中班/ppt/20260220122554_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 我会乘地铁","path":"/categories/社会/中班 社会 我会乘地铁_中班.html","views":14390,"date":"2025-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_我会乘地铁/ppt/20260131123543_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小班中班不一样 社会中班","path":"/categories/社会/小班中班不一样 社会中班_中班.html","views":11797,"date":"2025-07-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班中班不一样-社会中班/ppt/20260220155050_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"灰喜鹊搬家 语言社会中班","path":"/categories/社会/灰喜鹊搬家 语言社会中班_中班.html","views":19672,"date":"2025-05-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/灰喜鹊搬家-语言社会中班/ppt/20260220124203_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 想让你开心 重补","path":"/categories/社会/中班社会 想让你开心 重补_中班.html","views":16406,"date":"2025-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-想让你开心-重补/ppt/20260220154349_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 我是中国人","path":"/categories/社会/中班 社会 我是中国人_中班.html","views":9088,"date":"2025-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_我是中国人/ppt/20260131123549_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"快乐的元宵节 社会美术 小中班","path":"/categories/社会/快乐的元宵节 社会美术 小中班_中班.html","views":13043,"date":"2024-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/快乐的元宵节_社会美术_小中班/ppt/20260130221633_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班健康社会 情绪小侦探 PPT教案纸面教具","path":"/categories/社会/中班健康社会 情绪小侦探 PPT教案纸面教具_中班.html","views":19599,"date":"2024-04-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班健康社会-情绪小侦探-PPT教案纸面教具/ppt/20260219215741_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"悯农 语言社会中班","path":"/categories/社会/悯农 语言社会中班_中班.html","views":16357,"date":"2024-02-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/悯农-语言社会中班/ppt/20260220123308_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"动物服务中心 社会语言中班","path":"/categories/社会/动物服务中心 社会语言中班_中班.html","views":18855,"date":"2024-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/动物服务中心-社会语言中班/ppt/20260220121807_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班语言社会 过冬","path":"/categories/社会/中班语言社会 过冬_中班.html","views":9853,"date":"2024-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言社会-过冬/ppt/20260220121500_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班语言社会 萤火虫找朋友","path":"/categories/社会/中班语言社会 萤火虫找朋友_中班.html","views":10764,"date":"2024-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言社会-萤火虫找朋友/ppt/20260220121455_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 节约用水","path":"/categories/社会/中班社会 节约用水_中班.html","views":17384,"date":"2023-11-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-节约用水/ppt/20260220154403_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中大社会科学 逛逛动物园 课件PPT教案","path":"/categories/社会/中大社会科学 逛逛动物园 课件PPT教案_中班.html","views":9453,"date":"2023-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中大社会科学-逛逛动物园-课件PPT教案/ppt/20260219215457_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会课件《十二生肖》PPT课件","path":"/categories/社会/25中班社会课件《十二生肖》PPT课件 plus 教案_中班.html","views":10393,"date":"2023-07-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25中班社会课件《十二生肖》PPT课件_plus_教案/ppt/20260130233423_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"好邻居 社会语言中班","path":"/categories/社会/好邻居 社会语言中班_中班.html","views":15879,"date":"2023-07-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/好邻居-社会语言中班/ppt/20260220122609_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"压岁钱 语言社会中班","path":"/categories/社会/压岁钱 语言社会中班_中班.html","views":5803,"date":"2023-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/压岁钱-语言社会中班/ppt/20260220121838_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"过冬 语言社会中班","path":"/categories/社会/过冬 语言社会中班_中班.html","views":14681,"date":"2023-03-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/过冬-语言社会中班/ppt/20260220124913_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《小麦的一生》PPT课件","path":"/categories/社会/中班社会《小麦的一生》PPT课件 plus 教案 plus 音乐_中班.html","views":13979,"date":"2022-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《小麦的一生》PPT课件_plus_教案_plus_音乐/ppt/20260130233842_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_中班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会别让太阳掉下来视频教案PPT课件音乐","path":"/categories/社会/中班社会别让太阳掉下来视频教案PPT课件音乐_中班.html","views":13472,"date":"2022-07-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会别让太阳掉下来视频教案PPT课件音乐/ppt/20260219210645_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 排队真好 视频教案课件图片","path":"/categories/社会/中班社会 排队真好 视频教案课件图片_中班.html","views":18642,"date":"2022-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-排队真好-视频教案课件图片/ppt/20260220154356_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小班中班不一样 社会 中班","path":"/categories/社会/小班中班不一样 社会 中班_中班.html","views":4417,"date":"2021-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班中班不一样_社会_中班/ppt/20260131013027_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会语言 动物服务中心","path":"/categories/社会/中班社会语言 动物服务中心_中班.html","views":15584,"date":"2021-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会语言-动物服务中心/ppt/20260220121319_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"我想和你一起玩 社会中班","path":"/categories/社会/我想和你一起玩 社会中班_中班.html","views":7267,"date":"2021-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我想和你一起玩-社会中班/ppt/20260220155327_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《中秋节的由来和习俗》","path":"/categories/社会/中班社会《中秋节的由来和习俗》_中班.html","views":13981,"date":"2021-09-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《中秋节的由来和习俗》/ppt/20260131123805_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 冬天的取暖工具 PPT教案","path":"/categories/社会/中班社会 冬天的取暖工具 PPT教案_中班.html","views":12043,"date":"2021-07-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-冬天的取暖工具-PPT教案/ppt/20260219215846_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 新年到","path":"/categories/社会/中班社会 新年到_中班.html","views":18956,"date":"2021-06-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会-新年到/ppt/20260130233837_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 心情树叶","path":"/categories/社会/中班 社会 心情树叶_中班.html","views":5552,"date":"2021-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_心情树叶/ppt/20260130233800_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"老师的本领 语言社会中班","path":"/categories/社会/老师的本领 语言社会中班_中班.html","views":7600,"date":"2021-03-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/老师的本领-语言社会中班/ppt/20260220124620_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"尊重朋友 社会中班","path":"/categories/社会/尊重朋友 社会中班_中班.html","views":16255,"date":"2021-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/尊重朋友-社会中班/ppt/20260220155001_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"爱在我身边 社会语言小中班","path":"/categories/社会/爱在我身边 社会语言小中班_中班.html","views":12907,"date":"2020-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爱在我身边-社会语言小中班/ppt/20260220124228_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会美术 中秋节","path":"/categories/社会/中班社会美术 中秋节_中班.html","views":19073,"date":"2020-10-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会美术-中秋节/ppt/20260220143826_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《保护动物》","path":"/categories/社会/中班社会《保护动物》_中班.html","views":4352,"date":"2020-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《保护动物》/ppt/20260130220629_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 植树去 含有声PPT","path":"/categories/社会/3中班 社会 植树去 含有声PPT plus 歌曲及伴奏 plus 教案_中班.html","views":12016,"date":"2020-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3中班-社会-植树去_含有声PPT_plus_歌曲及伴奏_plus_教案/ppt/20260130233444_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"萤火虫找朋友 语言社会中班","path":"/categories/社会/萤火虫找朋友 语言社会中班_中班.html","views":17173,"date":"2020-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/萤火虫找朋友-语言社会中班/ppt/20260220124652_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"升旗仪式 社会 中班","path":"/categories/社会/升旗仪式 社会 中班_中班.html","views":13994,"date":"2020-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/升旗仪式_社会_中班/ppt/20260131012508_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会美术 中秋节","path":"/categories/社会/中班 社会美术 中秋节_中班.html","views":18562,"date":"2020-03-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会美术_中秋节/ppt/20260131123554_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 春天在哪里","path":"/categories/社会/中班社会 春天在哪里_中班.html","views":10471,"date":"2020-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-春天在哪里/ppt/20260220143820_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"老师的节日 社会 中班","path":"/categories/社会/老师的节日 社会 中班_中班.html","views":17677,"date":"2020-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/老师的节日_社会_中班/ppt/20260131013613_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《春天在哪里》","path":"/categories/社会/中班社会《春天在哪里》_中班.html","views":9597,"date":"2019-07-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《春天在哪里》/ppt/20260131123812_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"我们来抱抱 中班社会语言","path":"/categories/社会/我们来抱抱 中班社会语言_中班.html","views":8171,"date":"2019-07-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我们来抱抱-中班社会语言/ppt/20260220123342_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小小猫钓鱼 语言社会中班","path":"/categories/社会/小小猫钓鱼 语言社会中班_中班.html","views":12559,"date":"2019-07-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小小猫钓鱼-语言社会中班/ppt/20260220122814_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"一起去秋游 社会语言中班课件","path":"/categories/社会/一起去秋游 社会语言中班课件_中班.html","views":10092,"date":"2018-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/一起去秋游-社会语言中班课件/ppt/20260220121143_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"尊重朋友 社会 中班","path":"/categories/社会/尊重朋友 社会 中班_中班.html","views":8972,"date":"2018-04-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/尊重朋友_社会_中班/ppt/20260131012905_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《保护鸟类》PPT课件 plus 教案 plus 音效","path":"/categories/社会/中班社会《保护鸟类》PPT课件 plus 教案 plus 音效_中班.html","views":5996,"date":"2017-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《保护鸟类》PPT课件_plus_教案_plus_音效/ppt/20260131012332_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《消防叔叔本领大》","path":"/categories/社会/中班社会《消防叔叔本领大》_中班.html","views":5551,"date":"2017-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《消防叔叔本领大》/ppt/20260130220636_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"认真倾听不插话 语言社会中班","path":"/categories/社会/认真倾听不插话 语言社会中班_中班.html","views":11446,"date":"2017-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/认真倾听不插话-语言社会中班/ppt/20260220124756_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 帮助他人真快乐","path":"/categories/社会/中班社会 帮助他人真快乐_中班.html","views":80344,"date":"2017-03-17","categories":["社会","中班"]},{"title":"拉拉钩 音乐社会 中班","path":"/categories/社会/拉拉钩 音乐社会 中班_中班.html","views":9371,"date":"2017-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/拉拉钩_音乐社会_中班/ppt/20260131013242_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_中班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 中秋节的由来和习俗","path":"/categories/社会/中班社会 中秋节的由来和习俗_中班.html","views":14028,"date":"2016-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-中秋节的由来和习俗/ppt/20260220143810_ppt_cover_wm.jpg","categories":["社会","中班"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"爱要大胆说出来 社会语言中班","path":"/categories/社会/爱要大胆说出来 社会语言中班_中班.html","views":33587,"date":"2026-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爱要大胆说出来-社会语言中班/ppt/20260220155425_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"好事情 社会语言中班","path":"/categories/社会/好事情 社会语言中班_中班.html","views":11557,"date":"2026-01-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/好事情-社会语言中班/ppt/20260220122554_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 我会乘地铁","path":"/categories/社会/中班 社会 我会乘地铁_中班.html","views":14390,"date":"2025-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_我会乘地铁/ppt/20260131123543_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小班中班不一样 社会中班","path":"/categories/社会/小班中班不一样 社会中班_中班.html","views":11797,"date":"2025-07-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班中班不一样-社会中班/ppt/20260220155050_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"灰喜鹊搬家 语言社会中班","path":"/categories/社会/灰喜鹊搬家 语言社会中班_中班.html","views":19672,"date":"2025-05-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/灰喜鹊搬家-语言社会中班/ppt/20260220124203_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 想让你开心 重补","path":"/categories/社会/中班社会 想让你开心 重补_中班.html","views":16406,"date":"2025-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-想让你开心-重补/ppt/20260220154349_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 我是中国人","path":"/categories/社会/中班 社会 我是中国人_中班.html","views":9088,"date":"2025-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_我是中国人/ppt/20260131123549_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"快乐的元宵节 社会美术 小中班","path":"/categories/社会/快乐的元宵节 社会美术 小中班_中班.html","views":13043,"date":"2024-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/快乐的元宵节_社会美术_小中班/ppt/20260130221633_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班健康社会 情绪小侦探 PPT教案纸面教具","path":"/categories/社会/中班健康社会 情绪小侦探 PPT教案纸面教具_中班.html","views":19599,"date":"2024-04-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班健康社会-情绪小侦探-PPT教案纸面教具/ppt/20260219215741_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"悯农 语言社会中班","path":"/categories/社会/悯农 语言社会中班_中班.html","views":16357,"date":"2024-02-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/悯农-语言社会中班/ppt/20260220123308_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"动物服务中心 社会语言中班","path":"/categories/社会/动物服务中心 社会语言中班_中班.html","views":18855,"date":"2024-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/动物服务中心-社会语言中班/ppt/20260220121807_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班语言社会 过冬","path":"/categories/社会/中班语言社会 过冬_中班.html","views":9853,"date":"2024-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言社会-过冬/ppt/20260220121500_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班语言社会 萤火虫找朋友","path":"/categories/社会/中班语言社会 萤火虫找朋友_中班.html","views":10764,"date":"2024-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言社会-萤火虫找朋友/ppt/20260220121455_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 节约用水","path":"/categories/社会/中班社会 节约用水_中班.html","views":17384,"date":"2023-11-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-节约用水/ppt/20260220154403_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中大社会科学 逛逛动物园 课件PPT教案","path":"/categories/社会/中大社会科学 逛逛动物园 课件PPT教案_中班.html","views":9453,"date":"2023-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中大社会科学-逛逛动物园-课件PPT教案/ppt/20260219215457_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会课件《十二生肖》PPT课件","path":"/categories/社会/25中班社会课件《十二生肖》PPT课件 plus 教案_中班.html","views":10393,"date":"2023-07-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25中班社会课件《十二生肖》PPT课件_plus_教案/ppt/20260130233423_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"好邻居 社会语言中班","path":"/categories/社会/好邻居 社会语言中班_中班.html","views":15879,"date":"2023-07-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/好邻居-社会语言中班/ppt/20260220122609_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"压岁钱 语言社会中班","path":"/categories/社会/压岁钱 语言社会中班_中班.html","views":5803,"date":"2023-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/压岁钱-语言社会中班/ppt/20260220121838_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"过冬 语言社会中班","path":"/categories/社会/过冬 语言社会中班_中班.html","views":14681,"date":"2023-03-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/过冬-语言社会中班/ppt/20260220124913_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《小麦的一生》PPT课件","path":"/categories/社会/中班社会《小麦的一生》PPT课件 plus 教案 plus 音乐_中班.html","views":13979,"date":"2022-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《小麦的一生》PPT课件_plus_教案_plus_音乐/ppt/20260130233842_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_中班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会别让太阳掉下来视频教案PPT课件音乐","path":"/categories/社会/中班社会别让太阳掉下来视频教案PPT课件音乐_中班.html","views":13472,"date":"2022-07-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会别让太阳掉下来视频教案PPT课件音乐/ppt/20260219210645_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 排队真好 视频教案课件图片","path":"/categories/社会/中班社会 排队真好 视频教案课件图片_中班.html","views":18642,"date":"2022-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-排队真好-视频教案课件图片/ppt/20260220154356_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小班中班不一样 社会 中班","path":"/categories/社会/小班中班不一样 社会 中班_中班.html","views":4417,"date":"2021-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班中班不一样_社会_中班/ppt/20260131013027_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会语言 动物服务中心","path":"/categories/社会/中班社会语言 动物服务中心_中班.html","views":15584,"date":"2021-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会语言-动物服务中心/ppt/20260220121319_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"我想和你一起玩 社会中班","path":"/categories/社会/我想和你一起玩 社会中班_中班.html","views":7267,"date":"2021-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我想和你一起玩-社会中班/ppt/20260220155327_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《中秋节的由来和习俗》","path":"/categories/社会/中班社会《中秋节的由来和习俗》_中班.html","views":13981,"date":"2021-09-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《中秋节的由来和习俗》/ppt/20260131123805_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 冬天的取暖工具 PPT教案","path":"/categories/社会/中班社会 冬天的取暖工具 PPT教案_中班.html","views":12043,"date":"2021-07-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-冬天的取暖工具-PPT教案/ppt/20260219215846_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 新年到","path":"/categories/社会/中班社会 新年到_中班.html","views":18956,"date":"2021-06-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会-新年到/ppt/20260130233837_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 心情树叶","path":"/categories/社会/中班 社会 心情树叶_中班.html","views":5552,"date":"2021-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会_心情树叶/ppt/20260130233800_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"老师的本领 语言社会中班","path":"/categories/社会/老师的本领 语言社会中班_中班.html","views":7600,"date":"2021-03-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/老师的本领-语言社会中班/ppt/20260220124620_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"尊重朋友 社会中班","path":"/categories/社会/尊重朋友 社会中班_中班.html","views":16255,"date":"2021-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/尊重朋友-社会中班/ppt/20260220155001_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"爱在我身边 社会语言小中班","path":"/categories/社会/爱在我身边 社会语言小中班_中班.html","views":12907,"date":"2020-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爱在我身边-社会语言小中班/ppt/20260220124228_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会美术 中秋节","path":"/categories/社会/中班社会美术 中秋节_中班.html","views":19073,"date":"2020-10-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会美术-中秋节/ppt/20260220143826_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《保护动物》","path":"/categories/社会/中班社会《保护动物》_中班.html","views":4352,"date":"2020-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《保护动物》/ppt/20260130220629_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会 植树去 含有声PPT","path":"/categories/社会/3中班 社会 植树去 含有声PPT plus 歌曲及伴奏 plus 教案_中班.html","views":12016,"date":"2020-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3中班-社会-植树去_含有声PPT_plus_歌曲及伴奏_plus_教案/ppt/20260130233444_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"萤火虫找朋友 语言社会中班","path":"/categories/社会/萤火虫找朋友 语言社会中班_中班.html","views":17173,"date":"2020-05-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/萤火虫找朋友-语言社会中班/ppt/20260220124652_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"升旗仪式 社会 中班","path":"/categories/社会/升旗仪式 社会 中班_中班.html","views":13994,"date":"2020-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/升旗仪式_社会_中班/ppt/20260131012508_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班 社会美术 中秋节","path":"/categories/社会/中班 社会美术 中秋节_中班.html","views":18562,"date":"2020-03-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_社会美术_中秋节/ppt/20260131123554_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 春天在哪里","path":"/categories/社会/中班社会 春天在哪里_中班.html","views":10471,"date":"2020-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-春天在哪里/ppt/20260220143820_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"老师的节日 社会 中班","path":"/categories/社会/老师的节日 社会 中班_中班.html","views":17677,"date":"2020-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/老师的节日_社会_中班/ppt/20260131013613_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《春天在哪里》","path":"/categories/社会/中班社会《春天在哪里》_中班.html","views":9597,"date":"2019-07-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《春天在哪里》/ppt/20260131123812_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"我们来抱抱 中班社会语言","path":"/categories/社会/我们来抱抱 中班社会语言_中班.html","views":8171,"date":"2019-07-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我们来抱抱-中班社会语言/ppt/20260220123342_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小小猫钓鱼 语言社会中班","path":"/categories/社会/小小猫钓鱼 语言社会中班_中班.html","views":12559,"date":"2019-07-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小小猫钓鱼-语言社会中班/ppt/20260220122814_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"一起去秋游 社会语言中班课件","path":"/categories/社会/一起去秋游 社会语言中班课件_中班.html","views":10092,"date":"2018-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/一起去秋游-社会语言中班课件/ppt/20260220121143_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"尊重朋友 社会 中班","path":"/categories/社会/尊重朋友 社会 中班_中班.html","views":8972,"date":"2018-04-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/尊重朋友_社会_中班/ppt/20260131012905_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《保护鸟类》PPT课件 plus 教案 plus 音效","path":"/categories/社会/中班社会《保护鸟类》PPT课件 plus 教案 plus 音效_中班.html","views":5996,"date":"2017-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《保护鸟类》PPT课件_plus_教案_plus_音效/ppt/20260131012332_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会《消防叔叔本领大》","path":"/categories/社会/中班社会《消防叔叔本领大》_中班.html","views":5551,"date":"2017-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班社会《消防叔叔本领大》/ppt/20260130220636_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"认真倾听不插话 语言社会中班","path":"/categories/社会/认真倾听不插话 语言社会中班_中班.html","views":11446,"date":"2017-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/认真倾听不插话-语言社会中班/ppt/20260220124756_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 帮助他人真快乐","path":"/categories/社会/中班社会 帮助他人真快乐_中班.html","views":80344,"date":"2017-03-17","categories":["社会","中班"]},{"title":"拉拉钩 音乐社会 中班","path":"/categories/社会/拉拉钩 音乐社会 中班_中班.html","views":9371,"date":"2017-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/拉拉钩_音乐社会_中班/ppt/20260131013242_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_中班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","中班"]},{"title":"中班社会 中秋节的由来和习俗","path":"/categories/社会/中班社会 中秋节的由来和习俗_中班.html","views":14028,"date":"2016-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班社会-中秋节的由来和习俗/ppt/20260220143810_ppt_cover_wm.jpg","categories":["社会","中班"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

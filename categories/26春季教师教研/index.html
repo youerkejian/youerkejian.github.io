@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：26春季教师教研</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"28专题教研慧玩民间游戏悦享传统文化教研方案","path":"/categories/26春季教师教研/28专题教研慧玩民间游戏悦享传统文化教研方案.html","views":9902,"date":"2025-10-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/28专题教研慧玩民间游戏悦享传统文化教研方案/ppt_1_cover/20260228123516_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"23画里有话","path":"/categories/26春季教师教研/23画里有话.html","views":5036,"date":"2025-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/23画里有话/ppt_1_cover/20260228123341_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"30看见读懂支持自主游戏中教师的观察与指导","path":"/categories/26春季教师教研/30看见读懂支持自主游戏中教师的观察与指导.html","views":12542,"date":"2024-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/30看见读懂支持自主游戏中教师的观察与指导/ppt_1_cover/20260228123621_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"6研户外游戏优化探材料投放智慧","path":"/categories/26春季教师教研/6研户外游戏优化探材料投放智慧.html","views":17983,"date":"2024-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/6研户外游戏优化探材料投放智慧/ppt_1_cover/20260228124005_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"21聚焦儿童视角探寻美术之趣","path":"/categories/26春季教师教研/21聚焦儿童视角探寻美术之趣.html","views":17791,"date":"2024-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/21聚焦儿童视角探寻美术之趣/ppt_1_cover/20260228123302_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"20项前一步解锁幼儿深度学习策略","path":"/categories/26春季教师教研/20项前一步解锁幼儿深度学习策略.html","views":15929,"date":"2024-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/20项前一步解锁幼儿深度学习策略/ppt_1_cover/20260228123233_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"17师幼共舞平凡时刻的非凡生长课件","path":"/categories/26春季教师教研/17师幼共舞平凡时刻的非凡生长课件.html","views":4177,"date":"2024-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/17师幼共舞平凡时刻的非凡生长课件/ppt_1_cover/20260228123050_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"25深度解读评估指南吃透师幼互动","path":"/categories/26春季教师教研/25深度解读评估指南吃透师幼互动.html","views":10359,"date":"2023-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25深度解读评估指南吃透师幼互动/ppt_1_cover/20260228123424_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"1以儿童为中心的班级环境创设","path":"/categories/26春季教师教研/1以儿童为中心的班级环境创设.html","views":15265,"date":"2023-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/1以儿童为中心的班级环境创设/ppt_1_cover/20260228123207_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"14学前儿童音乐游戏教育活动","path":"/categories/26春季教师教研/14学前儿童音乐游戏教育活动.html","views":16370,"date":"2023-03-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/14学前儿童音乐游戏教育活动/ppt_1_cover/20260228122931_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"24教研培训37度语言刚刚好","path":"/categories/26春季教师教研/24教研培训37度语言刚刚好.html","views":11009,"date":"2022-12-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/24教研培训37度语言刚刚好/ppt_1_cover/20260228123403_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"32教研材料层次性投放","path":"/categories/26春季教师教研/32教研材料层次性投放.html","views":18982,"date":"2022-09-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/32教研材料层次性投放/ppt_1_cover/20260228123659_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"10蹲下来听见花开师德师风演讲ppt","path":"/categories/26春季教师教研/10蹲下来听见花开师德师风演讲ppt.html","views":14173,"date":"2022-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/10蹲下来听见花开师德师风演讲ppt/ppt_1_cover/20260228122747_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"11化等为机过渡环节中幼儿发展的教育智慧课件","path":"/categories/26春季教师教研/11化等为机过渡环节中幼儿发展的教育智慧课件.html","views":8194,"date":"2022-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/11化等为机过渡环节中幼儿发展的教育智慧课件/ppt_1_cover/20260228122803_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"3平凡岗位上的星光","path":"/categories/26春季教师教研/3平凡岗位上的星光.html","views":4625,"date":"2022-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3平凡岗位上的星光/ppt_1_cover/20260228123928_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结","path":"/categories/26春季教师教研/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结.html","views":7071,"date":"2021-10-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结/ppt_1_cover/20260228123556_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"8不吼不叫幼师不用吼也能镇住孩子","path":"/categories/26春季教师教研/8不吼不叫幼师不用吼也能镇住孩子.html","views":13517,"date":"2021-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/8不吼不叫幼师不用吼也能镇住孩子/ppt_1_cover/20260228124026_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"29启智幼教AI共研","path":"/categories/26春季教师教研/29启智幼教AI共研.html","views":13265,"date":"2021-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/29启智幼教AI共研/ppt_1_cover/20260228123536_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"18幼儿园融合教育新空间","path":"/categories/26春季教师教研/18幼儿园融合教育新空间.html","views":99886,"date":"2021-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/18幼儿园融合教育新空间/ppt_1_cover/20260228123119_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"36聚焦儿童本位优化集体教学","path":"/categories/26春季教师教研/36聚焦儿童本位优化集体教学.html","views":7196,"date":"2020-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/36聚焦儿童本位优化集体教学/ppt_1_cover/20260228123816_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"33打开绘本看世界","path":"/categories/26春季教师教研/33打开绘本看世界.html","views":11560,"date":"2020-11-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/33打开绘本看世界/ppt_1_cover/20260228123709_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"9深度教研基于户外游戏的一对一倾听与记录","path":"/categories/26春季教师教研/9深度教研基于户外游戏的一对一倾听与记录.html","views":10199,"date":"2020-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/9深度教研基于户外游戏的一对一倾听与记录/ppt_1_cover/20260228124039_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"16区域游戏中支持幼儿深度学习的有效策略","path":"/categories/26春季教师教研/16区域游戏中支持幼儿深度学习的有效策略.html","views":13732,"date":"2019-12-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/16区域游戏中支持幼儿深度学习的有效策略/ppt_1_cover/20260228123022_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"38专题教研聚焦绘画表征让幼儿的成长看得见","path":"/categories/26春季教师教研/38专题教研聚焦绘画表征让幼儿的成长看得见.html","views":15633,"date":"2019-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/38专题教研聚焦绘画表征让幼儿的成长看得见/ppt_1_cover/20260228123848_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"37园本教研聚焦养成教育点亮成长微光","path":"/categories/26春季教师教研/37园本教研聚焦养成教育点亮成长微光.html","views":13854,"date":"2019-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/37园本教研聚焦养成教育点亮成长微光/ppt_1_cover/20260228123830_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"15优化体能循环共促幼儿发展","path":"/categories/26春季教师教研/15优化体能循环共促幼儿发展.html","views":17159,"date":"2019-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/15优化体能循环共促幼儿发展/ppt_1_cover/20260228123001_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"13班本课程的组织与实施","path":"/categories/26春季教师教研/13班本课程的组织与实施.html","views":7213,"date":"2019-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/13班本课程的组织与实施/ppt_1_cover/20260228122906_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"35看见儿童的师幼互动","path":"/categories/26春季教师教研/35看见儿童的师幼互动.html","views":11969,"date":"2019-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/35看见儿童的师幼互动/ppt_1_cover/20260228123746_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"19研以促教做有温度的教育","path":"/categories/26春季教师教研/19研以促教做有温度的教育.html","views":6247,"date":"2019-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/19研以促教做有温度的教育/ppt_1_cover/20260228123147_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"7观察读懂与回应儿童读书分享","path":"/categories/26春季教师教研/7观察读懂与回应儿童读书分享.html","views":12680,"date":"2019-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/7观察读懂与回应儿童读书分享/ppt_1_cover/20260228124017_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"5解读幼儿表征","path":"/categories/26春季教师教研/5解读幼儿表征.html","views":19932,"date":"2018-11-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/5解读幼儿表征/ppt_1_cover/20260228123953_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"39专题教研聚焦游戏分享支持幼儿有意义学习","path":"/categories/26春季教师教研/39专题教研聚焦游戏分享支持幼儿有意义学习.html","views":6431,"date":"2018-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/39专题教研聚焦游戏分享支持幼儿有意义学习/ppt_1_cover/20260228123901_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"27强化幼儿园和小学的双向衔接避免小学化倾向","path":"/categories/26春季教师教研/27强化幼儿园和小学的双向衔接避免小学化倾向.html","views":19710,"date":"2017-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/27强化幼儿园和小学的双向衔接避免小学化倾向/ppt_1_cover/20260228123502_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"12幼儿与自然对话自然资源班本化","path":"/categories/26春季教师教研/12幼儿与自然对话自然资源班本化.html","views":15040,"date":"2017-10-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/12幼儿与自然对话自然资源班本化/ppt_1_cover/20260228122840_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"26合理规划室内区域环境注重一般要求及指导要点","path":"/categories/26春季教师教研/26合理规划室内区域环境注重一般要求及指导要点.html","views":18223,"date":"2017-10-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/26合理规划室内区域环境注重一般要求及指导要点/ppt_1_cover/20260228123441_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"4蹲下身倾听每一颗童心","path":"/categories/26春季教师教研/4蹲下身倾听每一颗童心.html","views":15837,"date":"2017-08-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/4蹲下身倾听每一颗童心/ppt_1_cover/20260228123943_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"22园本教研基于儿童视角优化过渡环节","path":"/categories/26春季教师教研/22园本教研基于儿童视角优化过渡环节.html","views":13210,"date":"2016-12-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/22园本教研基于儿童视角优化过渡环节/ppt_1_cover/20260228123325_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"31从有到优","path":"/categories/26春季教师教研/31从有到优.html","views":11020,"date":"2016-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/31从有到优/ppt_1_cover/20260228123645_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"34沟通有术共育有方沟通技巧与方式","path":"/categories/26春季教师教研/34沟通有术共育有方沟通技巧与方式.html","views":4276,"date":"2016-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/34沟通有术共育有方沟通技巧与方式/ppt_1_cover/20260228123724_ppt_cover_wm.jpg","categories":["26春季教师教研"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"28专题教研慧玩民间游戏悦享传统文化教研方案","path":"/categories/26春季教师教研/28专题教研慧玩民间游戏悦享传统文化教研方案.html","views":9902,"date":"2025-10-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/28专题教研慧玩民间游戏悦享传统文化教研方案/ppt_1_cover/20260228123516_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"23画里有话","path":"/categories/26春季教师教研/23画里有话.html","views":5036,"date":"2025-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/23画里有话/ppt_1_cover/20260228123341_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"30看见读懂支持自主游戏中教师的观察与指导","path":"/categories/26春季教师教研/30看见读懂支持自主游戏中教师的观察与指导.html","views":12542,"date":"2024-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/30看见读懂支持自主游戏中教师的观察与指导/ppt_1_cover/20260228123621_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"6研户外游戏优化探材料投放智慧","path":"/categories/26春季教师教研/6研户外游戏优化探材料投放智慧.html","views":17983,"date":"2024-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/6研户外游戏优化探材料投放智慧/ppt_1_cover/20260228124005_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"21聚焦儿童视角探寻美术之趣","path":"/categories/26春季教师教研/21聚焦儿童视角探寻美术之趣.html","views":17791,"date":"2024-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/21聚焦儿童视角探寻美术之趣/ppt_1_cover/20260228123302_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"20项前一步解锁幼儿深度学习策略","path":"/categories/26春季教师教研/20项前一步解锁幼儿深度学习策略.html","views":15929,"date":"2024-03-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/20项前一步解锁幼儿深度学习策略/ppt_1_cover/20260228123233_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"17师幼共舞平凡时刻的非凡生长课件","path":"/categories/26春季教师教研/17师幼共舞平凡时刻的非凡生长课件.html","views":4177,"date":"2024-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/17师幼共舞平凡时刻的非凡生长课件/ppt_1_cover/20260228123050_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"25深度解读评估指南吃透师幼互动","path":"/categories/26春季教师教研/25深度解读评估指南吃透师幼互动.html","views":10359,"date":"2023-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25深度解读评估指南吃透师幼互动/ppt_1_cover/20260228123424_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"1以儿童为中心的班级环境创设","path":"/categories/26春季教师教研/1以儿童为中心的班级环境创设.html","views":15265,"date":"2023-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/1以儿童为中心的班级环境创设/ppt_1_cover/20260228123207_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"14学前儿童音乐游戏教育活动","path":"/categories/26春季教师教研/14学前儿童音乐游戏教育活动.html","views":16370,"date":"2023-03-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/14学前儿童音乐游戏教育活动/ppt_1_cover/20260228122931_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"24教研培训37度语言刚刚好","path":"/categories/26春季教师教研/24教研培训37度语言刚刚好.html","views":11009,"date":"2022-12-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/24教研培训37度语言刚刚好/ppt_1_cover/20260228123403_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"32教研材料层次性投放","path":"/categories/26春季教师教研/32教研材料层次性投放.html","views":18982,"date":"2022-09-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/32教研材料层次性投放/ppt_1_cover/20260228123659_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"10蹲下来听见花开师德师风演讲ppt","path":"/categories/26春季教师教研/10蹲下来听见花开师德师风演讲ppt.html","views":14173,"date":"2022-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/10蹲下来听见花开师德师风演讲ppt/ppt_1_cover/20260228122747_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"11化等为机过渡环节中幼儿发展的教育智慧课件","path":"/categories/26春季教师教研/11化等为机过渡环节中幼儿发展的教育智慧课件.html","views":8194,"date":"2022-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/11化等为机过渡环节中幼儿发展的教育智慧课件/ppt_1_cover/20260228122803_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"3平凡岗位上的星光","path":"/categories/26春季教师教研/3平凡岗位上的星光.html","views":4625,"date":"2022-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3平凡岗位上的星光/ppt_1_cover/20260228123928_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结","path":"/categories/26春季教师教研/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结.html","views":7071,"date":"2021-10-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结/ppt_1_cover/20260228123556_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"8不吼不叫幼师不用吼也能镇住孩子","path":"/categories/26春季教师教研/8不吼不叫幼师不用吼也能镇住孩子.html","views":13517,"date":"2021-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/8不吼不叫幼师不用吼也能镇住孩子/ppt_1_cover/20260228124026_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"29启智幼教AI共研","path":"/categories/26春季教师教研/29启智幼教AI共研.html","views":13265,"date":"2021-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/29启智幼教AI共研/ppt_1_cover/20260228123536_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"18幼儿园融合教育新空间","path":"/categories/26春季教师教研/18幼儿园融合教育新空间.html","views":99886,"date":"2021-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/18幼儿园融合教育新空间/ppt_1_cover/20260228123119_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"36聚焦儿童本位优化集体教学","path":"/categories/26春季教师教研/36聚焦儿童本位优化集体教学.html","views":7196,"date":"2020-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/36聚焦儿童本位优化集体教学/ppt_1_cover/20260228123816_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"33打开绘本看世界","path":"/categories/26春季教师教研/33打开绘本看世界.html","views":11560,"date":"2020-11-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/33打开绘本看世界/ppt_1_cover/20260228123709_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"9深度教研基于户外游戏的一对一倾听与记录","path":"/categories/26春季教师教研/9深度教研基于户外游戏的一对一倾听与记录.html","views":10199,"date":"2020-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/9深度教研基于户外游戏的一对一倾听与记录/ppt_1_cover/20260228124039_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"16区域游戏中支持幼儿深度学习的有效策略","path":"/categories/26春季教师教研/16区域游戏中支持幼儿深度学习的有效策略.html","views":13732,"date":"2019-12-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/16区域游戏中支持幼儿深度学习的有效策略/ppt_1_cover/20260228123022_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"38专题教研聚焦绘画表征让幼儿的成长看得见","path":"/categories/26春季教师教研/38专题教研聚焦绘画表征让幼儿的成长看得见.html","views":15633,"date":"2019-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/38专题教研聚焦绘画表征让幼儿的成长看得见/ppt_1_cover/20260228123848_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"37园本教研聚焦养成教育点亮成长微光","path":"/categories/26春季教师教研/37园本教研聚焦养成教育点亮成长微光.html","views":13854,"date":"2019-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/37园本教研聚焦养成教育点亮成长微光/ppt_1_cover/20260228123830_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"15优化体能循环共促幼儿发展","path":"/categories/26春季教师教研/15优化体能循环共促幼儿发展.html","views":17159,"date":"2019-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/15优化体能循环共促幼儿发展/ppt_1_cover/20260228123001_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"13班本课程的组织与实施","path":"/categories/26春季教师教研/13班本课程的组织与实施.html","views":7213,"date":"2019-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/13班本课程的组织与实施/ppt_1_cover/20260228122906_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"35看见儿童的师幼互动","path":"/categories/26春季教师教研/35看见儿童的师幼互动.html","views":11969,"date":"2019-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/35看见儿童的师幼互动/ppt_1_cover/20260228123746_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"19研以促教做有温度的教育","path":"/categories/26春季教师教研/19研以促教做有温度的教育.html","views":6247,"date":"2019-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/19研以促教做有温度的教育/ppt_1_cover/20260228123147_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"7观察读懂与回应儿童读书分享","path":"/categories/26春季教师教研/7观察读懂与回应儿童读书分享.html","views":12680,"date":"2019-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/7观察读懂与回应儿童读书分享/ppt_1_cover/20260228124017_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"5解读幼儿表征","path":"/categories/26春季教师教研/5解读幼儿表征.html","views":19932,"date":"2018-11-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/5解读幼儿表征/ppt_1_cover/20260228123953_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"39专题教研聚焦游戏分享支持幼儿有意义学习","path":"/categories/26春季教师教研/39专题教研聚焦游戏分享支持幼儿有意义学习.html","views":6431,"date":"2018-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/39专题教研聚焦游戏分享支持幼儿有意义学习/ppt_1_cover/20260228123901_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"27强化幼儿园和小学的双向衔接避免小学化倾向","path":"/categories/26春季教师教研/27强化幼儿园和小学的双向衔接避免小学化倾向.html","views":19710,"date":"2017-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/27强化幼儿园和小学的双向衔接避免小学化倾向/ppt_1_cover/20260228123502_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"12幼儿与自然对话自然资源班本化","path":"/categories/26春季教师教研/12幼儿与自然对话自然资源班本化.html","views":15040,"date":"2017-10-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/12幼儿与自然对话自然资源班本化/ppt_1_cover/20260228122840_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"26合理规划室内区域环境注重一般要求及指导要点","path":"/categories/26春季教师教研/26合理规划室内区域环境注重一般要求及指导要点.html","views":18223,"date":"2017-10-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/26合理规划室内区域环境注重一般要求及指导要点/ppt_1_cover/20260228123441_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"4蹲下身倾听每一颗童心","path":"/categories/26春季教师教研/4蹲下身倾听每一颗童心.html","views":15837,"date":"2017-08-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/4蹲下身倾听每一颗童心/ppt_1_cover/20260228123943_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"22园本教研基于儿童视角优化过渡环节","path":"/categories/26春季教师教研/22园本教研基于儿童视角优化过渡环节.html","views":13210,"date":"2016-12-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/22园本教研基于儿童视角优化过渡环节/ppt_1_cover/20260228123325_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"31从有到优","path":"/categories/26春季教师教研/31从有到优.html","views":11020,"date":"2016-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/31从有到优/ppt_1_cover/20260228123645_ppt_cover_wm.jpg","categories":["26春季教师教研"]},{"title":"34沟通有术共育有方沟通技巧与方式","path":"/categories/26春季教师教研/34沟通有术共育有方沟通技巧与方式.html","views":4276,"date":"2016-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/34沟通有术共育有方沟通技巧与方式/ppt_1_cover/20260228123724_ppt_cover_wm.jpg","categories":["26春季教师教研"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {

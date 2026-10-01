@@ -296,6 +296,156 @@ function handleSearchClick(e) {
     .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 </style>
 
+<!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
+<!-- =====================================================================
+     统一 UI 组件（_partial/ui.ejs）—— 全站共用，只改这一个文件即可
+=====================================================================
+     本文件提供三个全局函数，被首页 / 分类页 / 百宝箱 / 搜索页引用：
+
+     1. renderState(type, opts) —— 统一的"状态组件"（加载中 / 暂无数据 / 出错 / 404）
+        type 取值：'loading' | 'empty' | 'error' | '404'
+        opts 可填：{ icon, title, desc, btnText, btnLink }
+        用法示例：
+          container.innerHTML = renderState('empty', {
+            icon: '📭', title: '暂无相关课件',
+            desc: '换个分类看看吧', btnText: '返回首页', btnLink: '/'
+          });
+
+     2. dedupePosts(posts) —— 按文章的 path（唯一地址）去重
+        作用：同一篇文章即使被数据源重复输出，每个列表也只显示一次。
+
+     3. dedupePostsByTitle(posts) —— 🌟 新增：按"标题"去重
+        作用：解决"同一课程发成了小班/中班/大班三篇文章"的问题。
+        在【全部课件】视图下，同名课程只显示 1 个。
+===================================================================== -->
+
+<script>
+  function renderState(type, opts) {
+    opts = opts || {};
+
+    var icon = '';
+    var title = '';
+    var desc = '';
+    var btn = '';
+
+    switch (type) {
+      case 'loading':
+        icon = '<div class="spinner"></div>';
+        title = opts.title || '加载中...';
+        desc = opts.desc || '正在加载内容，请稍候';
+        break;
+
+      case 'empty':
+        icon = '<span class="state-icon">' + (opts.icon || '🗂️') + '</span>';
+        title = opts.title || '暂无数据';
+        desc = opts.desc || '这里暂时还没有内容';
+        break;
+
+      case 'error':
+        icon = '<span class="state-icon">' + (opts.icon || '⚠️') + '</span>';
+        title = opts.title || '出错了';
+        desc = opts.desc || '加载失败，请刷新页面重试';
+        break;
+
+      case '404':
+        icon = '<span class="state-icon">🔍</span>';
+        title = opts.title || '404 - 页面不存在';
+        desc = opts.desc || '您访问的页面不存在或已被删除';
+        break;
+    }
+
+    if (opts.btnText && opts.btnLink) {
+      btn = '<a class="state-btn" href="' + opts.btnLink + '">' + opts.btnText + '</a>';
+    }
+
+    return '<div class="state-block' + (type === '404' ? ' state-404' : '') + '">'
+      + icon
+      + '<h3>' + title + '</h3>'
+      + '<p>' + desc + '</p>'
+      + btn
+      + '</div>';
+  }
+
+  function dedupePosts(posts) {
+    var seen = new Set();
+    var out = [];
+
+    (posts || []).forEach(function (p) {
+      var key = p.path || p.id || p.title; // 用文章地址作为唯一标识
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(p);
+      }
+    });
+
+    return out;
+  }
+
+  // ================================================================
+  // 🌟 新增：按"标题"去重（解决同一课程在 小班/中班/大班 重复显示的问题）
+  //
+  // 规则：
+  //   1. 把标题里的空格、年级字样（小班/中班/大班/托班）、书名号引号
+  //      全部去掉后，如果两篇文章的标题一样，就视为"同一门课程"。
+  //   2. 同一门课程只保留 1 篇，优先级：
+  //      ① 有封面图的优先  ② 日期更新的优先  ③ 都相同则保留先出现的
+  //
+  // ⚠️ 如果您发现有的课程被"误合并"了（两门不同的课被当成一门），
+  //    说明它们的标题去掉年级后是一样的，请把这两篇的标题发给我调整规则。
+  // ================================================================
+  function dedupePostsByTitle(posts) {
+    var map = {};      // key: 标准化后的标题, value: 当前保留的那篇
+    var order = [];    // 记录出现顺序，保证列表输出顺序稳定
+    var noTitle = [];  // 极少数没有标题的文章，直接保留，不去重
+
+    (posts || []).forEach(function (p) {
+      // ---------- 标题标准化：去掉空格、年级字样、书名号引号 ----------
+      var key = (p.title || '')
+        .replace(/\s+/g, '')                    // 去掉所有空格
+        .replace(/(小班|中班|大班|托班)/g, '')   // 去掉年级字样
+        .replace(/[《》【】""'']+/g, '');        // 去掉书名号、引号等装饰符号
+
+      // 没有标题的文章无法判断，直接保留
+      if (!key) {
+        noTitle.push(p);
+        return;
+      }
+
+      // 第一次出现：直接保留
+      if (!map[key]) {
+        map[key] = p;
+        order.push(key);
+        return;
+      }
+
+      // 已经出现过同名课程：按优先级决定保留哪一篇
+      var kept = map[key];
+      var challenger = p;
+
+      // ① 有封面图的优先
+      var keptHasCover = !!kept.cover_img;
+      var chalHasCover = !!challenger.cover_img;
+      if (chalHasCover && !keptHasCover) {
+        map[key] = challenger;
+        return;
+      }
+      if (keptHasCover && !chalHasCover) {
+        return; // 已保留的有封面， challenger 没封面，不替换
+      }
+
+      // ② 日期新的优先（date 格式是 "YYYY-MM-DD"，字符串直接比较即可）
+      if (challenger.date > kept.date) {
+        map[key] = challenger;
+      }
+    });
+
+    // 按最初出现的顺序输出
+    var out = order.map(function (k) { return map[k]; });
+    return out.concat(noTitle);
+  }
+</script>
+
+
 <!-- 分类页头部 -->
 <div class="category-header">
     <h1 class="category-title">📂 分类：小班</h1>
@@ -304,9 +454,13 @@ function handleSearchClick(e) {
     </div>
 </div>
 
-<!-- 列表容器 -->
+<!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">加载中...</div>
+    <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在加载该分类下的课件，请稍候</p>
+    </div>
 </div>
 
 <!-- 翻页按钮 -->
@@ -316,9 +470,10 @@ function handleSearchClick(e) {
     <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
-<!-- 分类页逻辑脚本 (完全保留原样) -->
+<!-- 分类页逻辑脚本 -->
 <script>
-    const allPosts = [{"title":"小班音乐《小动物走路》","path":"/categories/音乐/小班音乐《小动物走路》_小班.html","views":12624,"date":"2025-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小动物走路》/ppt/20260131125033_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 嘘，请小声","path":"/categories/音乐/小班 音乐 嘘，请小声_小班.html","views":13904,"date":"2025-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_嘘，请小声/ppt/20260131124714_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐小猪踩泥坑视频教案PPT课件音乐","path":"/categories/音乐/小班音乐小猪踩泥坑视频教案PPT课件音乐_小班.html","views":15731,"date":"2025-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐小猪踩泥坑视频教案PPT课件音乐/ppt/20260219210906_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班数学 有趣的圆 视频教案课件音乐","path":"/categories/音乐/小班数学 有趣的圆 视频教案课件音乐_小班.html","views":9005,"date":"2025-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班数学-有趣的圆-视频教案课件音乐/ppt/20260219220504_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小雨沙沙》","path":"/categories/音乐/小班音乐《小雨沙沙》PPT课件 plus 教案 plus 音乐_小班.html","views":9321,"date":"2024-12-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小雨沙沙》PPT课件_plus_教案_plus_音乐/ppt/20260131125037_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班语言《春天的颜色》","path":"/categories/音乐/小班语言《春天的颜色》PPT课件 plus 教案 plus 音乐_小班.html","views":13485,"date":"2024-12-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《春天的颜色》PPT课件_plus_教案_plus_音乐/ppt/20260131125019_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《我爱我的小动物》","path":"/categories/音乐/小班音乐《我爱我的小动物》2025 视频 plus 教案 plus PPT课件 plus 音乐 plus 反思 plus 打印图_小班.html","views":13399,"date":"2024-10-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《我爱我的小动物》2025_视频_plus_教案_plus_PPT课件_plus_音乐_plus_反思_plus_打印图/ppt/20260131125041_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 小动物走路","path":"/categories/音乐/小班音乐 小动物走路_小班.html","views":12415,"date":"2024-09-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-小动物走路/ppt/20260220144153_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"摇篮曲 音乐 小班","path":"/categories/音乐/摇篮曲 音乐 小班_小班.html","views":16687,"date":"2024-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/摇篮曲_音乐_小班/ppt/20260131013250_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小鱼游》","path":"/categories/音乐/小班音乐《小鱼游》_小班.html","views":10197,"date":"2024-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小鱼游》/ppt/20260130221548_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《苹果》","path":"/categories/音乐/小班音乐《苹果》_小班.html","views":15808,"date":"2024-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《苹果》/ppt/20260130221603_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《花园种花》小小花园","path":"/categories/音乐/小班音乐《花园种花》小小花园_小班.html","views":17045,"date":"2024-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《花园种花》小小花园/ppt/20260130201745_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐小兔看花视频教案PPT课件音乐","path":"/categories/音乐/小班音乐小兔看花视频教案PPT课件音乐_小班.html","views":18784,"date":"2023-12-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐小兔看花视频教案PPT课件音乐/ppt/20260219210901_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班语言 把秋天背回家 PPT课件教案配音背景音乐","path":"/categories/音乐/小班语言 把秋天背回家 PPT课件教案配音背景音乐_小班.html","views":8862,"date":"2023-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言-把秋天背回家-PPT课件教案配音背景音乐/ppt/20260219220551_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 找朋友 课件PPT教案","path":"/categories/音乐/小班音乐 找朋友 课件PPT教案_小班.html","views":10964,"date":"2023-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-找朋友-课件PPT教案/ppt/20260219220618_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 拍蚊子 课堂实录教案音乐","path":"/categories/音乐/小班音乐 拍蚊子 课堂实录教案音乐_小班.html","views":13424,"date":"2023-09-22","categories":["音乐","小班"]},{"title":"小班音乐噜啦啦洗洗澡视频教案PPT课件反思","path":"/categories/音乐/小班音乐噜啦啦洗洗澡视频教案PPT课件反思_小班.html","views":12049,"date":"2023-09-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐噜啦啦洗洗澡视频教案PPT课件反思/ppt/20260219210857_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"好吃的大西瓜 音乐 小班","path":"/categories/音乐/好吃的大西瓜 音乐 小班_小班.html","views":15218,"date":"2023-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/好吃的大西瓜_音乐_小班/ppt/20260131012812_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"好吃的苹果 小班音乐","path":"/categories/音乐/好吃的苹果 小班音乐_小班.html","views":17785,"date":"2023-05-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/好吃的苹果-小班音乐/ppt/20260220154947_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 挑西瓜 版本2","path":"/categories/音乐/小班音乐 挑西瓜 版本2_小班.html","views":15011,"date":"2022-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-挑西瓜-版本2/ppt/20260219210849_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"爱跳舞的机器人 健康音乐 小班","path":"/categories/音乐/爱跳舞的机器人 健康音乐 小班_小班.html","views":5292,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱跳舞的机器人_健康音乐_小班/ppt/20260131013502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 勇敢小士兵","path":"/categories/音乐/小班 音乐 勇敢小士兵_小班.html","views":4595,"date":"2022-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_勇敢小士兵/ppt/20260131124707_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐游戏 小猪睡觉","path":"/categories/音乐/小班音乐游戏 小猪睡觉_小班.html","views":11900,"date":"2022-03-22","categories":["音乐","小班"]},{"title":"小班奥尔夫音乐 小火车摇摆","path":"/categories/音乐/小班奥尔夫音乐 小火车摇摆_小班.html","views":15834,"date":"2022-03-15","categories":["音乐","小班"]},{"title":"小班科学音乐 欢乐的小芽儿 PPT教案视频","path":"/categories/音乐/小班科学音乐 欢乐的小芽儿 PPT教案视频_小班.html","views":7878,"date":"2022-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班科学音乐-欢乐的小芽儿-PPT教案视频/ppt/20260220155127_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"北风爷爷别神气 音乐健康 小班","path":"/categories/音乐/北风爷爷别神气 音乐健康 小班_小班.html","views":10233,"date":"2022-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/北风爷爷别神气_音乐健康_小班/ppt/20260131012502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 你好，再见","path":"/categories/音乐/小班 音乐 你好，再见_小班.html","views":4776,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_你好，再见/ppt/20260131124702_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 我爱我的小动物 视频教案PPT课件音乐反思打印图","path":"/categories/音乐/小班音乐 我爱我的小动物 视频教案PPT课件音乐反思打印图_小班.html","views":8931,"date":"2021-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-我爱我的小动物-视频教案PPT课件音乐反思打印图/ppt/20260220144203_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 我爱我的小动物","path":"/categories/音乐/小班 音乐 我爱我的小动物_小班.html","views":4681,"date":"2021-09-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_我爱我的小动物/ppt/20260131124719_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 我的老师像妈妈","path":"/categories/音乐/小班音乐 我的老师像妈妈_小班.html","views":13202,"date":"2020-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-我的老师像妈妈/ppt/20260220004705_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"大鞋和小鞋 音乐 小班","path":"/categories/音乐/大鞋和小鞋 音乐 小班_小班.html","views":14937,"date":"2020-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大鞋和小鞋_音乐_小班/ppt/20260130221227_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 挑西瓜 版本","path":"/categories/音乐/小班音乐 挑西瓜 版本_小班.html","views":48832,"date":"2020-06-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-挑西瓜-版本/ppt/20260219210846_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"你好再见 音乐小班课件","path":"/categories/音乐/你好再见 音乐小班课件_小班.html","views":14342,"date":"2020-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/你好再见-音乐小班课件/ppt/20260220154619_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"我的朋友在哪里 音乐社会 小班","path":"/categories/音乐/我的朋友在哪里 音乐社会 小班_小班.html","views":13517,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的朋友在哪里_音乐社会_小班/ppt/20260131013214_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班体育 好玩的凳子 课堂实录教案反思音乐","path":"/categories/音乐/小班体育 好玩的凳子 课堂实录教案反思音乐_小班.html","views":16118,"date":"2019-08-23","categories":["音乐","小班"]},{"title":"春晓 语言音乐小班","path":"/categories/音乐/春晓 语言音乐小班_小班.html","views":4051,"date":"2019-05-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/春晓-语言音乐小班/ppt/20260220123717_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 挑西瓜 版本3","path":"/categories/音乐/小班音乐 挑西瓜 版本3_小班.html","views":18585,"date":"2019-04-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-挑西瓜-版本3/ppt/20260219210853_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《神奇的土豆》","path":"/categories/音乐/小班音乐《神奇的土豆》_小班.html","views":7328,"date":"2019-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《神奇的土豆》/ppt/20260130221556_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"Hello，大家好！ 音乐 小班","path":"/categories/音乐/Hello，大家好！ 音乐 小班_小班.html","views":19273,"date":"2018-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/Hello，大家好！_音乐_小班/ppt/20260131012148_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班社会我爱五星红旗视频教案PPT课件音乐","path":"/categories/音乐/小班社会我爱五星红旗视频教案PPT课件音乐_小班.html","views":18832,"date":"2018-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会我爱五星红旗视频教案PPT课件音乐/ppt/20260219210822_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 小雨沙沙 PPT课件教案音乐","path":"/categories/音乐/小班音乐 小雨沙沙 PPT课件教案音乐_小班.html","views":5255,"date":"2018-01-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-小雨沙沙-PPT课件教案音乐/ppt/20260220144158_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐我爱我的小动物视频教案PPT课件音乐反思打印图","path":"/categories/音乐/小班音乐我爱我的小动物视频教案PPT课件音乐反思打印图_小班.html","views":6558,"date":"2017-11-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐我爱我的小动物视频教案PPT课件音乐反思打印图/ppt/20260219210911_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 我爱我的幼儿园","path":"/categories/音乐/小班音乐 我爱我的幼儿园_小班.html","views":105043,"date":"2017-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-我爱我的幼儿园/ppt/20260220004700_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"胖嘟嘟的小猪 语言音乐小班","path":"/categories/音乐/胖嘟嘟的小猪 语言音乐小班_小班.html","views":6948,"date":"2017-10-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/胖嘟嘟的小猪-语言音乐小班/ppt/20260220124635_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"一去二三里 语言音乐小班","path":"/categories/音乐/一去二三里 语言音乐小班_小班.html","views":4999,"date":"2017-08-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/一去二三里-语言音乐小班/ppt/20260220121135_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"彩色世界 音乐 小班","path":"/categories/音乐/彩色世界 音乐 小班_小班.html","views":10118,"date":"2016-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/彩色世界_音乐_小班/ppt/20260131013130_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 大象和小蚊子","path":"/categories/音乐/小班音乐 大象和小蚊子_小班.html","views":17882,"date":"2016-03-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-大象和小蚊子/ppt/20260220155219_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/音乐/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["音乐","小班"]}];
+    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    const allPosts = dedupePosts([{"title":"小班音乐《小动物走路》","path":"/categories/音乐/小班音乐《小动物走路》_小班.html","views":12624,"date":"2025-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小动物走路》/ppt/20260131125033_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 嘘，请小声","path":"/categories/音乐/小班 音乐 嘘，请小声_小班.html","views":13904,"date":"2025-06-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_嘘，请小声/ppt/20260131124714_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐小猪踩泥坑视频教案PPT课件音乐","path":"/categories/音乐/小班音乐小猪踩泥坑视频教案PPT课件音乐_小班.html","views":15731,"date":"2025-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐小猪踩泥坑视频教案PPT课件音乐/ppt/20260219210906_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班数学 有趣的圆 视频教案课件音乐","path":"/categories/音乐/小班数学 有趣的圆 视频教案课件音乐_小班.html","views":9005,"date":"2025-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班数学-有趣的圆-视频教案课件音乐/ppt/20260219220504_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小雨沙沙》","path":"/categories/音乐/小班音乐《小雨沙沙》PPT课件 plus 教案 plus 音乐_小班.html","views":9321,"date":"2024-12-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小雨沙沙》PPT课件_plus_教案_plus_音乐/ppt/20260131125037_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班语言《春天的颜色》","path":"/categories/音乐/小班语言《春天的颜色》PPT课件 plus 教案 plus 音乐_小班.html","views":13485,"date":"2024-12-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班语言《春天的颜色》PPT课件_plus_教案_plus_音乐/ppt/20260131125019_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《我爱我的小动物》","path":"/categories/音乐/小班音乐《我爱我的小动物》2025 视频 plus 教案 plus PPT课件 plus 音乐 plus 反思 plus 打印图_小班.html","views":13399,"date":"2024-10-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《我爱我的小动物》2025_视频_plus_教案_plus_PPT课件_plus_音乐_plus_反思_plus_打印图/ppt/20260131125041_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 小动物走路","path":"/categories/音乐/小班音乐 小动物走路_小班.html","views":12415,"date":"2024-09-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-小动物走路/ppt/20260220144153_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"摇篮曲 音乐 小班","path":"/categories/音乐/摇篮曲 音乐 小班_小班.html","views":16687,"date":"2024-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/摇篮曲_音乐_小班/ppt/20260131013250_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《小鱼游》","path":"/categories/音乐/小班音乐《小鱼游》_小班.html","views":10197,"date":"2024-08-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《小鱼游》/ppt/20260130221548_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《苹果》","path":"/categories/音乐/小班音乐《苹果》_小班.html","views":15808,"date":"2024-02-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《苹果》/ppt/20260130221603_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《花园种花》小小花园","path":"/categories/音乐/小班音乐《花园种花》小小花园_小班.html","views":17045,"date":"2024-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《花园种花》小小花园/ppt/20260130201745_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐小兔看花视频教案PPT课件音乐","path":"/categories/音乐/小班音乐小兔看花视频教案PPT课件音乐_小班.html","views":18784,"date":"2023-12-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐小兔看花视频教案PPT课件音乐/ppt/20260219210901_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班语言 把秋天背回家 PPT课件教案配音背景音乐","path":"/categories/音乐/小班语言 把秋天背回家 PPT课件教案配音背景音乐_小班.html","views":8862,"date":"2023-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言-把秋天背回家-PPT课件教案配音背景音乐/ppt/20260219220551_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 找朋友 课件PPT教案","path":"/categories/音乐/小班音乐 找朋友 课件PPT教案_小班.html","views":10964,"date":"2023-10-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-找朋友-课件PPT教案/ppt/20260219220618_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 拍蚊子 课堂实录教案音乐","path":"/categories/音乐/小班音乐 拍蚊子 课堂实录教案音乐_小班.html","views":13424,"date":"2023-09-22","categories":["音乐","小班"]},{"title":"小班音乐噜啦啦洗洗澡视频教案PPT课件反思","path":"/categories/音乐/小班音乐噜啦啦洗洗澡视频教案PPT课件反思_小班.html","views":12049,"date":"2023-09-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐噜啦啦洗洗澡视频教案PPT课件反思/ppt/20260219210857_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"好吃的大西瓜 音乐 小班","path":"/categories/音乐/好吃的大西瓜 音乐 小班_小班.html","views":15218,"date":"2023-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/好吃的大西瓜_音乐_小班/ppt/20260131012812_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"好吃的苹果 小班音乐","path":"/categories/音乐/好吃的苹果 小班音乐_小班.html","views":17785,"date":"2023-05-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/好吃的苹果-小班音乐/ppt/20260220154947_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 挑西瓜 版本2","path":"/categories/音乐/小班音乐 挑西瓜 版本2_小班.html","views":15011,"date":"2022-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-挑西瓜-版本2/ppt/20260219210849_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"爱跳舞的机器人 健康音乐 小班","path":"/categories/音乐/爱跳舞的机器人 健康音乐 小班_小班.html","views":5292,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱跳舞的机器人_健康音乐_小班/ppt/20260131013502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 勇敢小士兵","path":"/categories/音乐/小班 音乐 勇敢小士兵_小班.html","views":4595,"date":"2022-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_勇敢小士兵/ppt/20260131124707_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐游戏 小猪睡觉","path":"/categories/音乐/小班音乐游戏 小猪睡觉_小班.html","views":11900,"date":"2022-03-22","categories":["音乐","小班"]},{"title":"小班奥尔夫音乐 小火车摇摆","path":"/categories/音乐/小班奥尔夫音乐 小火车摇摆_小班.html","views":15834,"date":"2022-03-15","categories":["音乐","小班"]},{"title":"小班科学音乐 欢乐的小芽儿 PPT教案视频","path":"/categories/音乐/小班科学音乐 欢乐的小芽儿 PPT教案视频_小班.html","views":7878,"date":"2022-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班科学音乐-欢乐的小芽儿-PPT教案视频/ppt/20260220155127_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"北风爷爷别神气 音乐健康 小班","path":"/categories/音乐/北风爷爷别神气 音乐健康 小班_小班.html","views":10233,"date":"2022-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/北风爷爷别神气_音乐健康_小班/ppt/20260131012502_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 你好，再见","path":"/categories/音乐/小班 音乐 你好，再见_小班.html","views":4776,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_你好，再见/ppt/20260131124702_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 我爱我的小动物 视频教案PPT课件音乐反思打印图","path":"/categories/音乐/小班音乐 我爱我的小动物 视频教案PPT课件音乐反思打印图_小班.html","views":8931,"date":"2021-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-我爱我的小动物-视频教案PPT课件音乐反思打印图/ppt/20260220144203_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班 音乐 我爱我的小动物","path":"/categories/音乐/小班 音乐 我爱我的小动物_小班.html","views":4681,"date":"2021-09-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班_音乐_我爱我的小动物/ppt/20260131124719_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 我的老师像妈妈","path":"/categories/音乐/小班音乐 我的老师像妈妈_小班.html","views":13202,"date":"2020-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-我的老师像妈妈/ppt/20260220004705_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"大鞋和小鞋 音乐 小班","path":"/categories/音乐/大鞋和小鞋 音乐 小班_小班.html","views":14937,"date":"2020-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大鞋和小鞋_音乐_小班/ppt/20260130221227_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 挑西瓜 版本","path":"/categories/音乐/小班音乐 挑西瓜 版本_小班.html","views":48832,"date":"2020-06-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-挑西瓜-版本/ppt/20260219210846_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"你好再见 音乐小班课件","path":"/categories/音乐/你好再见 音乐小班课件_小班.html","views":14342,"date":"2020-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/你好再见-音乐小班课件/ppt/20260220154619_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"我的朋友在哪里 音乐社会 小班","path":"/categories/音乐/我的朋友在哪里 音乐社会 小班_小班.html","views":13517,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的朋友在哪里_音乐社会_小班/ppt/20260131013214_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班体育 好玩的凳子 课堂实录教案反思音乐","path":"/categories/音乐/小班体育 好玩的凳子 课堂实录教案反思音乐_小班.html","views":16118,"date":"2019-08-23","categories":["音乐","小班"]},{"title":"春晓 语言音乐小班","path":"/categories/音乐/春晓 语言音乐小班_小班.html","views":4051,"date":"2019-05-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/春晓-语言音乐小班/ppt/20260220123717_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 挑西瓜 版本3","path":"/categories/音乐/小班音乐 挑西瓜 版本3_小班.html","views":18585,"date":"2019-04-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-挑西瓜-版本3/ppt/20260219210853_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐《神奇的土豆》","path":"/categories/音乐/小班音乐《神奇的土豆》_小班.html","views":7328,"date":"2019-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班音乐《神奇的土豆》/ppt/20260130221556_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"Hello，大家好！ 音乐 小班","path":"/categories/音乐/Hello，大家好！ 音乐 小班_小班.html","views":19273,"date":"2018-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/Hello，大家好！_音乐_小班/ppt/20260131012148_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班社会我爱五星红旗视频教案PPT课件音乐","path":"/categories/音乐/小班社会我爱五星红旗视频教案PPT课件音乐_小班.html","views":18832,"date":"2018-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会我爱五星红旗视频教案PPT课件音乐/ppt/20260219210822_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 小雨沙沙 PPT课件教案音乐","path":"/categories/音乐/小班音乐 小雨沙沙 PPT课件教案音乐_小班.html","views":5255,"date":"2018-01-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-小雨沙沙-PPT课件教案音乐/ppt/20260220144158_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐我爱我的小动物视频教案PPT课件音乐反思打印图","path":"/categories/音乐/小班音乐我爱我的小动物视频教案PPT课件音乐反思打印图_小班.html","views":6558,"date":"2017-11-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐我爱我的小动物视频教案PPT课件音乐反思打印图/ppt/20260219210911_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 我爱我的幼儿园","path":"/categories/音乐/小班音乐 我爱我的幼儿园_小班.html","views":105043,"date":"2017-10-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-我爱我的幼儿园/ppt/20260220004700_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"胖嘟嘟的小猪 语言音乐小班","path":"/categories/音乐/胖嘟嘟的小猪 语言音乐小班_小班.html","views":6948,"date":"2017-10-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/胖嘟嘟的小猪-语言音乐小班/ppt/20260220124635_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"一去二三里 语言音乐小班","path":"/categories/音乐/一去二三里 语言音乐小班_小班.html","views":4999,"date":"2017-08-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/一去二三里-语言音乐小班/ppt/20260220121135_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"彩色世界 音乐 小班","path":"/categories/音乐/彩色世界 音乐 小班_小班.html","views":10118,"date":"2016-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/彩色世界_音乐_小班/ppt/20260131013130_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"小班音乐 大象和小蚊子","path":"/categories/音乐/小班音乐 大象和小蚊子_小班.html","views":17882,"date":"2016-03-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班音乐-大象和小蚊子/ppt/20260220155219_ppt_cover_wm.jpg","categories":["音乐","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/音乐/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["音乐","小班"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -327,43 +482,60 @@ function handleSearchClick(e) {
         const container = document.getElementById('category-posts-container');
         container.innerHTML = '';
 
-        const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+        try {
+            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
 
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = allPosts.slice(start, end);
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allPosts.slice(start, end);
 
-        if (pageData.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">该分类下暂无课件</div>';
-        } else {
-            pageData.forEach(post => {
-                const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                const html = `
-                    <div class="post-card">
-                        <div class="card-img-wrapper">
-                            <img src="${imgUrl}" alt="${post.title}">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">
-                                <a href="${post.path}">${post.title}</a>
+            // 🌟 统一状态组件：暂无数据
+            if (pageData.length === 0) {
+                container.innerHTML = renderState('empty', {
+                    icon: '📭',
+                    title: '该分类下暂无课件',
+                    desc: '可以去其他分类看看',
+                    btnText: '返回首页',
+                    btnLink: '/'
+                });
+            } else {
+                pageData.forEach(post => {
+                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+                    const html = `
+                        <div class="post-card">
+                            <div class="card-img-wrapper">
+                                <img src="${imgUrl}" alt="${post.title}">
                             </div>
-                            <div class="card-meta">
-                                <span>👁 ${post.views}</span>
-                                <span>📅 ${post.date}</span>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <a href="${post.path}">${post.title}</a>
+                                </div>
+                                <div class="card-meta">
+                                    <span>👁 ${post.views}</span>
+                                    <span>📅 ${post.date}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+        } catch (e) {
+            // 🌟 统一状态组件：出错
+            container.innerHTML = renderState('error', {
+                title: '加载出错',
+                desc: '数据加载失败，请刷新页面重试',
+                btnText: '刷新页面',
+                btnLink: 'javascript:location.reload()'
             });
         }
-
-        document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-        document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-        document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
     }
 
     function changeCategoryPage(delta) {
