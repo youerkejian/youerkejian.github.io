@@ -371,6 +371,115 @@ function handleSearchClick(e) {
       font-size: 0.9rem !important;
     }
   }
+
+  /* ============================================================
+     🌟 幼师资料百宝箱入口（重设计版）
+     原来的全宽渐变横幅像广告贴片，改成「白卡片 + 实体按钮」：
+     - 限宽居中，不再通栏，摆脱广告位的感觉
+     - 左图标 / 中标题 / 右实体按钮，三段式结构一眼可点
+     - hover 上浮、active 按压，与 filter-btn / page-btn 同一套立体语言
+     ============================================================ */
+  .treasure-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    max-width: 860px;
+    margin: 50px auto 70px;
+    padding: 20px 24px;
+    background: #fff;
+    border: 1px solid #e6eaf0;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .treasure-entry:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(78, 110, 242, 0.18);
+    border-color: #b9c8f7;
+  }
+  .treasure-entry:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(44, 62, 80, 0.1);
+  }
+
+  /* 左侧图标：保留全站深蓝→蓝紫渐变，但收进一个小方块里当"标识" */
+  .treasure-icon {
+    flex-shrink: 0;
+    width: 62px;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+    background: linear-gradient(135deg, #2c3e50 0%, #4e6ef2 60%, #6c5ce7 100%);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 10px rgba(78, 110, 242, 0.3);
+  }
+
+  /* 中间文字：标题 + 副标题两级，替代原来挤成一行的长标题 */
+  .treasure-text { flex: 1; min-width: 0; }
+  .treasure-text h2 {
+    margin: 0 0 4px;
+    font-size: 1.2rem;
+    color: #2c3e50;
+  }
+  .treasure-text p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #8a94a6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 右侧实体按钮：胶囊形 + 底部"厚度"阴影，明确告诉用户"这里可以按" */
+  .treasure-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 26px;
+    border-radius: 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(180deg, #4e6ef2 0%, #3b5fe0 100%);
+    box-shadow: 0 3px 0 #2d49b8, 0 6px 12px rgba(78, 110, 242, 0.35);
+    transition: all 0.15s ease;
+  }
+  .treasure-btn .arrow { transition: transform 0.2s ease; }
+  /* 悬停整个卡片时：按钮微微变亮、箭头向右滑动，给出"会动、能点"的反馈 */
+  .treasure-entry:hover .treasure-btn {
+    filter: brightness(1.06);
+    box-shadow: 0 4px 0 #2d49b8, 0 8px 16px rgba(78, 110, 242, 0.45);
+  }
+  .treasure-entry:hover .treasure-btn .arrow { transform: translateX(4px); }
+  .treasure-entry:active .treasure-btn {
+    box-shadow: 0 1px 0 #2d49b8, 0 2px 6px rgba(78, 110, 242, 0.3);
+  }
+
+  /* 手机端：图标缩小、按钮换行到下一行并占满宽度 */
+  @media (max-width: 640px) {
+    .treasure-entry {
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 18px;
+      margin: 36px auto 50px;
+    }
+    .treasure-icon { width: 52px; height: 52px; font-size: 1.5rem; border-radius: 12px; }
+    .treasure-text { flex: 1; }
+    .treasure-text h2 { font-size: 1.05rem; }
+    .treasure-text p { white-space: normal; }
+    .treasure-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 13px 0;
+    }
+  }
 </style>
 
 <!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 + dedupePostsByTitle() 按标题去重 -->
@@ -541,7 +650,7 @@ function handleSearchClick(e) {
   <div class="big-box">
     <div class="box-title">小班课程</div>
     <div class="box-content">
-      <a href="/categories/语言/小班/" class="box-link">🔤 语言</a>
+      <a target="_blank" rel="noopener" href="https://sfile.chatglm.cn/workspace/file/af/af53ece2e1.html" class="box-link">🔤 语言</a>
       <a href="/categories/健康/小班/" class="box-link">❤️ 健康</a>
       <a href="/categories/社会/小班/" class="box-link">🌍 社会</a>
       <a href="/categories/数学/小班/" class="box-link">🔢 数学</a>
@@ -595,22 +704,19 @@ function handleSearchClick(e) {
   </div>
 </div>
 
-<!-- 🌟 幼师资料百宝箱入口按钮 (使用 a 标签，稳定版)
-     颜色：深蓝 #2c3e50（=顶部导航主色）→ 蓝 #4e6ef2（=搜索按钮蓝）→ 蓝紫 #6c5ce7，
-     和全站主色同源，不再用独立的紫粉色 -->
-<a href="/resource/" style="text-decoration: none; display: block;margin-top: 60px; margin-bottom: 80px;">
-  <div style="
-      background: linear-gradient(90deg, #2c3e50 0%, #4e6ef2 55%, #6c5ce7 100%);
-      border-radius: 12px; padding: 20px; text-align: center; color: white;
-      box-shadow: 0 6px 15px rgba(78, 110, 242, 0.3);
-      transition: transform 0.2s; border: 2px solid #fff;
-    "
-    onmouseover="this.style.transform='translateY(-3px)'"
-    onmouseout="this.style.transform='translateY(0)'">
-    <h2 style="margin: 0; font-size: 1.5rem; color: white;">
-      📚 幼师资料百宝箱：环创、文案、管理、成长一站式查找
-    </h2>
+<!-- 🌟 幼师资料百宝箱入口（重设计版）
+     原来的全宽渐变横幅视觉上像广告贴片，用户不敢点。
+     现改为「白卡片 + 实体按钮」：限宽 860px 居中，
+     左侧渐变图标方块 + 中间标题副标题 + 右侧"进入"按钮，
+     整卡可点，悬停上浮、按下压回，与全站立体按钮语言统一。
+     样式已移入上方 <style> 的 .treasure-* 类，去掉了内联 JS。 -->
+<a href="/resource/" class="treasure-entry">
+  <div class="treasure-icon">📚</div>
+  <div class="treasure-text">
+    <h2>幼师资料百宝箱</h2>
+    <p>环创 · 文案 · 管理 · 成长，一站式查找</p>
   </div>
+  <span class="treasure-btn">进入百宝箱 <span class="arrow">→</span></span>
 </a>
 
 <!-- 第二部分：筛选按钮行 -->
