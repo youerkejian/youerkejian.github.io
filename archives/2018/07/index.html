@@ -789,17 +789,24 @@ function handleSearchClick(e) {
       document.getElementById('current-list-title').textContent = "全部课件列表";
 
     } else if (category === 'other') {
-      // 其他课程：按分类筛选，逻辑不变
-      filteredPosts = allPosts.filter(post => {
+      // ================================================================
+      // 🌟 其他课程：先按分类筛选，再按标题去重
+      // 同一门课程发成了 小班/中班/大班 多篇文章时，只显示 1 个
+      // ================================================================
+      filteredPosts = dedupePostsByTitle(allPosts.filter(post => {
         return post.categories.some(cat => otherCategories.includes(cat));
-      });
+      }));
       document.getElementById('current-list-title').textContent = "其他课程课件列表";
 
     } else {
-      // 各科目筛选：按分类筛选，逻辑完全不变
-      filteredPosts = allPosts.filter(post => {
+      // ================================================================
+      // 🌟 各科目（语言/健康/社会等）：先按分类筛选，再按标题去重
+      // 例如《防火小达人》同时在小班健康/中班健康/大班健康，
+      // 点击"健康"按钮时只显示 1 个，和"全部课件"列表行为一致
+      // ================================================================
+      filteredPosts = dedupePostsByTitle(allPosts.filter(post => {
         return post.categories.includes(category);
-      });
+      }));
       document.getElementById('current-list-title').textContent = category + "课件列表";
     }
 
