@@ -211,6 +211,46 @@
     margin: 5px 0;       /* 上下间距 */
 }
 .runtime-icon { margin-right: 5px; }
+
+        /* ============================================================
+           🌟 移动端优化补丁 A（仅手机端生效，桌面端不受影响）
+           ============================================================ */
+        @media (max-width: 768px) {
+            /* ---- 1. 顶栏统一：按钮改为 flex 流式排布，间距一致，不再东挤西挤 ---- */
+            .header-content {
+                flex-wrap: wrap;
+                row-gap: 8px;
+                padding: 0 12px;
+            }
+            .logo a { font-size: 1.3rem; }
+            .site-slogan { font-size: 0.75rem; }
+            .header-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 6px;
+                width: 100%;
+                margin-left: 0;
+            }
+            .header-buttons a {
+                margin: 0 !important;          /* 覆盖 margin-left:20px / 15px / 8px */
+                margin-top: 0 !important;      /* 覆盖旧规则的 10px 顶推 */
+                font-size: 0.82rem;
+                padding: 7px 10px;
+                white-space: nowrap;
+            }
+
+            /* ---- 2. 收敛第 153~172 行的全局顶推（手机端首屏不再空 150px） ---- */
+            h1, .page-title, .archive-title { margin-top: 8px !important; }
+            .page-content, .article-content { margin-top: 0 !important; }
+
+            /* ---- 3. 通用触控目标 ≥ 44px（分页按钮） ---- */
+            .page-btn { min-height: 44px; box-sizing: border-box; }
+        }
+        @media (max-width: 480px) {
+            .header-buttons a { font-size: 0.78rem; padding: 6px 8px; }
+            .header-buttons { gap: 5px; }
+        }
     </style>
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cfc2e4c868c640e28bb2cc506bd7ecdd"}'></script><!-- End Cloudflare Web Analytics -->
 <meta name="generator" content="Hexo 8.1.1"></head>
@@ -659,7 +699,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
-    const allPosts = dedupePosts([{"title":"家长教育 家园共育 缓解新生入园焦虑","path":"/categories/其他资料/家长教育 家园共育 缓解新生入园焦虑_通用.html","views":15310,"date":"2025-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-家园共育-缓解新生入园焦虑/ppt/20260223015604_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼儿园家长如何与老师沟通","path":"/categories/其他资料/家长教育 幼儿园家长如何与老师沟通_通用.html","views":4537,"date":"2025-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼儿园家长如何与老师沟通/ppt/20260223015626_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼儿入园穿搭指南","path":"/categories/其他资料/家长教育 幼儿入园穿搭指南_通用.html","views":4467,"date":"2024-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼儿入园穿搭指南/ppt/20260223015618_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 如何为幼儿选取适宜的启蒙性动画片","path":"/categories/其他资料/家长教育 如何为幼儿选取适宜的启蒙性动画片_通用.html","views":14331,"date":"2023-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-如何为幼儿选取适宜的启蒙性动画片/ppt/20260223015558_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小接综合征你中招了吗","path":"/categories/其他资料/家长教育 幼小接综合征你中招了吗_小班.html","views":9220,"date":"2021-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小接综合征你中招了吗/ppt/20260223015633_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小接综合征你中招了吗","path":"/categories/通用/家长教育 幼小接综合征你中招了吗_中班.html","views":9220,"date":"2021-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小接综合征你中招了吗/ppt/20260223015633_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 基于幼儿园核心素养教育背景下的家园共育","path":"/categories/其他资料/家长教育 基于幼儿园核心素养教育背景下的家园共育_通用.html","views":8072,"date":"2021-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-基于幼儿园核心素养教育背景下的家园共育/ppt/20260223015551_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 入园焦虑你准备好了吗","path":"/categories/其他资料/家长教育 入园焦虑你准备好了吗_通用.html","views":7808,"date":"2019-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-入园焦虑你准备好了吗/ppt/20260223015542_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小衔接实用手册","path":"/categories/其他资料/家长教育 幼小衔接实用手册_通用.html","views":7437,"date":"2017-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小衔接实用手册/ppt/20260223015641_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 家园共育缓解新生入园焦虑","path":"/categories/其他资料/家长教育 家园共育缓解新生入园焦虑_通用.html","views":8679,"date":"2017-02-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-家园共育缓解新生入园焦虑/ppt/20260223015611_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 早期阅读您了解吗","path":"/categories/其他资料/家长教育 早期阅读您了解吗_通用.html","views":18040,"date":"2016-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-早期阅读您了解吗/ppt/20260223015647_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]}]);
+    const allPosts = dedupePosts([{"title":"家长教育 家园共育 缓解新生入园焦虑","path":"/categories/其他资料/家长教育 家园共育 缓解新生入园焦虑_通用.html","views":15310,"date":"2025-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-家园共育-缓解新生入园焦虑/ppt/20260223015604_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼儿园家长如何与老师沟通","path":"/categories/其他资料/家长教育 幼儿园家长如何与老师沟通_通用.html","views":4537,"date":"2025-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼儿园家长如何与老师沟通/ppt/20260223015626_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼儿入园穿搭指南","path":"/categories/其他资料/家长教育 幼儿入园穿搭指南_通用.html","views":4467,"date":"2024-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼儿入园穿搭指南/ppt/20260223015618_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 如何为幼儿选取适宜的启蒙性动画片","path":"/categories/其他资料/家长教育 如何为幼儿选取适宜的启蒙性动画片_通用.html","views":14331,"date":"2023-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-如何为幼儿选取适宜的启蒙性动画片/ppt/20260223015558_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小接综合征你中招了吗","path":"/categories/通用/家长教育 幼小接综合征你中招了吗_中班.html","views":9220,"date":"2021-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小接综合征你中招了吗/ppt/20260223015633_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小接综合征你中招了吗","path":"/categories/其他资料/家长教育 幼小接综合征你中招了吗_小班.html","views":9220,"date":"2021-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小接综合征你中招了吗/ppt/20260223015633_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 基于幼儿园核心素养教育背景下的家园共育","path":"/categories/其他资料/家长教育 基于幼儿园核心素养教育背景下的家园共育_通用.html","views":8072,"date":"2021-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-基于幼儿园核心素养教育背景下的家园共育/ppt/20260223015551_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 入园焦虑你准备好了吗","path":"/categories/其他资料/家长教育 入园焦虑你准备好了吗_通用.html","views":7808,"date":"2019-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-入园焦虑你准备好了吗/ppt/20260223015542_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小衔接实用手册","path":"/categories/其他资料/家长教育 幼小衔接实用手册_通用.html","views":7437,"date":"2017-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小衔接实用手册/ppt/20260223015641_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 家园共育缓解新生入园焦虑","path":"/categories/其他资料/家长教育 家园共育缓解新生入园焦虑_通用.html","views":8679,"date":"2017-02-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-家园共育缓解新生入园焦虑/ppt/20260223015611_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 早期阅读您了解吗","path":"/categories/其他资料/家长教育 早期阅读您了解吗_通用.html","views":18040,"date":"2016-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-早期阅读您了解吗/ppt/20260223015647_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -802,5 +842,73 @@ function handleSearchClick(e) {
 
     <!-- 🌟 全站登录组件：顶栏登录按钮登录后显示用户名 -->
     <script src="/js/auth.js" defer></script>
+
+    <!-- 🌟 移动端体验补丁 B：返回时恢复滚动位置 + 回到顶部按钮 + 顶栏高度自适应 -->
+    <script>
+    (function () {
+        /* ---------- 1. 返回时恢复滚动位置（前进/新点击不恢复） ---------- */
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        var KEY = 'yekjwScroll:' + location.pathname;
+
+        window.addEventListener('pagehide', function () {
+            try { sessionStorage.setItem(KEY, String(window.scrollY || 0)); } catch (e) {}
+        });
+
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) return; /* bfcache 恢复，浏览器自己保留了位置 */
+            var isBack = false;
+            try {
+                var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+                isBack = !!nav && nav.type === 'back_forward';
+            } catch (err) {}
+            if (!isBack) return;
+            try {
+                var y = parseInt(sessionStorage.getItem(KEY) || '0', 10);
+                if (y > 0) {
+                    requestAnimationFrame(function () { window.scrollTo(0, y); });
+                }
+            } catch (err2) {}
+        });
+
+        /* ---------- 2. 回到顶部按钮（移动端专用，样式在 style.css 里） ---------- */
+        if (!document.querySelector('.yekjw-backtop')) {
+            var btn = document.createElement('button');
+            btn.className = 'yekjw-backtop';
+            btn.type = 'button';
+            btn.setAttribute('aria-label', '回到顶部');
+            btn.innerHTML = '&#8593;';
+            btn.addEventListener('click', function () {
+                if ('scrollBehavior' in document.documentElement.style) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo(0, 0); /* 老 iOS Safari 兜底 */
+                }
+            });
+            var toggle = function () {
+                if (window.scrollY > window.innerHeight) { btn.classList.add('show'); }
+                else { btn.classList.remove('show'); }
+            };
+            window.addEventListener('scroll', toggle, { passive: true });
+            document.body.appendChild(btn);
+            toggle();
+        }
+
+        /* ---------- 3. 顶栏换行后实测高度，动态调整 body 顶部留空 ---------- */
+        function adjustHeaderSpace() {
+            var h = document.querySelector('.site-header');
+            if (!h) return;
+            if (window.innerWidth <= 768) {
+                document.body.style.paddingTop = (h.offsetHeight + 12) + 'px';
+            } else {
+                document.body.style.paddingTop = ''; /* 桌面端恢复原来的 110px */
+            }
+        }
+        window.addEventListener('resize', adjustHeaderSpace);
+        window.addEventListener('orientationchange', adjustHeaderSpace);
+        window.addEventListener('load', adjustHeaderSpace);
+        adjustHeaderSpace();
+        setTimeout(adjustHeaderSpace, 800); /* 等 auth.js 注入完用户名后再校一次 */
+    })();
+    </script>
 </body>
 </html>

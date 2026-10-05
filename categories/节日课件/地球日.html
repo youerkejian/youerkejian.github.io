@@ -211,6 +211,46 @@
     margin: 5px 0;       /* 上下间距 */
 }
 .runtime-icon { margin-right: 5px; }
+
+        /* ============================================================
+           🌟 移动端优化补丁 A（仅手机端生效，桌面端不受影响）
+           ============================================================ */
+        @media (max-width: 768px) {
+            /* ---- 1. 顶栏统一：按钮改为 flex 流式排布，间距一致，不再东挤西挤 ---- */
+            .header-content {
+                flex-wrap: wrap;
+                row-gap: 8px;
+                padding: 0 12px;
+            }
+            .logo a { font-size: 1.3rem; }
+            .site-slogan { font-size: 0.75rem; }
+            .header-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 6px;
+                width: 100%;
+                margin-left: 0;
+            }
+            .header-buttons a {
+                margin: 0 !important;          /* 覆盖 margin-left:20px / 15px / 8px */
+                margin-top: 0 !important;      /* 覆盖旧规则的 10px 顶推 */
+                font-size: 0.82rem;
+                padding: 7px 10px;
+                white-space: nowrap;
+            }
+
+            /* ---- 2. 收敛第 153~172 行的全局顶推（手机端首屏不再空 150px） ---- */
+            h1, .page-title, .archive-title { margin-top: 8px !important; }
+            .page-content, .article-content { margin-top: 0 !important; }
+
+            /* ---- 3. 通用触控目标 ≥ 44px（分页按钮） ---- */
+            .page-btn { min-height: 44px; box-sizing: border-box; }
+        }
+        @media (max-width: 480px) {
+            .header-buttons a { font-size: 0.78rem; padding: 6px 8px; }
+            .header-buttons { gap: 5px; }
+        }
     </style>
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cfc2e4c868c640e28bb2cc506bd7ecdd"}'></script><!-- End Cloudflare Web Analytics -->
 <meta name="generator" content="Hexo 8.1.1"></head>
@@ -472,6 +512,49 @@ function handleSearchClick(e) {
             gap: 10px;
         }
     }
+
+        /* ============================================================
+           🌟 移动端优化补丁 C（仅手机端生效，桌面端不受影响）
+           ============================================================ */
+        @media (max-width: 768px) {
+            /* ---- 1. 正文占宽：逐层消除左右留白 ---- */
+            .container { padding: 0 10px !important; margin: 16px auto !important; }
+            .post-card { padding: 16px 8px !important; }
+            /* 消掉 style.css 第 219~237 行加的 20px 内边距（选择器一一对应） */
+            .post-card article, .post-card .post-content, .post-card .article-entry,
+            .post-card .markdown-body, .post-card .content, .post-card #content,
+            .post-card .post, .post-card .post-body, .post-card .entry-content,
+            .post-card .post-main, .post-card .article-content, .post-card .article-header {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                max-width: 100% !important;
+            }
+
+            /* ---- 2. 标题与元信息收敛 ---- */
+            .post-title { font-size: 1.45rem; line-height: 1.45; }
+            .post-meta { margin-bottom: 14px !important; }
+            .post-cover { margin-bottom: 16px; }
+
+            /* ---- 3. 付费卡与页脚按钮（只改间距字号，不动结构） ---- */
+            .pay-card { margin-top: 24px; padding: 16px 10px; }
+            .article-footer { margin-top: 24px; padding-top: 18px; }
+            .article-footer .btn { min-width: 120px; padding: 10px 14px; font-size: 0.9rem; }
+            .share-link-wrap { margin-top: 20px; }
+
+            /* ---- 4. 相关推荐：强制 2 列（问题 7 兜底） ---- */
+            .related-box { margin-top: 24px; padding-top: 18px; }
+            .related-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .related-body { padding: 8px; }
+
+            /* ---- 5. 正文里的图片/表格不撑破屏幕，表格可横向滑动 ---- */
+            .article-content img, .article-content video,
+            .article-content table, .post-content table { max-width: 100% !important; }
+            .article-content table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1302,5 +1385,73 @@ function handleSearchClick(e) {
 
     <!-- 🌟 全站登录组件：顶栏登录按钮登录后显示用户名 -->
     <script src="/js/auth.js" defer></script>
+
+    <!-- 🌟 移动端体验补丁 B：返回时恢复滚动位置 + 回到顶部按钮 + 顶栏高度自适应 -->
+    <script>
+    (function () {
+        /* ---------- 1. 返回时恢复滚动位置（前进/新点击不恢复） ---------- */
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        var KEY = 'yekjwScroll:' + location.pathname;
+
+        window.addEventListener('pagehide', function () {
+            try { sessionStorage.setItem(KEY, String(window.scrollY || 0)); } catch (e) {}
+        });
+
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) return; /* bfcache 恢复，浏览器自己保留了位置 */
+            var isBack = false;
+            try {
+                var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+                isBack = !!nav && nav.type === 'back_forward';
+            } catch (err) {}
+            if (!isBack) return;
+            try {
+                var y = parseInt(sessionStorage.getItem(KEY) || '0', 10);
+                if (y > 0) {
+                    requestAnimationFrame(function () { window.scrollTo(0, y); });
+                }
+            } catch (err2) {}
+        });
+
+        /* ---------- 2. 回到顶部按钮（移动端专用，样式在 style.css 里） ---------- */
+        if (!document.querySelector('.yekjw-backtop')) {
+            var btn = document.createElement('button');
+            btn.className = 'yekjw-backtop';
+            btn.type = 'button';
+            btn.setAttribute('aria-label', '回到顶部');
+            btn.innerHTML = '&#8593;';
+            btn.addEventListener('click', function () {
+                if ('scrollBehavior' in document.documentElement.style) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo(0, 0); /* 老 iOS Safari 兜底 */
+                }
+            });
+            var toggle = function () {
+                if (window.scrollY > window.innerHeight) { btn.classList.add('show'); }
+                else { btn.classList.remove('show'); }
+            };
+            window.addEventListener('scroll', toggle, { passive: true });
+            document.body.appendChild(btn);
+            toggle();
+        }
+
+        /* ---------- 3. 顶栏换行后实测高度，动态调整 body 顶部留空 ---------- */
+        function adjustHeaderSpace() {
+            var h = document.querySelector('.site-header');
+            if (!h) return;
+            if (window.innerWidth <= 768) {
+                document.body.style.paddingTop = (h.offsetHeight + 12) + 'px';
+            } else {
+                document.body.style.paddingTop = ''; /* 桌面端恢复原来的 110px */
+            }
+        }
+        window.addEventListener('resize', adjustHeaderSpace);
+        window.addEventListener('orientationchange', adjustHeaderSpace);
+        window.addEventListener('load', adjustHeaderSpace);
+        adjustHeaderSpace();
+        setTimeout(adjustHeaderSpace, 800); /* 等 auth.js 注入完用户名后再校一次 */
+    })();
+    </script>
 </body>
 </html>
