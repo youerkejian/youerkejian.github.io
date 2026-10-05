@@ -248,19 +248,11 @@ function handleSearchClick(e) {
     <!-- 页面内容 -->
     <div class="container">
         <!-- =====================================================================
-     会员登录 / 账户中心页面（login.ejs）
+     会员登录 / 账户中心页面（v2 · 支持 SSO 回跳）
      ---------------------------------------------------------------------
-     使用方法：
-     1. 把本文件放到主题 layout/ 目录
-     2. 在 Hexo 站点 source/ 下新建 login/index.md，内容只需三行：
-            ---
-            title: 会员登录
-            layout: login
-            ---
-     3. 重新 hexo g -d 部署后，访问 /login/ 即可
-     登录后此页自动变成“账户中心”（显示剩余次数、退出登录）
+     新增功能：支持 ?redirect=xxx 参数，登录后自动跳回来源页
+     跳转白名单：仅允许 https://*.yekjw.top 及站内相对路径
 ===================================================================== -->
-
 <style>
     .login-card { max-width: 420px; }
     .login-form { display: flex; flex-direction: column; gap: 15px; }
@@ -283,8 +275,6 @@ function handleSearchClick(e) {
         padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;
     }
     .login-tip { text-align: center; color: #999; font-size: 0.85rem; }
-
-    /* 账户中心样式 */
     .account-row {
         display: flex; justify-content: space-between; padding: 12px 0;
         border-bottom: 1px dashed #eee; font-size: 0.95rem;
@@ -302,7 +292,6 @@ function handleSearchClick(e) {
 <div class="container">
     <div class="page-container login-card">
 
-        <!-- ============ 登录表单（未登录时显示） ============ -->
         <div id="login-box">
             <h1 class="page-title">🔐 会员登录</h1>
             <div class="login-error" id="login-error"></div>
@@ -319,11 +308,11 @@ function handleSearchClick(e) {
             </form>
             <div class="login-tip" style="margin-top: 15px;">
                 没有账号？购买套餐后由客服开通<br>
+                忘记密码？请联系客服微信 <b>（你的微信号）</b><br>
                 下载课件请回到文章页点击「下载课件」按钮
             </div>
         </div>
 
-        <!-- ============ 账户中心（已登录时显示） ============ -->
         <div id="account-box" style="display:none;">
             <h1 class="page-title">👤 我的账户</h1>
             <div class="account-row"><span class="k">用户名</span><span class="v" id="ac-username">-</span></div>
@@ -341,7 +330,14 @@ function handleSearchClick(e) {
 
 <script src="/js/auth.js"></script>
 <script>
-    /* 登录提交 */
+    // 取 ?redirect= 参数
+    function getRedirect() {
+        try {
+            var p = new URLSearchParams(location.search);
+            return p.get('redirect') || '';
+        } catch (e) { return ''; }
+    }
+
     function doLogin(e) {
         e.preventDefault();
         var errBox = document.getElementById('login-error');
@@ -355,10 +351,19 @@ function handleSearchClick(e) {
 
         YekjwAuth.login(username, password).then(function (data) {
             if (data.token) {
-                // 登录成功：优先跳回来源文章页
+                // 登录成功：优先跳 ?redirect=，其次 sessionStorage，最后首页
+                var redirect = getRedirect();
                 var back = '/';
-                try { back = sessionStorage.getItem('yekjw_redirect') || '/'; } catch (e2) {}
-                try { sessionStorage.removeItem('yekjw_redirect'); } catch (e2) {}
+                if (redirect) {
+                    back = YekjwAuth.safeRedirect(redirect, '/');
+                } else {
+                    try {
+                        back = YekjwAuth.safeRedirect(
+                            sessionStorage.getItem('yekjw_redirect'), '/'
+                        );
+                        sessionStorage.removeItem('yekjw_redirect');
+                    } catch (e2) {}
+                }
                 window.location.href = back;
             } else {
                 errBox.textContent = data.message || '登录失败，请稍后再试';
@@ -375,7 +380,7 @@ function handleSearchClick(e) {
         return false;
     }
 
-    /* 已登录则直接显示账户中心 */
+    // 已登录则直接显示账户中心
     (function () {
         if (!window.YekjwAuth) return;
         YekjwAuth.me().then(function (user) {
@@ -393,7 +398,6 @@ function handleSearchClick(e) {
         });
     })();
 </script>
-
         </div>
 
     <!-- 🌟 网站页脚 -->
