@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幼儿课件网</title>
+    <title>会员登录 - 幼儿课件网</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
         /* 主体内容 */
@@ -212,7 +212,6 @@
 }
 .runtime-icon { margin-right: 5px; }
     </style>
-</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -229,7 +228,8 @@
             <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://sou.yekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
             
-            <a href="/admin" class="login-btn">🔐 登录</a>
+            <!-- 🌟 登录入口改为 /login/（登录后由 auth.js 自动替换为用户名） -->
+            <a href="/login/" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
             <a href="/contact">联系我</a>
         </div>
@@ -247,401 +247,152 @@ function handleSearchClick(e) {
 
     <!-- 页面内容 -->
     <div class="container">
-        <!-- 🌟 恢复“卡片式”布局的样式 (针对关于本站、联系我等单页) -->
-<style>
-    .page-container {
-        max-width: 800px;         /* 宽度限制，太宽不好看 */
-        margin: 20px auto;        /* 居中，距离顶部20px（配合新页头，不用留太远） */
-        padding: 2rem 3rem;       /* 内部留白 */
-        background: #fff;         /* 白色背景 */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 阴影效果 */
-        border-radius: 8px;       /* 圆角 */
-        min-height: 50vh;         /* 最小高度，避免内容太少时卡片太矮 */
-    }
+        <!-- =====================================================================
+     会员登录 / 账户中心页面（login.ejs）
+     ---------------------------------------------------------------------
+     使用方法：
+     1. 把本文件放到主题 layout/ 目录
+     2. 在 Hexo 站点 source/ 下新建 login/index.md，内容只需三行：
+            ---
+            title: 会员登录
+            layout: login
+            ---
+     3. 重新 hexo g -d 部署后，访问 /login/ 即可
+     登录后此页自动变成“账户中心”（显示剩余次数、退出登录）
+===================================================================== -->
 
-    /* 修复标题样式 */
-    .page-title {
-        font-size: 2rem;
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db; /* 蓝色下划线 */
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-        margin-top: 0 !important; /* 强制取消顶部距离，让卡片撑开布局 */
+<style>
+    .login-card { max-width: 420px; }
+    .login-form { display: flex; flex-direction: column; gap: 15px; }
+    .login-form label { font-size: 0.9rem; color: #555; display: block; margin-bottom: 5px; }
+    .login-form input {
+        width: 100%; box-sizing: border-box; padding: 12px 14px;
+        border: 1px solid #d9d9d9; border-radius: 8px; font-size: 1rem; outline: none;
+        transition: border-color 0.2s;
     }
+    .login-form input:focus { border-color: #1890ff; box-shadow: 0 0 0 3px rgba(24,144,255,0.15); }
+    .btn-login {
+        padding: 12px; background: linear-gradient(135deg, #1890ff, #096dd9); color: #fff;
+        border: none; border-radius: 8px; font-size: 1.05rem; font-weight: bold;
+        cursor: pointer; box-shadow: 0 4px 10px rgba(24,144,255,0.35); transition: all 0.2s;
+    }
+    .btn-login:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .btn-login:disabled { background: #bbb; cursor: not-allowed; transform: none; }
+    .login-error {
+        display: none; background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322;
+        padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;
+    }
+    .login-tip { text-align: center; color: #999; font-size: 0.85rem; }
+
+    /* 账户中心样式 */
+    .account-row {
+        display: flex; justify-content: space-between; padding: 12px 0;
+        border-bottom: 1px dashed #eee; font-size: 0.95rem;
+    }
+    .account-row .k { color: #888; }
+    .account-row .v { color: #2c3e50; font-weight: 600; }
+    .v.warn { color: #cf1322; }
+    .btn-logout {
+        margin-top: 20px; width: 100%; padding: 12px; background: #fff; color: #cf1322;
+        border: 1px solid #ffa39e; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover { background: #fff1f0; }
 </style>
 
 <div class="container">
-    <!-- 使用 .page-container 包裹内容，恢复之前的“白色卡片”外观 -->
-    <div class="page-container">
-        <h1 class="page-title"></h1>
-        
-        <div class="page-content">
-            <!DOCTYPE html>
-<!--
-  仿 WordPress 登录页（纯静态，无任何后端/外部依赖）
-  用法：把整个 wp-login 文件夹复制到 Hexo 博客的 source/ 目录下，
-       hexo clean && hexo g && hexo d 部署后即可通过
-       https://你的域名/wp-login/ 访问。
-  说明：GitHub Pages 不执行 PHP，所以不能用 .php 后缀；
-       此页提交时只会在本地显示"密码错误"并抖动，不会发送任何数据。
--->
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, follow">
-<title>登录 ‹ 幼儿课件网 — WordPress</title>
-<style>
-/* ===== WordPress wp-login.php 复刻样式 ===== */
-* { box-sizing: border-box; }
+    <div class="page-container login-card">
 
-body.login {
-    background: #f0f0f1;
-    min-height: 100vh;
-    margin: 0;
-    padding: 70px 0 44px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-    font-size: 14px;
-    color: #1d2327;
-    -webkit-font-smoothing: antialiased;
-}
-
-#login {
-    width: 320px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* WordPress 标志 */
-#login h1 { text-align: center; margin: 0 0 20px; }
-#login h1 a {
-    display: inline-block;
-    width: 84px;
-    height: 84px;
-    color: #1d2327;
-    text-indent: -9999px;
-    text-decoration: none;
-    overflow: hidden;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%231d2327' stroke-width='7'%3E%3Ccircle cx='50' cy='50' r='45'/%3E%3Cpath d='M29 36 L39 70 L50 46 L61 70 L71 36' stroke-width='8' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: 84px 84px;
-    background-position: center top;
-    background-repeat: no-repeat;
-}
-#login h1 a:hover { opacity: 0.7; }
-
-/* 错误 / 提示信息（表单上方） */
-#login #login_error,
-#login .message {
-    background: #fff;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-    padding: 12px;
-    margin: 20px 0 16px;
-    font-size: 13px;
-    line-height: 1.6;
-}
-#login #login_error {
-    border-left: 4px solid #d63638;
-}
-#login .message {
-    border-left: 4px solid #00a0d2;
-}
-
-/* 表单卡片 */
-#login form {
-    margin-top: 20px;
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    padding: 26px 24px;
-    font-weight: 400;
-    overflow: hidden;
-}
-#login form p { margin: 0 0 16px; }
-
-label {
-    display: block;
-    font-size: 14px;
-    color: #1d2327;
-    margin-bottom: 6px;
-}
-
-.login .input,
-.login input[type="text"],
-.login input[type="email"],
-.login input[type="password"] {
-    font-family: inherit;
-    font-size: 24px;
-    line-height: normal;
-    width: 100%;
-    padding: 3px 6px 8px 10px;
-    border: 1px solid #8c8f94;
-    border-radius: 3px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07) inset;
-    color: #2c3338;
-    background: #fff;
-    outline: none;
-}
-.login .input:focus {
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
-}
-
-/* 密码框 + 显示按钮 */
-.wp-pwd { position: relative; }
-.wp-hide-pw {
-    position: absolute;
-    right: 2px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: #787c82;
-    font-size: 13px;
-    font-family: inherit;
-    line-height: 1;
-    padding: 6px 8px;
-    cursor: pointer;
-}
-.wp-hide-pw:hover { color: #2271b1; }
-
-/* 记住我 + 登录按钮 */
-.forgetmenot { float: left; font-size: 13px; }
-.forgetmenot input { vertical-align: middle; }
-.forgetmenot label { display: inline; font-size: 13px; color: #50575e; }
-
-p.submit {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 !important;
-    padding-top: 6px;
-    overflow: hidden;
-}
-.button-primary {
-    background: #f6f7f7;
-    border: 1px solid #2271b1;
-    color: #2271b1;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 2;
-    min-height: 30px;
-    padding: 2px 16px;
-    border-radius: 3px;
-    cursor: pointer;
-    background: #2271b1;
-    color: #fff;
-    text-shadow: none;
-}
-.button-primary:hover,
-.button-primary:focus {
-    background: #135e96;
-    border-color: #135e96;
-    color: #fff;
-}
-
-/* 表单下方链接 */
-#login #nav,
-#login #backtoblog {
-    font-size: 13px;
-    color: #50575e;
-    margin: 24px 0 0;
-    padding: 0;
-}
-#login #backtoblog { margin-top: 16px; }
-#login a {
-    color: #2271b1;
-    text-decoration: none;
-    transition-property: border, background, color;
-    transition-duration: 0.05s;
-    transition-timing-function: ease-in-out;
-}
-#login a:hover { color: #135e96; text-decoration: underline; }
-
-/* 抖动动画（登录失败时） */
-@keyframes shake {
-    10%, 90% { transform: translateX(-1px); }
-    20%, 80% { transform: translateX(2px); }
-    30%, 50%, 70% { transform: translateX(-4px); }
-    40%, 60% { transform: translateX(4px); }
-}
-.login-shake { animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
-
-/* 移动端适配 */
-@media screen and (max-width: 480px) {
-    body.login { padding: 40px 0 32px; }
-    #login { width: 100%; padding: 0 12px; }
-}
-</style>
-</head>
-<body class="login login-action-login wp-core-ui locale-zh-cn">
-
-<div id="login">
-
-    <h1><a target="_blank" rel="noopener" href="https://cn.wordpress.org/" tabindex="-1" aria-label="由 WordPress 强力驱动">WordPress</a></h1>
-
-    <!-- 登录表单 -->
-    <form name="loginform" id="loginform" action="#" method="post">
-        <p>
-            <label for="user_login">用户名或电子邮件地址</label>
-            <input type="text" name="log" id="user_login" class="input" size="20" autocapitalize="off" autocomplete="username" required>
-        </p>
-
-        <div class="user-pass-wrap">
-            <label for="user_pass">密码</label>
-            <div class="wp-pwd">
-                <input type="password" name="pwd" id="user_pass" class="input password-input" size="20" autocomplete="current-password" required>
-                <button type="button" class="wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="显示密码">
-                    <span class="dashicons" aria-hidden="true">显示</span>
-                </button>
+        <!-- ============ 登录表单（未登录时显示） ============ -->
+        <div id="login-box">
+            <h1 class="page-title">🔐 会员登录</h1>
+            <div class="login-error" id="login-error"></div>
+            <form class="login-form" id="login-form" onsubmit="return doLogin(event)">
+                <div>
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" name="username" autocomplete="username" placeholder="请输入用户名" required>
+                </div>
+                <div>
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" name="password" autocomplete="current-password" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="btn-login" id="login-submit">登 录</button>
+            </form>
+            <div class="login-tip" style="margin-top: 15px;">
+                没有账号？购买套餐后由客服开通<br>
+                下载课件请回到文章页点击「下载课件」按钮
             </div>
         </div>
 
-        <p class="forgetmenot">
-            <input name="rememberme" type="checkbox" id="rememberme" value="forever">
-            <label for="rememberme">记住我</label>
-        </p>
-
-        <p class="submit">
-            <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="登录">
-        </p>
-
-        <input type="hidden" name="redirect_to" value="/wp-admin/">
-        <input type="hidden" name="testcookie" value="1">
-    </form>
-
-    <!-- 忘记密码表单（默认隐藏） -->
-    <form name="lostpasswordform" id="lostpasswordform" action="#" method="post" style="display:none;">
-        <p>
-            <label for="user_login_lp">用户名或电子邮件地址</label>
-            <input type="text" name="user_login" id="user_login_lp" class="input" size="20" autocapitalize="off" autocomplete="username">
-        </p>
-        <div class="user-pass-wrap" style="display:none;">
-            <input type="hidden" name="redirect_to" value="">
+        <!-- ============ 账户中心（已登录时显示） ============ -->
+        <div id="account-box" style="display:none;">
+            <h1 class="page-title">👤 我的账户</h1>
+            <div class="account-row"><span class="k">用户名</span><span class="v" id="ac-username">-</span></div>
+            <div class="account-row"><span class="k">剩余下载次数</span><span class="v" id="ac-remaining">-</span></div>
+            <div class="account-row"><span class="k">今日已下载 / 限下</span><span class="v" id="ac-today">-</span></div>
+            <div class="account-row"><span class="k">会员有效期至</span><span class="v" id="ac-expires">-</span></div>
+            <button class="btn-logout" onclick="YekjwAuth.logout()">退出登录</button>
+            <div class="login-tip" style="margin-top: 15px;">
+                回到任意文章页，底部会出现「下载课件」按钮
+            </div>
         </div>
-        <p class="submit">
-            <input type="submit" name="wp-submit" class="button button-primary button-large" value="获取新密码">
-        </p>
-    </form>
 
-    <p id="nav">
-        <a id="nav-link" href="#" data-mode="login">忘记密码？</a>
-    </p>
-
-    <p id="backtoblog"><a href="/">← 返回网站</a></p>
-
-</div>
-
-<script>
-/* ============ 本地交互行为（不发送任何数据） ============ */
-
-// 1. 密码显示/隐藏切换
-var pwBtn = document.querySelector('.wp-hide-pw');
-var pwInput = document.getElementById('user_pass');
-pwBtn.addEventListener('click', function () {
-    if (pwInput.type === 'password') {
-        pwInput.type = 'text';
-        pwBtn.querySelector('.dashicons').textContent = '隐藏';
-    } else {
-        pwInput.type = 'password';
-        pwBtn.querySelector('.dashicons').textContent = '显示';
-    }
-});
-
-// 2. 表单抖动
-function shakeForm() {
-    var form = document.getElementById('loginform');
-    form.classList.remove('login-shake');
-    void form.offsetWidth; // 重置动画
-    form.classList.add('login-shake');
-}
-
-// 3. 显示 / 清除消息框
-function showMessage(html, isError) {
-    removeMessage();
-    var div = document.createElement('div');
-    div.id = isError ? 'login_error' : 'message';
-    div.className = isError ? '' : 'message';
-    div.innerHTML = html;
-    var h1 = document.querySelector('#login h1');
-    h1.parentNode.insertBefore(div, h1.nextSibling);
-}
-function removeMessage() {
-    var old = document.getElementById('login_error');
-    if (old) old.parentNode.removeChild(old);
-    old = document.querySelector('#login .message');
-    if (old) old.parentNode.removeChild(old);
-}
-
-// 4. 登录提交：永远返回"密码错误"（纯本地，无请求）
-document.getElementById('loginform').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var user = document.getElementById('user_login').value.trim();
-    if (!user || !pwInput.value) {
-        showMessage('<strong>错误</strong>：用户名或密码字段为空。', true);
-        shakeForm();
-        return;
-    }
-    showMessage('<strong>错误</strong>：用户名 <strong>' + escapeHtml(user) + '</strong> 的密码不正确。<a id="err-lost" href="#">忘记密码了？</a>', true);
-    var errLost = document.getElementById('err-lost');
-    if (errLost) errLost.addEventListener('click', switchToLost);
-    pwInput.value = '';
-    pwInput.focus();
-    shakeForm();
-});
-
-// 5. 登录 / 忘记密码 两个表单切换
-var navLink = document.getElementById('nav-link');
-function switchToLost(e) {
-    if (e) e.preventDefault();
-    removeMessage();
-    document.getElementById('loginform').style.display = 'none';
-    document.getElementById('lostpasswordform').style.display = 'block';
-    navLink.textContent = '登录';
-    navLink.dataset.mode = 'lost';
-}
-function switchToLogin(e) {
-    if (e) e.preventDefault();
-    removeMessage();
-    document.getElementById('loginform').style.display = 'block';
-    document.getElementById('lostpasswordform').style.display = 'none';
-    navLink.textContent = '忘记密码？';
-    navLink.dataset.mode = 'login';
-}
-navLink.addEventListener('click', function () {
-    if (this.dataset.mode === 'login') switchToLost();
-    else switchToLogin();
-});
-
-// 6. 忘记密码提交：模拟"邮件发送失败"
-document.getElementById('lostpasswordform').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var user = document.getElementById('user_login_lp').value.trim();
-    if (!user) {
-        showMessage('<strong>错误</strong>：请输入用户名或电子邮件地址。', true);
-        return;
-    }
-    showMessage('请查收电子邮件。如果 <strong>' + escapeHtml(user) + '</strong> 的账号存在，您将收到一封标题为“WordPress 重置密码”的邮件。', false);
-    var self = this;
-    setTimeout(function () {
-        showMessage('<strong>错误</strong>：无法发送电子邮件。可能的原因：您的主机禁用了 mail() 函数。<br>请与您的服务器管理员联系。', true);
-    }, 1500);
-});
-
-// HTML 转义，防止输入内容被当作代码执行
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-}
-</script>
-
-<div class="privacy-policy-page-link"></div>
-</body>
-</html>
-
-        </div>
     </div>
 </div>
+
+<script src="/js/auth.js"></script>
+<script>
+    /* 登录提交 */
+    function doLogin(e) {
+        e.preventDefault();
+        var errBox = document.getElementById('login-error');
+        var btn = document.getElementById('login-submit');
+        errBox.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = '登录中…';
+
+        var username = document.getElementById('login-username').value.trim();
+        var password = document.getElementById('login-password').value;
+
+        YekjwAuth.login(username, password).then(function (data) {
+            if (data.token) {
+                // 登录成功：优先跳回来源文章页
+                var back = '/';
+                try { back = sessionStorage.getItem('yekjw_redirect') || '/'; } catch (e2) {}
+                try { sessionStorage.removeItem('yekjw_redirect'); } catch (e2) {}
+                window.location.href = back;
+            } else {
+                errBox.textContent = data.message || '登录失败，请稍后再试';
+                errBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '登 录';
+            }
+        }).catch(function () {
+            errBox.textContent = '网络异常，无法连接登录服务，请稍后再试';
+            errBox.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '登 录';
+        });
+        return false;
+    }
+
+    /* 已登录则直接显示账户中心 */
+    (function () {
+        if (!window.YekjwAuth) return;
+        YekjwAuth.me().then(function (user) {
+            if (!user) return;
+            document.getElementById('login-box').style.display = 'none';
+            var box = document.getElementById('account-box');
+            box.style.display = '';
+            document.getElementById('ac-username').textContent = user.username;
+            document.getElementById('ac-remaining').textContent = user.remaining + ' / ' + user.quotaTotal + ' 次';
+            document.getElementById('ac-today').textContent = user.usedToday + ' / ' + user.dailyLimit + ' 次';
+            var d = user.expiresAt ? new Date(user.expiresAt) : null;
+            var expEl = document.getElementById('ac-expires');
+            expEl.textContent = d ? d.toLocaleDateString() : '未开通';
+            if (user.expired || user.remaining <= 0) expEl.classList.add('warn');
+        });
+    })();
+</script>
 
         </div>
 
@@ -671,11 +422,8 @@ function escapeHtml(s) {
         </div>
     </div>
 </footer>
-</script>
-</body>
-</html>
-<body>
-    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+
+<!-- 🌟 运行时间JS（DOM加载后执行） -->
     <script>
         function updateRuntime() {
             // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
@@ -709,8 +457,8 @@ function escapeHtml(s) {
         // 每隔 1 秒刷新一次
         setInterval(updateRuntime, 1000);
     </script>
-</body>
 
-
+    <!-- 🌟 全站登录组件：顶栏登录按钮登录后显示用户名 -->
+    <script src="/js/auth.js" defer></script>
 </body>
 </html>

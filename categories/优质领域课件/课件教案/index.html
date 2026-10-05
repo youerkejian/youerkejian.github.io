@@ -212,7 +212,6 @@
 }
 .runtime-icon { margin-right: 5px; }
     </style>
-</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -229,7 +228,8 @@
             <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://sou.yekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
             
-            <a href="/admin" class="login-btn">🔐 登录</a>
+            <!-- 🌟 登录入口改为 /login/（登录后由 auth.js 自动替换为用户名） -->
+            <a href="/login/" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
             <a href="/contact">联系我</a>
         </div>
@@ -658,7 +658,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
-    const allPosts = dedupePosts([{"title":"2025国家宪法日","path":"/categories/节日课件/2025国家宪法日.html","views":10530,"date":"2025-03-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2025国家宪法日/ppt_covers/20260219161356_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]},{"title":"爱耳日","path":"/categories/节日课件/爱耳日.html","views":5725,"date":"2023-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱耳日/ppt_covers/20260219171126_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]}]);
+    const allPosts = dedupePosts([{"title":"2025世界卒中日","path":"/categories/节日课件/2025世界卒中日.html","views":4825,"date":"2025-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2025世界卒中日/ppt_covers/20260219161341_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]},{"title":"2025国家宪法日","path":"/categories/节日课件/2025国家宪法日.html","views":10530,"date":"2025-03-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2025国家宪法日/ppt_covers/20260219161356_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]},{"title":"爱耳日","path":"/categories/节日课件/爱耳日.html","views":5725,"date":"2023-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱耳日/ppt_covers/20260219171126_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]}]);
 
     let currentPage = 1;
     const itemsPerPage = 12; 
@@ -763,11 +763,8 @@ function handleSearchClick(e) {
         </div>
     </div>
 </footer>
-</script>
-</body>
-</html>
-<body>
-    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+
+<!-- 🌟 运行时间JS（DOM加载后执行） -->
     <script>
         function updateRuntime() {
             // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
@@ -801,8 +798,8 @@ function handleSearchClick(e) {
         // 每隔 1 秒刷新一次
         setInterval(updateRuntime, 1000);
     </script>
-</body>
 
-
+    <!-- 🌟 全站登录组件：顶栏登录按钮登录后显示用户名 -->
+    <script src="/js/auth.js" defer></script>
 </body>
 </html>

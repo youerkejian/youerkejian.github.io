@@ -212,7 +212,6 @@
 }
 .runtime-icon { margin-right: 5px; }
     </style>
-</script>
 <meta name="generator" content="Hexo 8.1.1"></head>
 <body>
 
@@ -229,7 +228,8 @@
             <!-- 🌟 关键点：添加 onclick 拦截 -->
             <a target="_blank" rel="noopener" href="https://sou.yekjw.top/" onclick="handleSearchClick(event)" class="search-btn">🔍 搜索课件</a>
             
-            <a href="/admin" class="login-btn">🔐 登录</a>
+            <!-- 🌟 登录入口改为 /login/（登录后由 auth.js 自动替换为用户名） -->
+            <a href="/login/" class="login-btn">🔐 登录</a>
             <a href="/about" style="margin-left: 15px;">关于本站</a>
             <a href="/contact">联系我</a>
         </div>
@@ -277,7 +277,7 @@ function handleSearchClick(e) {
         
         <div class="page-content">
             <h2 id="联系方式"><a href="#联系方式" class="headerlink" title="联系方式"></a>联系方式</h2><p>如果您有任何问题、建议或合作意向，欢迎随时联系我。</p>
-<h3 id="联系邮箱"><a href="#联系邮箱" class="headerlink" title="联系邮箱"></a>联系邮箱</h3><p><a href="mailto:&#122;&#104;&#x61;&#111;&#119;&#x61;&#x7a;&#x68;&#97;&#x6f;&#64;&#113;&#113;&#46;&#x63;&#x6f;&#109;">zhaowazhao@qq.com</a></p>
+<h3 id="联系邮箱"><a href="#联系邮箱" class="headerlink" title="联系邮箱"></a>联系邮箱</h3><p><a href="mailto:&#x7a;&#104;&#97;&#111;&#x77;&#97;&#x7a;&#104;&#97;&#x6f;&#64;&#113;&#113;&#x2e;&#x63;&#x6f;&#109;">zhaowazhao@qq.com</a></p>
 <h3 id="微信交流"><a href="#微信交流" class="headerlink" title="微信交流"></a>微信交流</h3><p>请添加微信号：<strong>ppt66368</strong></p>
 <h3 id="留言反馈"><a href="#留言反馈" class="headerlink" title="留言反馈"></a>留言反馈</h3><p>您也可以在课件详情页留言，我们会尽快回复。</p>
 <p>感谢您的支持！</p>
@@ -314,11 +314,8 @@ function handleSearchClick(e) {
         </div>
     </div>
 </footer>
-</script>
-</body>
-</html>
-<body>
-    <!-- 🌟 将运行时间JS移到这里（DOM加载后执行） -->
+
+<!-- 🌟 运行时间JS（DOM加载后执行） -->
     <script>
         function updateRuntime() {
             // 🔴【重要】请在这里修改您的建站日期（格式：年/月/日 时:分:秒）
@@ -352,8 +349,8 @@ function handleSearchClick(e) {
         // 每隔 1 秒刷新一次
         setInterval(updateRuntime, 1000);
     </script>
-</body>
 
-
+    <!-- 🌟 全站登录组件：顶栏登录按钮登录后显示用户名 -->
+    <script src="/js/auth.js" defer></script>
 </body>
 </html>
