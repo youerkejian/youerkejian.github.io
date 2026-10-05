@@ -435,11 +435,40 @@ function handleSearchClick(e) {
         .btn-home { background-color: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
         .btn-home:hover { background-color: #ffe7ba; color: #ad4e00; border-color: #ffa940; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(250, 219, 20, 0.2); }
 
+        /* ========== 🌟 新增：分享按钮 & 相关推荐 ========== */
+        .share-link-wrap { margin-top: 30px; text-align: center; }
+        .btn-share {
+            display: inline-block; padding: 10px 22px; background: #fff; color: #2c3e50;
+            border: 1px solid #d9d9d9; border-radius: 22px; font-size: 0.95rem;
+            cursor: pointer; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-share:hover { background: #f5f5f5; border-color: #bfbfbf; }
+
+        .related-box { margin-top: 40px; padding-top: 30px; border-top: 1px solid #f0f0f0; }
+        .related-title { font-size: 1.2rem; color: #2c3e50; margin-bottom: 18px; font-weight: bold; }
+        .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .related-item { background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.2s; }
+        .related-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .related-thumb { width: 100%; height: 120px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
+        .related-thumb img { width: 100%; height: auto; max-height: 120px; object-fit: contain; }
+        .related-body { padding: 10px 12px; }
+        .related-body a {
+            font-size: 0.9rem; font-weight: bold; color: #2c3e50; line-height: 1.4;
+            text-decoration: none; overflow: hidden; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        .related-body a:hover { color: #1890ff; }
+
             /* ========== 手机端内容区域加宽 ========== */
     @media (max-width: 768px) {
         /* 🌟 文章卡片内边距缩小：从 40px 减小到 10px，内容瞬间变宽 */
         .post-card {
             padding: 20px 10px !important;
+        }
+        /* 手机端相关推荐改为 2 列，避免太窄 */
+        .related-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
     }
     </style>
@@ -582,6 +611,94 @@ function handleSearchClick(e) {
             </div>
 
             <!-- ======================================================= -->
+            <!-- 🌟 新增：复制链接按钮（发给同事） -->
+            <!-- ======================================================= -->
+            <div class="share-link-wrap">
+                <a href="javascript:void(0);" onclick="yekjwCopyShare()" class="btn-share">
+                    📋 复制链接发给同事
+                </a>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- 🌟 新增：相关推荐（同分类下最新 6 篇） -->
+            <!-- ======================================================= -->
+            
+            
+            <div class="related-box">
+                <div class="related-title">📚 你可能还需要</div>
+                <div class="related-grid">
+                    
+                    <div class="related-item">
+                        <div class="related-thumb">
+                            
+                                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_72bbab8f/grid_20260222130913_1.jpg" alt="数学区：配对" loading="lazy">
+                            
+                        </div>
+                        <div class="related-body">
+                            <a href="/categories/区角环创/数学区_配对.html">数学区：配对</a>
+                        </div>
+                    </div>
+                    
+                    <div class="related-item">
+                        <div class="related-thumb">
+                            
+                                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/9/part_84cf5588/grid_20260222130952_1.jpg" alt="天气预报 电子素材" loading="lazy">
+                            
+                        </div>
+                        <div class="related-body">
+                            <a href="/categories/区角环创/天气预报 电子素材.html">天气预报 电子素材</a>
+                        </div>
+                    </div>
+                    
+                    <div class="related-item">
+                        <div class="related-thumb">
+                            
+                                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/3/part_8d474550/grid_20260222130416_1.jpg" alt="建构区环创" loading="lazy">
+                            
+                        </div>
+                        <div class="related-body">
+                            <a href="/categories/区角环创/建构区环创.html">建构区环创</a>
+                        </div>
+                    </div>
+                    
+                    <div class="related-item">
+                        <div class="related-thumb">
+                            
+                                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/2/part_253c2104/grid_20260222130259_1.jpg" alt="益智区动物素材" loading="lazy">
+                            
+                        </div>
+                        <div class="related-body">
+                            <a href="/categories/区角环创/益智区动物素材.html">益智区动物素材</a>
+                        </div>
+                    </div>
+                    
+                    <div class="related-item">
+                        <div class="related-thumb">
+                            
+                                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_d841a7df/grid_20260222125757_1.jpg" alt="恐龙蛋" loading="lazy">
+                            
+                        </div>
+                        <div class="related-body">
+                            <a href="/categories/区角环创/恐龙蛋.html">恐龙蛋</a>
+                        </div>
+                    </div>
+                    
+                    <div class="related-item">
+                        <div class="related-thumb">
+                            
+                                <img src="https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/1/part_ab0de9ce/grid_20260222125840_1.jpg" alt="海边形状" loading="lazy">
+                            
+                        </div>
+                        <div class="related-body">
+                            <a href="/categories/区角环创/海边形状.html">海边形状</a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+            <!-- ======================================================= -->
             <!-- 【区域二：底部导航返回栏 - 文章外部】 -->
             <!-- ======================================================= -->
             <div class="article-footer">
@@ -612,6 +729,37 @@ function handleSearchClick(e) {
             closeDlModal();
         }
     });
+
+    // 🌟 新增：复制当前文章链接（优先用短链，没有则用完整地址）
+    function yekjwCopyShare() {
+        var shareUrl = window.location.href;
+        // 如果页面里有 canonical 短链，优先用短链
+        var canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical && canonical.href) {
+            shareUrl = canonical.href;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(function () {
+                alert('链接已复制，去粘贴给同事吧～');
+            }).catch(function () {
+                fallbackCopy(shareUrl);
+            });
+        } else {
+            fallbackCopy(shareUrl);
+        }
+    }
+
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); alert('链接已复制，去粘贴给同事吧～'); }
+        catch (e) { prompt('请手动复制下面的链接：', text); }
+        document.body.removeChild(ta);
+    }
     </script>
 
     <!-- 🌟 购买弹窗 HTML -->
@@ -765,7 +913,6 @@ function handleSearchClick(e) {
 
 </body>
 </html>
-
         </div>
 
     <!-- 🌟 网站页脚 -->
