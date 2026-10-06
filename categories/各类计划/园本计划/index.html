@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园第一学期园本培训计划（三）","path":"/categories/各类计划/幼儿园第一学期园本培训计划（三）.html","views":10363,"date":"2025-12-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E5%9F%B9%E8%AE%AD%E8%AE%A1%E5%88%92%EF%BC%88%E4%B8%89%EF%BC%89/20260222162748_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]},{"title":"幼儿园第一学期园本培训计划（二）","path":"/categories/各类计划/幼儿园第一学期园本培训计划（二）.html","views":19864,"date":"2025-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E5%9F%B9%E8%AE%AD%E8%AE%A1%E5%88%92%EF%BC%88%E4%BA%8C%EF%BC%89/20260222162750_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]},{"title":"幼儿园第一学期园本培训计划（五）","path":"/categories/各类计划/幼儿园第一学期园本培训计划（五）.html","views":8685,"date":"2024-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E5%9F%B9%E8%AE%AD%E8%AE%A1%E5%88%92%EF%BC%88%E4%BA%94%EF%BC%89/20260222162753_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]},{"title":"幼儿园第一学期园本培训计划（四）","path":"/categories/各类计划/幼儿园第一学期园本培训计划（四）.html","views":11906,"date":"2024-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E5%9F%B9%E8%AE%AD%E8%AE%A1%E5%88%92%EF%BC%88%E5%9B%9B%EF%BC%89/20260222162756_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]},{"title":"幼儿园第一学期园本培训计划（一）","path":"/categories/各类计划/幼儿园第一学期园本培训计划（一）.html","views":8859,"date":"2024-01-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E5%9F%B9%E8%AE%AD%E8%AE%A1%E5%88%92%EF%BC%88%E4%B8%80%EF%BC%89/20260222162745_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]},{"title":"第二学期园本计划","path":"/categories/各类计划/第二学期园本计划.html","views":8864,"date":"2019-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E7%AC%AC%E4%BA%8C%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/20260222162800_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]},{"title":"月亮幼儿园第二学期园本培训","path":"/categories/各类计划/月亮幼儿园第二学期园本培训.html","views":18799,"date":"2016-04-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%9B%AD%E6%9C%AC%E8%AE%A1%E5%88%92/%E6%9C%88%E4%BA%AE%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%BA%8C%E5%AD%A6%E6%9C%9F%E5%9B%AD%E6%9C%AC%E5%9F%B9%E8%AE%AD/20260222162758_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","园本计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

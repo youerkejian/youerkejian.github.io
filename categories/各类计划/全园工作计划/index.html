@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"第二学期园务计划","path":"/categories/各类计划/第二学期园务计划.html","views":5167,"date":"2026-02-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E7%AC%AC%E4%BA%8C%E5%AD%A6%E6%9C%9F%E5%9B%AD%E5%8A%A1%E8%AE%A1%E5%88%92/20260222162457_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园工作计划怎么写","path":"/categories/各类计划/幼儿园工作计划怎么写.html","views":9321,"date":"2025-10-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E6%80%8E%E4%B9%88%E5%86%99/20260222162434_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"第一学期园务计划","path":"/categories/各类计划/第一学期园务计划.html","views":5050,"date":"2025-03-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E5%8A%A1%E8%AE%A1%E5%88%92/20260222162453_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园第一学期园务工作计划（一）","path":"/categories/各类计划/幼儿园第一学期园务工作计划（一）.html","views":17345,"date":"2023-07-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E5%8A%A1%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%EF%BC%88%E4%B8%80%EF%BC%89/20260222162443_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园第一学期园务工作计划（三）","path":"/categories/各类计划/幼儿园第一学期园务工作计划（三）.html","views":82626,"date":"2022-12-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E5%8A%A1%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%EF%BC%88%E4%B8%89%EF%BC%89/20260222162446_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"03 幼儿园园务工作计划","path":"/categories/各类计划/03 幼儿园园务工作计划.html","views":11549,"date":"2022-06-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/03%20%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%9B%AD%E5%8A%A1%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222162425_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园工作计划(5)","path":"/categories/各类计划/幼儿园工作计划(5).html","views":16487,"date":"2021-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%285%29/20260222162427_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园第一学期园务工作计划（二）","path":"/categories/各类计划/幼儿园第一学期园务工作计划（二）.html","views":17105,"date":"2019-10-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%9B%AD%E5%8A%A1%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%EF%BC%88%E4%BA%8C%EF%BC%89/20260222162449_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园春季学期园务工作计划","path":"/categories/各类计划/幼儿园春季学期园务工作计划.html","views":16103,"date":"2019-07-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E6%98%A5%E5%AD%A3%E5%AD%A6%E6%9C%9F%E5%9B%AD%E5%8A%A1%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222162439_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园工作计划","path":"/categories/各类计划/幼儿园工作计划.html","views":18069,"date":"2018-12-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222162431_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]},{"title":"幼儿园春季园务计划","path":"/categories/各类计划/幼儿园春季园务计划.html","views":15991,"date":"2016-09-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%9B%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E6%98%A5%E5%AD%A3%E5%9B%AD%E5%8A%A1%E8%AE%A1%E5%88%92/20260222162436_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全园工作计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"交通安全素材","path":"/categories/环创素材合集/交通安全素材.html","views":10939,"date":"2025-08-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/part_de588308/grid_20260222140505_1.jpg","categories":["环创素材合集","环创素材合集","交通安全素材"]},{"title":"上下楼梯安全注意事项","path":"/categories/环创素材合集/上下楼梯安全注意事项.html","views":30289,"date":"2025-05-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/standalone_20260222140503.jpg","categories":["环创素材合集","环创素材合集","上下楼梯安全注意事项"]},{"title":"安全环创素材","path":"/categories/环创素材合集/安全环创素材.html","views":40130,"date":"2025-02-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/part_8c388634/grid_20260222140509_1.jpg","categories":["环创素材合集","环创素材合集","安全环创素材"]},{"title":"幼儿园安全环创主题墙","path":"/categories/环创素材合集/幼儿园安全环创主题墙.html","views":9218,"date":"2021-06-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/part_cc7d2684/grid_20260222140511_1.jpg","categories":["环创素材合集","环创素材合集","幼儿园安全环创主题墙"]},{"title":"Z199-3(安全标志)","path":"/categories/环创素材合集/Z199-3(安全标志).html","views":46470,"date":"2021-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/Z199-3/grid_20260222140458_1.jpg","categories":["环创素材合集","环创素材合集","Z199-3(安全标志)"]},{"title":"【环创素材】  楼道安全素材","path":"/categories/环创素材合集/环创素材_  楼道安全素材.html","views":23863,"date":"2020-10-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/standalone_20260222140459.jpg","categories":["环创素材合集","环创素材合集","【环创素材】  楼道安全素材"]},{"title":"Z167 安全防疫“一米”线","path":"/categories/环创素材合集/Z167 安全防疫“一米”线.html","views":21867,"date":"2020-10-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/Z167/grid_20260222140456_1.jpg","categories":["环创素材合集","环创素材合集","Z167 安全防疫“一米”线"]},{"title":"安全宣传主题墙","path":"/categories/环创素材合集/安全宣传主题墙.html","views":20136,"date":"2020-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/part_4c5b44da/grid_20260222140506_1.jpg","categories":["环创素材合集","环创素材合集","安全宣传主题墙"]},{"title":"交通安全主题墙","path":"/categories/环创素材合集/交通安全主题墙.html","views":39465,"date":"2020-03-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/part_919fca9b/grid_20260222140504_1.jpg","categories":["环创素材合集","环创素材合集","交通安全主题墙"]},{"title":"居家安全环创素材","path":"/categories/环创素材合集/居家安全环创素材.html","views":31673,"date":"2017-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/part_60372557/grid_20260222140511_1.jpg","categories":["环创素材合集","环创素材合集","居家安全环创素材"]},{"title":"家园联系-安全教育","path":"/categories/环创素材合集/家园联系-安全教育.html","views":9678,"date":"2017-01-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/standalone_20260222140510.jpg","categories":["环创素材合集","环创素材合集","家园联系-安全教育"]},{"title":"安全标志可打印素材","path":"/categories/环创素材合集/安全标志可打印素材.html","views":37792,"date":"2016-03-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_8960396d/part_8960396d/standalone_20260222140507.jpg","categories":["环创素材合集","环创素材合集","安全标志可打印素材"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"冬奥会科普图片","path":"/categories/其他素材/冬奥会科普图片.html","views":47315,"date":"2023-06-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_1583cce2/grid_20260222131515_1.jpg","categories":["其他素材","冬奥会环创","冬奥会科普图片"]},{"title":"冬奥环创素材图片","path":"/categories/其他素材/冬奥环创素材图片.html","views":13882,"date":"2023-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_ef35842a/grid_20260222131515_1.jpg","categories":["其他素材","冬奥会环创","冬奥环创素材图片"]},{"title":"冬奥会涂色素材","path":"/categories/其他素材/冬奥会涂色素材.html","views":24110,"date":"2021-11-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_49b6974b/grid_20260222131511_1.jpg","categories":["其他素材","冬奥会环创","冬奥会涂色素材"]},{"title":"2022北京冬奥手抄报模板+涂色资源","path":"/categories/其他素材/2022北京冬奥手抄报模板+涂色资源.html","views":10542,"date":"2021-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/standalone_20260222131501.jpg","categories":["其他素材","冬奥会环创","2022北京冬奥手抄报模板+涂色资源"]},{"title":"冬奥会可涂色环创（黑白+彩色）","path":"/categories/其他素材/冬奥会可涂色环创_黑白+彩色.html","views":11854,"date":"2020-10-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_11dfef13/grid_20260222131510_1.jpg","categories":["其他素材","冬奥会环创","冬奥会可涂色环创（黑白+彩色）"]},{"title":"冬奥会主题画","path":"/categories/其他素材/冬奥会主题画.html","views":2243,"date":"2020-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_0f1497e1/grid_20260222131509_1.jpg","categories":["其他素材","冬奥会环创","冬奥会主题画"]},{"title":"2022冬奥会环创方案","path":"/categories/其他素材/2022冬奥会环创方案.html","views":47166,"date":"2020-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/standalone_20260222131451.jpg","categories":["其他素材","冬奥会环创","2022冬奥会环创方案"]},{"title":"冬奥会环创素材","path":"/categories/其他素材/冬奥会环创素材.html","views":28387,"date":"2018-03-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_c0545400/grid_20260222131514_1.jpg","categories":["其他素材","冬奥会环创","冬奥会环创素材"]},{"title":"冬奥会环创","path":"/categories/其他素材/冬奥会环创.html","views":28852,"date":"2018-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_8745e8b3/grid_20260222131512_1.jpg","categories":["其他素材","冬奥会环创","冬奥会环创"]},{"title":"冬奥会","path":"/categories/其他素材/冬奥会.html","views":23504,"date":"2018-01-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_c47a1b07/grid_20260222131507_1.jpg","categories":["其他素材","冬奥会环创","冬奥会"]},{"title":"冬奥会项目","path":"/categories/其他素材/冬奥会项目.html","views":29845,"date":"2016-11-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_8745e8b3/part_ebd54d0f/grid_20260222131515_1.jpg","categories":["其他素材","冬奥会环创","冬奥会项目"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

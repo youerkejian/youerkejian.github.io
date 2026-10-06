@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园保育员培训计划","path":"/categories/各类计划/幼儿园保育员培训计划.html","views":12797,"date":"2025-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E4%BF%9D%E8%82%B2%E5%91%98%E5%9F%B9%E8%AE%AD%E8%AE%A1%E5%88%92/20260222163127_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"幼儿园大班下学期保育员工作计划","path":"/categories/各类计划/幼儿园大班下学期保育员工作计划.html","views":19084,"date":"2024-06-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%A4%A7%E7%8F%AD%E4%B8%8B%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%91%98%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163136_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"大班秋季学期保育工作计划","path":"/categories/各类计划/大班秋季学期保育工作计划.html","views":10030,"date":"2024-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%A4%A7%E7%8F%AD%E7%A7%8B%E5%AD%A3%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163116_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"幼儿园大班上学期保育员工作计划","path":"/categories/各类计划/幼儿园大班上学期保育员工作计划.html","views":4753,"date":"2023-07-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%A4%A7%E7%8F%AD%E4%B8%8A%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%91%98%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163131_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"中班上学期保育员工作计划","path":"/categories/各类计划/中班上学期保育员工作计划.html","views":10855,"date":"2022-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E4%B8%8A%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%91%98%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163109_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"小班下学期保育员工作计划","path":"/categories/各类计划/小班下学期保育员工作计划.html","views":4354,"date":"2022-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B0%8F%E7%8F%AD%E4%B8%8B%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%91%98%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163118_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"中班秋季学期保育工作计划","path":"/categories/各类计划/中班秋季学期保育工作计划.html","views":16395,"date":"2021-02-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E7%A7%8B%E5%AD%A3%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163114_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"中班下学期保育员工作计划","path":"/categories/各类计划/中班下学期保育员工作计划.html","views":7584,"date":"2020-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E4%B8%8B%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%91%98%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163112_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"小班秋季学期保育工作计划","path":"/categories/各类计划/小班秋季学期保育工作计划.html","views":17583,"date":"2019-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B0%8F%E7%8F%AD%E7%A7%8B%E5%AD%A3%E5%AD%A6%E6%9C%9F%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163124_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]},{"title":"小班保育员上学期个人计划","path":"/categories/各类计划/小班保育员上学期个人计划.html","views":9846,"date":"2017-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E4%BF%9D%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B0%8F%E7%8F%AD%E4%BF%9D%E8%82%B2%E5%91%98%E4%B8%8A%E5%AD%A6%E6%9C%9F%E4%B8%AA%E4%BA%BA%E8%AE%A1%E5%88%92/20260222163121_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","保育工作计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

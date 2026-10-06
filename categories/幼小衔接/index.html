@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"大班语言幼小衔接 《一年级一点都不可怕》","path":"/categories/语言/大班语言幼小衔接 《一年级一点都不可怕》_通用.html","views":7454,"date":"2025-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班语言幼小衔接_《一年级一点都不可怕》/ppt/20260131124501_ppt_cover_wm.jpg","categories":["幼小衔接"]},{"title":"幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成","path":"/categories/幼小衔接/幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成_通用.html","views":11877,"date":"2023-07-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园大班秋季幼小衔接家长会课件ppt发言稿衔一种习惯接一缕成/ppt/20260130234505_ppt_cover_wm.jpg","categories":["幼小衔接"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

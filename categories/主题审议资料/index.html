@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园课件中班-香香的蔬菜-主题审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件中班-香香的蔬菜-主题审议.html","views":23031,"date":"2024-10-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件中班-香香的蔬菜-主题审议/cover/20260223012829_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件小班娃娃乐主题审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件小班娃娃乐主题审议.html","views":9219,"date":"2024-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件小班娃娃乐主题审议/cover/20260223012859_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件-我的家乡-主题前审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件-我的家乡-主题前审议.html","views":116524,"date":"2022-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件-我的家乡-主题前审议/cover/20260223012812_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件大班-动物世界真奇妙-前审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件大班-动物世界真奇妙-前审议.html","views":40648,"date":"2022-07-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件大班-动物世界真奇妙-前审议/cover/20260223012840_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件冬天来了前审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件冬天来了前审议.html","views":11711,"date":"2022-05-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件冬天来了前审议/cover/20260223012837_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"小班主题审议-爱上幼儿园-共47页文档","path":"/categories/主题审议资料/主题审议PPT/小班主题审议-爱上幼儿园-共47页文档.html","views":16648,"date":"2021-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/小班主题审议-爱上幼儿园-共47页文档/cover/20260223012749_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件小班主题审议-顽皮一夏","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件小班主题审议-顽皮一夏.html","views":9600,"date":"2021-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件小班主题审议-顽皮一夏/cover/20260223012855_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件11月-我想知道的-主题审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件11月-我想知道的-主题审议.html","views":6239,"date":"2021-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件11月-我想知道的-主题审议/cover/20260223012824_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件大班秋天多美丽主题后审议1","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件大班秋天多美丽主题后审议1.html","views":7046,"date":"2021-05-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件大班秋天多美丽主题后审议1/cover/20260223012844_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件走进老底子主题中审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件走进老底子主题中审议.html","views":16140,"date":"2020-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件走进老底子主题中审议/cover/20260223012904_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件-特别的我-主题前审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件-特别的我-主题前审议.html","views":19566,"date":"2020-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件-特别的我-主题前审议/cover/20260223012816_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件-吃得香长得棒-主题审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件-吃得香长得棒-主题审议.html","views":17422,"date":"2019-08-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件-吃得香长得棒-主题审议/cover/20260223012804_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件主题审议-多彩的秋天-11","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件主题审议-多彩的秋天-11.html","views":19012,"date":"2019-06-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件主题审议-多彩的秋天-11/cover/20260223012833_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"大中国-课程前审议","path":"/categories/主题审议资料/主题审议PPT/大中国-课程前审议.html","views":17034,"date":"2018-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/大中国-课程前审议/cover/20260223012741_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件-大玩家-主题审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件-大玩家-主题审议.html","views":17616,"date":"2017-12-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件-大玩家-主题审议/cover/20260223012809_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园动物乐园前审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园动物乐园前审议.html","views":16233,"date":"2017-07-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园动物乐园前审议/cover/20260223012755_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件完整儿童中班-拜访春天前审议-汇报PPT","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件完整儿童中班-拜访春天前审议-汇报PPT.html","views":16309,"date":"2016-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件完整儿童中班-拜访春天前审议-汇报PPT/cover/20260223012849_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园课件-神奇的大自然-主题审议","path":"/categories/主题审议资料/主题审议PPT/幼儿园课件-神奇的大自然-主题审议.html","views":12718,"date":"2016-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园课件-神奇的大自然-主题审议/cover/20260223012819_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]},{"title":"幼儿园动物乐园前审议1","path":"/categories/主题审议资料/主题审议PPT/幼儿园动物乐园前审议1.html","views":15276,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/主题审议PPT/幼儿园动物乐园前审议1/cover/20260223012800_wm_001.jpg","categories":["主题审议资料","主题审议PPT"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

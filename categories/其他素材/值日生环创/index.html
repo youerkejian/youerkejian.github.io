@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"值日生抠图素材","path":"/categories/其他素材/值日生抠图素材.html","views":34392,"date":"2024-05-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/part_772bbe31/grid_20260222131031_1.jpg","categories":["其他素材","值日生环创","值日生抠图素材"]},{"title":"值日生环创","path":"/categories/其他素材/值日生环创.html","views":25011,"date":"2023-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/part_f82b80ae/grid_20260222131056_1.jpg","categories":["其他素材","值日生环创","值日生环创"]},{"title":"值日生挂牌环创","path":"/categories/其他素材/值日生挂牌环创.html","views":10807,"date":"2020-12-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/part_bc0e33e1/grid_20260222131055_1.jpg","categories":["其他素材","值日生环创","值日生挂牌环创"]},{"title":"值日生环创图彩色版1","path":"/categories/其他素材/值日生环创图彩色版1.html","views":45910,"date":"2020-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/1/grid_20260222131119_1.jpg","categories":["其他素材","值日生环创","值日生环创图彩色版1"]},{"title":"值日生工作内容","path":"/categories/其他素材/值日生工作内容.html","views":22200,"date":"2020-02-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/part_51850fc5/grid_20260222131029_1.jpg","categories":["其他素材","值日生环创","值日生工作内容"]},{"title":"值日生环创图彩色版","path":"/categories/其他素材/值日生环创图彩色版.html","views":24433,"date":"2019-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/standalone_20260222131111.jpg","categories":["其他素材","值日生环创","值日生环创图彩色版"]},{"title":"今天我值日","path":"/categories/其他素材/今天我值日.html","views":5296,"date":"2019-03-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/part_7f5e6fcd/grid_20260222131021_1.jpg","categories":["其他素材","值日生环创","今天我值日"]},{"title":"小小值日生环创全套","path":"/categories/其他素材/小小值日生环创全套.html","views":48732,"date":"2018-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/part_36d7754a/grid_20260222131158_1.jpg","categories":["其他素材","值日生环创","小小值日生环创全套"]},{"title":"值日生环创素材2","path":"/categories/其他素材/值日生环创素材2.html","views":24746,"date":"2017-12-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/standalone_20260222131143.jpg","categories":["其他素材","值日生环创","值日生环创素材2"]},{"title":"值日生环创图涂色版1","path":"/categories/其他素材/值日生环创图涂色版1.html","views":19903,"date":"2017-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_f82b80ae/1/grid_20260222131123_1.jpg","categories":["其他素材","值日生环创","值日生环创图涂色版1"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

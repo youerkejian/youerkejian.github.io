@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"数学区：配对","path":"/categories/区角环创/数学区_配对.html","views":19780,"date":"2026-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_72bbab8f/grid_20260222130913_1.jpg","categories":["区角环创","数学区","数学区：配对"]},{"title":"数学区：认识钱币","path":"/categories/区角环创/数学区_认识钱币.html","views":35093,"date":"2025-04-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_86fdab1a/grid_20260222130912_1.jpg","categories":["区角环创","数学区","数学区：认识钱币"]},{"title":"西瓜掷骰子数学游戏","path":"/categories/区角环创/西瓜掷骰子数学游戏.html","views":5249,"date":"2025-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_ea61a015/grid_20260222130934_1.jpg","categories":["区角环创","数学区","西瓜掷骰子数学游戏"]},{"title":"数学区：数字","path":"/categories/区角环创/数学区_数字.html","views":41514,"date":"2024-10-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_d38bc8d4/grid_20260222130704_1.jpg","categories":["区角环创","数学区","数学区：数字"]},{"title":"数学区：认识月份","path":"/categories/区角环创/数学区_认识月份.html","views":27705,"date":"2024-09-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_abaa50b0/grid_20260222130911_1.jpg","categories":["区角环创","数学区","数学区：认识月份"]},{"title":"数草莓-蛋糕","path":"/categories/区角环创/数草莓-蛋糕_2.html","views":17205,"date":"2023-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/-/grid_20260222130925_1.jpg","categories":["区角环创","数学区","数草莓-蛋糕"]},{"title":"数学区：小兔吃萝卜","path":"/categories/区角环创/数学区_小兔吃萝卜.html","views":24036,"date":"2021-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_3d90790a/grid_20260222130655_1.jpg","categories":["区角环创","数学区","数学区：小兔吃萝卜"]},{"title":"数学区：点点画圆片总集合","path":"/categories/区角环创/数学区_点点画圆片总集合.html","views":38722,"date":"2020-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_44801c15/grid_20260222130820_1.jpg","categories":["区角环创","数学区","数学区：点点画圆片总集合"]},{"title":"数学区：大小","path":"/categories/区角环创/数学区_大小.html","views":17435,"date":"2019-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_a08b4757/grid_20260222130652_1.jpg","categories":["区角环创","数学区","数学区：大小"]},{"title":"圆形拼拼乐","path":"/categories/区角环创/圆形拼拼乐.html","views":16307,"date":"2019-06-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_863fd686/grid_20260222130642_1.jpg","categories":["区角环创","数学区","圆形拼拼乐"]},{"title":"草莓数感练习","path":"/categories/区角环创/草莓数感练习.html","views":28341,"date":"2019-05-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_07179bde/grid_20260222130926_1.jpg","categories":["区角环创","数学区","草莓数感练习"]},{"title":"数学操作区素材 0-10","path":"/categories/区角环创/数学操作区素材 0-10.html","views":31491,"date":"2019-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/0-10/grid_20260222130919_1.jpg","categories":["区角环创","数学区","数学操作区素材 0-10"]},{"title":"数字小鱼拼图 2页 2-3_spli","path":"/categories/区角环创/数字小鱼拼图 2页 2-3_spli.html","views":44344,"date":"2018-05-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/2_2-3_spli/grid_20260222130651_1.jpg","categories":["区角环创","数学区","数字小鱼拼图 2页 2-3_spli"]},{"title":"小游戏之连线","path":"/categories/区角环创/小游戏之连线.html","views":13767,"date":"2017-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_3b5e4d7a/grid_20260222130646_1.jpg","categories":["区角环创","数学区","小游戏之连线"]},{"title":"数学区：西瓜装盘n","path":"/categories/区角环创/数学区_西瓜装盘n.html","views":23753,"date":"2016-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/n/grid_20260222130909_1.jpg","categories":["区角环创","数学区","数学区：西瓜装盘n"]},{"title":"小班：数学区教具","path":"/categories/区角环创/小班_数学区教具.html","views":20497,"date":"2016-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_beed00f3/grid_20260222130650_1.jpg","categories":["区角环创","数学区","小班：数学区教具"]},{"title":"数学区：排序","path":"/categories/区角环创/数学区_排序.html","views":45247,"date":"2016-05-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_a9210935/grid_20260222130657_1.jpg","categories":["区角环创","数学区","数学区：排序"]},{"title":"大班：数学区教具","path":"/categories/区角环创/大班_数学区教具.html","views":9247,"date":"2016-02-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/6/part_6f3fc515/grid_20260222130644_1.jpg","categories":["区角环创","数学区","大班：数学区教具"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

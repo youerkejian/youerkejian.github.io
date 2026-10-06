@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"中班美术小树纸贴画视频教案PPT课件","path":"/categories/通用/中班美术小树纸贴画视频教案PPT课件_中班.html","views":14782,"date":"2024-08-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班美术小树纸贴画视频教案PPT课件/ppt/20260219210704_ppt_cover_wm.jpg","categories":["中班","美术"]},{"title":"吹画梅花中班美术","path":"/categories/通用/吹画梅花中班美术_中班.html","views":11731,"date":"2023-12-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/吹画梅花中班美术/ppt/20260219220049_ppt_cover_wm.jpg","categories":["中班","美术"]},{"title":"中班交通标志作用大","path":"/categories/通用/中班交通标志作用大_中班.html","views":7359,"date":"2022-09-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班交通标志作用大/ppt/20260219215507_ppt_cover_wm.jpg","categories":["中班","美术"]},{"title":"中班美术 冬天的毛衣 课件PPT教案图片素材","path":"/categories/通用/中班美术 冬天的毛衣 课件PPT教案图片素材_中班.html","views":13333,"date":"2022-08-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班美术-冬天的毛衣-课件PPT教案图片素材/ppt/20260219215916_ppt_cover_wm.jpg","categories":["中班","美术"]},{"title":"漂亮的围巾和手套中班美术","path":"/categories/通用/漂亮的围巾和手套中班美术_中班.html","views":15056,"date":"2020-09-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/漂亮的围巾和手套中班美术/ppt/20260219220637_ppt_cover_wm.jpg","categories":["中班","美术"]},{"title":"中班美术制作汽车视频教案PPT课件反思","path":"/categories/通用/中班美术制作汽车视频教案PPT课件反思_中班.html","views":7506,"date":"2020-05-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班美术制作汽车视频教案PPT课件反思/ppt/20260219210654_ppt_cover_wm.jpg","categories":["中班","美术"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

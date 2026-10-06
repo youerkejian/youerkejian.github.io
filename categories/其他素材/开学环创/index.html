@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"姓名标签","path":"/categories/其他素材/姓名标签.html","views":25423,"date":"2025-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_96219633/grid_20260222123005_1.jpg","categories":["其他素材","开学环创","姓名标签"]},{"title":"开学手举牌","path":"/categories/其他素材/开学手举牌.html","views":32823,"date":"2024-08-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_2c33eb6e/grid_20260222123029_1.jpg","categories":["其他素材","开学环创","开学手举牌"]},{"title":"开学环创展板","path":"/categories/其他素材/开学环创展板.html","views":31964,"date":"2024-04-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_b50d6049/grid_20260222123043_1.jpg","categories":["其他素材","开学环创","开学环创展板"]},{"title":"开学季素材","path":"/categories/其他素材/开学季素材.html","views":17064,"date":"2022-05-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_ea808213/grid_20260222123025_1.jpg","categories":["其他素材","开学环创","开学季素材"]},{"title":"小黄鸭主题开学环创","path":"/categories/其他素材/小黄鸭主题开学环创.html","views":38721,"date":"2022-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_078fdb03/grid_20260222123007_1.jpg","categories":["其他素材","开学环创","小黄鸭主题开学环创"]},{"title":"开学仪式感环创","path":"/categories/其他素材/开学仪式感环创.html","views":1545,"date":"2022-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_8f07c21a/grid_20260222123024_1.jpg","categories":["其他素材","开学环创","开学仪式感环创"]},{"title":"我们开学啦拍照框  P图","path":"/categories/其他素材/我们开学啦拍照框  P图.html","views":6607,"date":"2021-06-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/standalone_20260222123047.jpg","categories":["其他素材","开学环创","我们开学啦拍照框  P图"]},{"title":"上上签","path":"/categories/其他素材/上上签.html","views":22139,"date":"2019-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_e0fb2aff/grid_20260222123000_1.jpg","categories":["其他素材","开学环创","上上签"]},{"title":"欢迎小朋友（开学典礼）","path":"/categories/其他素材/欢迎小朋友_开学典礼.html","views":2369,"date":"2018-11-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_8bf29c5d/grid_20260222123051_1.jpg","categories":["其他素材","开学环创","欢迎小朋友（开学典礼）"]},{"title":"开学打印素材","path":"/categories/其他素材/开学打印素材.html","views":2819,"date":"2017-04-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_d034e14d/grid_20260222123030_1.jpg","categories":["其他素材","开学环创","开学打印素材"]},{"title":"开学环创素材","path":"/categories/其他素材/开学环创素材.html","views":49339,"date":"2017-01-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_d3e32402/grid_20260222123046_1.jpg","categories":["其他素材","开学环创","开学环创素材"]},{"title":"幼儿园开学展板（新款）","path":"/categories/其他素材/幼儿园开学展板_新款.html","views":26098,"date":"2016-11-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_f9f5eedb/grid_20260222123011_1.jpg","categories":["其他素材","开学环创","幼儿园开学展板（新款）"]},{"title":"开学展板","path":"/categories/其他素材/开学展板.html","views":26838,"date":"2016-10-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_e0bef258/grid_20260222123026_1.jpg","categories":["其他素材","开学环创","开学展板"]},{"title":"开学文字图片","path":"/categories/其他素材/开学文字图片.html","views":3310,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_116972dc/grid_20260222123031_1.jpg","categories":["其他素材","开学环创","开学文字图片"]},{"title":"欢迎小朋友展板","path":"/categories/其他素材/欢迎小朋友展板.html","views":2141,"date":"2016-04-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_77fd4a84/part_76fc83cc/grid_20260222123048_1.jpg","categories":["其他素材","开学环创","欢迎小朋友展板"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

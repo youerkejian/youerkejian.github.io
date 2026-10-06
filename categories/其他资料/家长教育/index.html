@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"家长教育 家园共育 缓解新生入园焦虑","path":"/categories/其他资料/家长教育 家园共育 缓解新生入园焦虑_通用.html","views":15310,"date":"2025-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-家园共育-缓解新生入园焦虑/ppt/20260223015604_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼儿园家长如何与老师沟通","path":"/categories/其他资料/家长教育 幼儿园家长如何与老师沟通_通用.html","views":4537,"date":"2025-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼儿园家长如何与老师沟通/ppt/20260223015626_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼儿入园穿搭指南","path":"/categories/其他资料/家长教育 幼儿入园穿搭指南_通用.html","views":4467,"date":"2024-01-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼儿入园穿搭指南/ppt/20260223015618_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 如何为幼儿选取适宜的启蒙性动画片","path":"/categories/其他资料/家长教育 如何为幼儿选取适宜的启蒙性动画片_通用.html","views":14331,"date":"2023-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-如何为幼儿选取适宜的启蒙性动画片/ppt/20260223015558_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小接综合征你中招了吗","path":"/categories/通用/家长教育 幼小接综合征你中招了吗_中班.html","views":9220,"date":"2021-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小接综合征你中招了吗/ppt/20260223015633_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小接综合征你中招了吗","path":"/categories/其他资料/家长教育 幼小接综合征你中招了吗_小班.html","views":9220,"date":"2021-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小接综合征你中招了吗/ppt/20260223015633_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 基于幼儿园核心素养教育背景下的家园共育","path":"/categories/其他资料/家长教育 基于幼儿园核心素养教育背景下的家园共育_通用.html","views":8072,"date":"2021-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-基于幼儿园核心素养教育背景下的家园共育/ppt/20260223015551_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 入园焦虑你准备好了吗","path":"/categories/其他资料/家长教育 入园焦虑你准备好了吗_通用.html","views":7808,"date":"2019-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-入园焦虑你准备好了吗/ppt/20260223015542_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 幼小衔接实用手册","path":"/categories/其他资料/家长教育 幼小衔接实用手册_通用.html","views":7437,"date":"2017-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-幼小衔接实用手册/ppt/20260223015641_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 家园共育缓解新生入园焦虑","path":"/categories/其他资料/家长教育 家园共育缓解新生入园焦虑_通用.html","views":8679,"date":"2017-02-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-家园共育缓解新生入园焦虑/ppt/20260223015611_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]},{"title":"家长教育 早期阅读您了解吗","path":"/categories/其他资料/家长教育 早期阅读您了解吗_通用.html","views":18040,"date":"2016-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/家长教育-早期阅读您了解吗/ppt/20260223015647_ppt_cover_wm.jpg","categories":["其他资料","家长教育"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

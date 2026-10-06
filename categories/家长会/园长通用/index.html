@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"002小班新生家长会PPT","path":"/categories/家长会/园长通用/002小班新生家长会PPT.html","views":7938,"date":"2025-11-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002小班新生家长会PPT/ppt_1_cover/20260221022235_ppt_cover_wm.jpg","categories":["家长会","园长通用"]},{"title":"0072024小班新生家长会园长版-这是我第一次上幼儿园-ppt发言稿","path":"/categories/家长会/园长通用/0072024小班新生家长会园长版-这是我第一次上幼儿园-ppt发言稿.html","views":4880,"date":"2024-03-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/0072024小班新生家长会园长版-这是我第一次上幼儿园-ppt发言稿/ppt_1_cover/20260221022336_ppt_cover_wm.jpg","categories":["家长会","园长通用"]},{"title":"005小班新生家长会ppt初遇合伙人携手育未来","path":"/categories/家长会/园长通用/005小班新生家长会ppt初遇合伙人携手育未来.html","views":6636,"date":"2023-11-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/005小班新生家长会ppt初遇合伙人携手育未来/ppt_1_cover/20260221022314_ppt_cover_wm.jpg","categories":["家长会","园长通用"]},{"title":"001园长班小班新生家长会园长版","path":"/categories/家长会/园长通用/001园长班小班新生家长会园长版.html","views":11871,"date":"2020-08-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001园长班小班新生家长会园长版/ppt_1_cover/20260221022219_ppt_cover_wm.jpg","categories":["家长会","园长通用"]},{"title":"004小班新生家长会PPT通用","path":"/categories/家长会/园长通用/004小班新生家长会PPT通用.html","views":14625,"date":"2019-09-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/004小班新生家长会PPT通用/ppt_1_cover/20260221022302_ppt_cover_wm.jpg","categories":["家长会","园长通用"]},{"title":"006体验式家长会做温暖的陪伴者","path":"/categories/家长会/园长通用/006体验式家长会做温暖的陪伴者.html","views":10747,"date":"2017-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/006体验式家长会做温暖的陪伴者/ppt_1_cover/20260221022323_ppt_cover_wm.jpg","categories":["家长会","园长通用"]},{"title":"003小班新生家长会园长版","path":"/categories/家长会/园长通用/003小班新生家长会园长版.html","views":17693,"date":"2016-03-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/003小班新生家长会园长版/ppt_1_cover/20260221022250_ppt_cover_wm.jpg","categories":["家长会","园长通用"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

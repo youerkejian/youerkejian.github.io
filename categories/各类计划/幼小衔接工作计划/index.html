@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"大班上学期幼小衔接教育工作计划","path":"/categories/各类计划/大班上学期幼小衔接教育工作计划.html","views":11575,"date":"2022-12-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B9%BC%E5%B0%8F%E8%A1%94%E6%8E%A5%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%A4%A7%E7%8F%AD%E4%B8%8A%E5%AD%A6%E6%9C%9F%E5%B9%BC%E5%B0%8F%E8%A1%94%E6%8E%A5%E6%95%99%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222162743_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","幼小衔接工作计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

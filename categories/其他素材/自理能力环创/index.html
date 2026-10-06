@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"C61-7 我会擦屁股","path":"/categories/其他素材/C61-7 我会擦屁股.html","views":46119,"date":"2025-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-7/grid_20260222131218_1.jpg","categories":["其他素材","自理能力环创","C61-7 我会擦屁股"]},{"title":"我会系红领巾（黑白+彩色）","path":"/categories/其他素材/我会系红领巾_黑白+彩色.html","views":12083,"date":"2025-09-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_e0c40dfc/grid_20260222131341_1.jpg","categories":["其他素材","自理能力环创","我会系红领巾（黑白+彩色）"]},{"title":"好习惯养成主题环创素材彩色＋黑白","path":"/categories/其他素材/好习惯养成主题环创素材彩色＋黑白.html","views":46560,"date":"2025-07-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_3effbe7e/grid_20260222131224_1.jpg","categories":["其他素材","自理能力环创","好习惯养成主题环创素材彩色＋黑白"]},{"title":"C61-1 我会漱口","path":"/categories/其他素材/C61-1 我会漱口.html","views":18304,"date":"2025-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-1/grid_20260222131203_1.jpg","categories":["其他素材","自理能力环创","C61-1 我会漱口"]},{"title":"C61-2 我会擦鼻涕","path":"/categories/其他素材/C61-2 我会擦鼻涕.html","views":38125,"date":"2025-05-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-2/grid_20260222131206_1.jpg","categories":["其他素材","自理能力环创","C61-2 我会擦鼻涕"]},{"title":"幼儿园生活自理能力之我会洗脸（黑白+彩色）","path":"/categories/其他素材/幼儿园生活自理能力之我会洗脸_黑白+彩色.html","views":10823,"date":"2024-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_c8e221de/grid_20260222131331_1.jpg","categories":["其他素材","自理能力环创","幼儿园生活自理能力之我会洗脸（黑白+彩色）"]},{"title":"幼儿园好习惯","path":"/categories/其他素材/幼儿园好习惯.html","views":29424,"date":"2024-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_5102af22/grid_20260222131327_1.jpg","categories":["其他素材","自理能力环创","幼儿园好习惯"]},{"title":"C72-1(我会穿衣服)","path":"/categories/其他素材/C72-1(我会穿衣服).html","views":3817,"date":"2024-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C72-1/grid_20260222131220_1.jpg","categories":["其他素材","自理能力环创","C72-1(我会穿衣服)"]},{"title":"我会正确戴口罩步骤图","path":"/categories/其他素材/我会正确戴口罩步骤图.html","views":33849,"date":"2024-04-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_c51749c4/grid_20260222131340_1.jpg","categories":["其他素材","自理能力环创","我会正确戴口罩步骤图"]},{"title":"C61-3 我会擦嘴巴","path":"/categories/其他素材/C61-3 我会擦嘴巴.html","views":3809,"date":"2023-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-3/grid_20260222131208_1.jpg","categories":["其他素材","自理能力环创","C61-3 我会擦嘴巴"]},{"title":"C61-5 我会叠毛巾","path":"/categories/其他素材/C61-5 我会叠毛巾.html","views":9702,"date":"2023-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-5/grid_20260222131215_1.jpg","categories":["其他素材","自理能力环创","C61-5 我会叠毛巾"]},{"title":"C72-4(我会脱衣服)","path":"/categories/其他素材/C72-4(我会脱衣服).html","views":21717,"date":"2023-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C72-4/grid_20260222131222_1.jpg","categories":["其他素材","自理能力环创","C72-4(我会脱衣服)"]},{"title":"C61-6 我会涂面油","path":"/categories/其他素材/C61-6 我会涂面油.html","views":13596,"date":"2022-12-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-6/grid_20260222131216_1.jpg","categories":["其他素材","自理能力环创","C61-6 我会涂面油"]},{"title":"我会好好刷牙","path":"/categories/其他素材/我会好好刷牙.html","views":29821,"date":"2021-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_97dafba1/grid_20260222131332_1.jpg","categories":["其他素材","自理能力环创","我会好好刷牙"]},{"title":"我会喝水","path":"/categories/其他素材/我会喝水_2.html","views":48418,"date":"2019-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_82cabac6/grid_20260222131331_1.jpg","categories":["其他素材","自理能力环创","我会喝水"]},{"title":"C61-4 我会擦汗","path":"/categories/其他素材/C61-4 我会擦汗.html","views":30259,"date":"2019-08-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/C61-4/grid_20260222131213_1.jpg","categories":["其他素材","自理能力环创","C61-4 我会擦汗"]},{"title":"幼儿园生活自理能力之我会穿鞋","path":"/categories/其他素材/幼儿园生活自理能力之我会穿鞋.html","views":6079,"date":"2019-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_6d9a6b96/part_3adec11a/grid_20260222131331_1.jpg","categories":["其他素材","自理能力环创","幼儿园生活自理能力之我会穿鞋"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

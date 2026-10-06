@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"秋季区域环创","path":"/categories/主题环创/秋季区域环创.html","views":47822,"date":"2025-08-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_cfcd3177/grid_20260222123319_1.jpg","categories":["主题环创","秋季","秋季区域环创"]},{"title":"秋季主题墙环创","path":"/categories/主题环创/秋季主题墙环创.html","views":37442,"date":"2025-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c148b638/grid_20260222123316_1.jpg","categories":["主题环创","秋季","秋季主题墙环创"]},{"title":"光盘行动","path":"/categories/主题环创/光盘行动.html","views":2537,"date":"2025-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_285b7e2a/grid_20260222123237_1.jpg","categories":["主题环创","秋季","光盘行动"]},{"title":"秋天的树林","path":"/categories/主题环创/秋天的树林.html","views":2538,"date":"2025-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_5dacee66/grid_20260222123312_1.jpg","categories":["主题环创","秋季","秋天的树林"]},{"title":"秋冬运动会环创合集","path":"/categories/主题环创/秋冬运动会环创合集.html","views":15889,"date":"2024-11-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_a3af0849/grid_20260222123249_1.jpg","categories":["主题环创","秋季","秋冬运动会环创合集"]},{"title":"秋日大丰收","path":"/categories/主题环创/秋日大丰收.html","views":3491,"date":"2023-08-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_6777cb68/grid_20260222123321_1.jpg","categories":["主题环创","秋季","秋日大丰收"]},{"title":"秋游主题墙","path":"/categories/主题环创/秋游主题墙.html","views":29637,"date":"2023-02-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_141b876f/grid_20260222123340_1.jpg","categories":["主题环创","秋季","秋游主题墙"]},{"title":"秋游展板","path":"/categories/主题环创/秋游展板.html","views":27015,"date":"2022-11-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c3c586d9/grid_20260222123348_1.jpg","categories":["主题环创","秋季","秋游展板"]},{"title":"Q01 秋叶记录册","path":"/categories/主题环创/Q01 秋叶记录册.html","views":25262,"date":"2022-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/Q01/grid_20260222123230_1.jpg","categories":["主题环创","秋季","Q01 秋叶记录册"]},{"title":"怎么留住秋天","path":"/categories/主题环创/怎么留住秋天.html","views":26697,"date":"2021-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_e6dc5d74/grid_20260222123246_1.jpg","categories":["主题环创","秋季","怎么留住秋天"]},{"title":"秋天在哪里","path":"/categories/主题环创/秋天在哪里.html","views":27850,"date":"2019-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_855c8167/grid_20260222123250_1.jpg","categories":["主题环创","秋季","秋天在哪里"]},{"title":"秋天环创素材","path":"/categories/主题环创/秋天环创素材.html","views":18865,"date":"2018-01-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c6878266/grid_20260222123253_1.jpg","categories":["主题环创","秋季","秋天环创素材"]},{"title":"新学期秋季主题网络图","path":"/categories/主题环创/新学期秋季主题网络图.html","views":14008,"date":"2017-11-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_47ebdf77/grid_20260222123248_1.jpg","categories":["主题环创","秋季","新学期秋季主题网络图"]},{"title":"关于秋天的环创","path":"/categories/主题环创/关于秋天的环创.html","views":35583,"date":"2016-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_24e47e9b/grid_20260222123242_1.jpg","categories":["主题环创","秋季","关于秋天的环创"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

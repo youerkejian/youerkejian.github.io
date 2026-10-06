@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"班级公约3","path":"/categories/其他素材/班级公约3.html","views":40406,"date":"2025-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/3/grid_20260222125354_1.jpg","categories":["其他素材","班级公约环创","班级公约3"]},{"title":"班级公约（黑白+彩色）","path":"/categories/其他素材/班级公约_黑白+彩色.html","views":6814,"date":"2025-02-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/part_a71252c6/grid_20260222125406_1.jpg","categories":["其他素材","班级公约环创","班级公约（黑白+彩色）"]},{"title":"C64-6(四种颜色)班级公约可编辑","path":"/categories/其他素材/C64-6(四种颜色)班级公约可编辑.html","views":32439,"date":"2024-11-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/standalone_20260222125349.jpg","categories":["其他素材","班级公约环创","C64-6(四种颜色)班级公约可编辑"]},{"title":"班级公约8","path":"/categories/其他素材/班级公约8.html","views":23378,"date":"2024-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/8/grid_20260222125358_1.jpg","categories":["其他素材","班级公约环创","班级公约8"]},{"title":"班级公约9（黑白+彩色）","path":"/categories/其他素材/班级公约9_黑白+彩色.html","views":9109,"date":"2022-12-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/9/grid_20260222125401_1.jpg","categories":["其他素材","班级公约环创","班级公约9（黑白+彩色）"]},{"title":"班级公约7","path":"/categories/其他素材/班级公约7.html","views":42714,"date":"2021-01-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/7/grid_20260222125356_1.jpg","categories":["其他素材","班级公约环创","班级公约7"]},{"title":"班级公约6","path":"/categories/其他素材/班级公约6.html","views":44548,"date":"2020-05-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/6/grid_20260222125355_1.jpg","categories":["其他素材","班级公约环创","班级公约6"]},{"title":"班级公约文字","path":"/categories/其他素材/班级公约文字.html","views":6222,"date":"2020-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/part_726bc425/grid_20260222125402_1.jpg","categories":["其他素材","班级公约环创","班级公约文字"]},{"title":"C64-6班级公约可编辑","path":"/categories/其他素材/C64-6班级公约可编辑.html","views":49178,"date":"2018-08-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/standalone_20260222125352.jpg","categories":["其他素材","班级公约环创","C64-6班级公约可编辑"]},{"title":"班级公约（黑白+彩色）2","path":"/categories/其他素材/班级公约_黑白+彩色_2.html","views":27736,"date":"2018-03-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/2/grid_20260222125409_1.jpg","categories":["其他素材","班级公约环创","班级公约（黑白+彩色）2"]},{"title":"班级公约5","path":"/categories/其他素材/班级公约5.html","views":46155,"date":"2018-01-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5bc8b2a4/5/grid_20260222125354_1.jpg","categories":["其他素材","班级公约环创","班级公约5"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

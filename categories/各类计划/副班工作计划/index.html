@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园大班上学期配班工作计划","path":"/categories/各类计划/幼儿园大班上学期配班工作计划.html","views":14043,"date":"2022-08-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%A4%A7%E7%8F%AD%E4%B8%8A%E5%AD%A6%E6%9C%9F%E9%85%8D%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161812_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","副班工作计划"]},{"title":"中班下学期副班个人计划","path":"/categories/各类计划/中班下学期副班个人计划.html","views":6460,"date":"2020-08-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E4%B8%8B%E5%AD%A6%E6%9C%9F%E5%89%AF%E7%8F%AD%E4%B8%AA%E4%BA%BA%E8%AE%A1%E5%88%92/20260222161758_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","副班工作计划"]},{"title":"中班上学期副班个人计划","path":"/categories/各类计划/中班上学期副班个人计划.html","views":15956,"date":"2018-06-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E4%B8%8A%E5%AD%A6%E6%9C%9F%E5%89%AF%E7%8F%AD%E4%B8%AA%E4%BA%BA%E8%AE%A1%E5%88%92/20260222161754_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","副班工作计划"]},{"title":"幼儿园大班下学期配班工作计划","path":"/categories/各类计划/幼儿园大班下学期配班工作计划.html","views":19810,"date":"2017-02-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%A4%A7%E7%8F%AD%E4%B8%8B%E5%AD%A6%E6%9C%9F%E9%85%8D%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161816_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","副班工作计划"]},{"title":"小班下学期副班工作计划","path":"/categories/各类计划/小班下学期副班工作计划.html","views":4492,"date":"2016-04-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B0%8F%E7%8F%AD%E4%B8%8B%E5%AD%A6%E6%9C%9F%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161802_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","副班工作计划"]},{"title":"小班副班上学期个人计划","path":"/categories/各类计划/小班副班上学期个人计划.html","views":19410,"date":"2016-02-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%89%AF%E7%8F%AD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B0%8F%E7%8F%AD%E5%89%AF%E7%8F%AD%E4%B8%8A%E5%AD%A6%E6%9C%9F%E4%B8%AA%E4%BA%BA%E8%AE%A1%E5%88%92/20260222161806_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","副班工作计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

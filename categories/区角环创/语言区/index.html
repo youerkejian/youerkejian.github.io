@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"语言区素材4","path":"/categories/区角环创/语言区素材4.html","views":36136,"date":"2025-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/4/grid_20260222130555_1.jpg","categories":["区角环创","语言区","语言区素材4"]},{"title":"汽车字母","path":"/categories/区角环创/汽车字母.html","views":25006,"date":"2025-02-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_a1221817/grid_20260222130546_1.jpg","categories":["区角环创","语言区","汽车字母"]},{"title":"好吃的水果","path":"/categories/区角环创/好吃的水果.html","views":35721,"date":"2023-06-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_129e603c/grid_20260222130531_1.jpg","categories":["区角环创","语言区","好吃的水果"]},{"title":"语言区材料","path":"/categories/区角环创/语言区材料.html","views":13981,"date":"2023-02-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_d88a19f6/grid_20260222130554_1.jpg","categories":["区角环创","语言区","语言区材料"]},{"title":"我爸爸绘本书","path":"/categories/区角环创/我爸爸绘本书.html","views":27404,"date":"2021-10-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_87174d58/grid_20260222130535_1.jpg","categories":["区角环创","语言区","我爸爸绘本书"]},{"title":"语言区认字素材【职业】","path":"/categories/区角环创/语言区认字素材_职业.html","views":16786,"date":"2021-04-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_eaa7c41c/grid_20260222130557_1.jpg","categories":["区角环创","语言区","语言区认字素材【职业】"]},{"title":"语言区认字素材【十二生肖】","path":"/categories/区角环创/语言区认字素材_十二生肖.html","views":32908,"date":"2019-09-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_c34a8859/grid_20260222130556_1.jpg","categories":["区角环创","语言区","语言区认字素材【十二生肖】"]},{"title":"语言区自制玩教具图片","path":"/categories/区角环创/语言区自制玩教具图片.html","views":44742,"date":"2017-11-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_9e025843/grid_20260222130556_1.jpg","categories":["区角环创","语言区","语言区自制玩教具图片"]},{"title":"语言区中秋主题汉字互动书","path":"/categories/区角环创/语言区中秋主题汉字互动书.html","views":14809,"date":"2017-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_291e35a2/grid_20260222130553_1.jpg","categories":["区角环创","语言区","语言区中秋主题汉字互动书"]},{"title":"语言区认字素材【家人】","path":"/categories/区角环创/语言区认字素材_家人.html","views":4902,"date":"2017-03-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_7ebd500b/4/part_7c946e5e/grid_20260222130557_1.jpg","categories":["区角环创","语言区","语言区认字素材【家人】"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

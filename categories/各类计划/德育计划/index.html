@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园德育工作计划春季","path":"/categories/各类计划/幼儿园德育工作计划春季.html","views":5890,"date":"2025-11-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E6%98%A5%E5%AD%A3/20260222161744_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"幼儿园德育工作计划5","path":"/categories/各类计划/幼儿园德育工作计划5.html","views":6296,"date":"2024-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%925/20260222161735_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"幼儿园德育工作计划6","path":"/categories/各类计划/幼儿园德育工作计划6.html","views":8587,"date":"2024-07-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%926/20260222161740_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"德育工作计划-中班","path":"/categories/各类计划/德育工作计划-中班.html","views":9238,"date":"2023-04-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92-%E4%B8%AD%E7%8F%AD/20260222161747_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"德育工作计划-小班","path":"/categories/各类计划/德育工作计划-小班.html","views":6431,"date":"2022-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92-%E5%B0%8F%E7%8F%AD/20260222161750_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"大班德育工作计划","path":"/categories/各类计划/大班德育工作计划.html","views":11493,"date":"2021-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%A4%A7%E7%8F%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161729_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"幼儿园大班全年德育工作计划","path":"/categories/各类计划/幼儿园大班全年德育工作计划.html","views":103618,"date":"2020-08-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%A4%A7%E7%8F%AD%E5%85%A8%E5%B9%B4%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161731_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"幼儿园德育工作计划7","path":"/categories/各类计划/幼儿园德育工作计划7.html","views":5434,"date":"2019-12-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%927/20260222161742_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"德育工作计划-大班","path":"/categories/各类计划/德育工作计划-大班.html","views":97425,"date":"2019-11-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92-%E5%A4%A7%E7%8F%AD/20260222161749_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"幼儿园德育工作计划5篇","path":"/categories/各类计划/幼儿园德育工作计划5篇.html","views":4007,"date":"2019-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%925%E7%AF%87/20260222161738_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"幼儿园德育工作计划","path":"/categories/各类计划/幼儿园德育工作计划.html","views":14879,"date":"2017-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%BE%B7%E8%82%B2%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161734_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]},{"title":"大一班德育教育计划表","path":"/categories/各类计划/大一班德育教育计划表.html","views":17315,"date":"2016-03-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%BE%B7%E8%82%B2%E8%AE%A1%E5%88%92/%E5%A4%A7%E4%B8%80%E7%8F%AD%E5%BE%B7%E8%82%B2%E6%95%99%E8%82%B2%E8%AE%A1%E5%88%92%E8%A1%A8/20260222161727_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","德育计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

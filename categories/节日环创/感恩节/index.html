@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"感恩节手举牌","path":"/categories/节日环创/感恩节手举牌.html","views":49701,"date":"2025-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/standalone_20260222124936.jpg","categories":["节日环创","感恩节","感恩节手举牌"]},{"title":"感恩节环创素材","path":"/categories/节日环创/感恩节环创素材.html","views":2422,"date":"2025-04-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/part_a40fb57d/grid_20260222124939_1.jpg","categories":["节日环创","感恩节","感恩节环创素材"]},{"title":"感恩节环创展板","path":"/categories/节日环创/感恩节环创展板.html","views":4291,"date":"2024-04-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/part_43dd37db/grid_20260222124938_1.jpg","categories":["节日环创","感恩节","感恩节环创展板"]},{"title":"感恩节素材","path":"/categories/节日环创/感恩节素材.html","views":31396,"date":"2023-06-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/standalone_20260222124952.jpg","categories":["节日环创","感恩节","感恩节素材"]},{"title":"感恩节素材1","path":"/categories/节日环创/感恩节素材1.html","views":8191,"date":"2021-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/standalone_20260222124959.jpg","categories":["节日环创","感恩节","感恩节素材1"]},{"title":"感恩节创意贺卡","path":"/categories/节日环创/感恩节创意贺卡.html","views":3987,"date":"2021-05-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/part_15f65036/grid_20260222124933_1.jpg","categories":["节日环创","感恩节","感恩节创意贺卡"]},{"title":"感恩节环境布置","path":"/categories/节日环创/感恩节环境布置.html","views":4787,"date":"2021-02-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/part_561f50d4/grid_20260222124942_1.jpg","categories":["节日环创","感恩节","感恩节环境布置"]},{"title":"感恩节创意手工","path":"/categories/节日环创/感恩节创意手工.html","views":46437,"date":"2018-12-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_978aa175/part_42c14f5a/grid_20260222124928_1.jpg","categories":["节日环创","感恩节","感恩节创意手工"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

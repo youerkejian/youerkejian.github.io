@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园中班期末评语 (2)","path":"/categories/幼儿评语/中班/评语/幼儿园中班期末评语 (2).html","views":4477,"date":"2025-08-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班期末评语 (2)/20260219004411_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"中班下学期期末评语","path":"/categories/幼儿评语/中班/评语/中班下学期期末评语.html","views":105596,"date":"2025-05-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/中班下学期期末评语/20260219004358_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班期末评语 (3)","path":"/categories/幼儿评语/中班/评语/幼儿园中班期末评语 (3).html","views":18835,"date":"2025-01-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班期末评语 (3)/20260219004413_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班期末评语","path":"/categories/幼儿评语/中班/评语/幼儿园中班期末评语.html","views":14002,"date":"2023-04-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班期末评语/20260219004415_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"中班上学期期末评语","path":"/categories/幼儿评语/中班/评语/中班上学期期末评语.html","views":5617,"date":"2021-10-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/中班上学期期末评语/20260219004353_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班学期末评语","path":"/categories/幼儿评语/中班/评语/幼儿园中班学期末评语.html","views":15091,"date":"2020-05-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班学期末评语/20260219004408_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班评","path":"/categories/幼儿评语/中班/评语/幼儿园中班评.html","views":37767,"date":"2020-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班评/20260219004421_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班下学期评语大全112","path":"/categories/幼儿评语/中班/评语/幼儿园中班下学期评语大全112.html","views":10704,"date":"2020-01-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班下学期评语大全112/20260219004406_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班下学期评语大全","path":"/categories/幼儿评语/中班/评语/幼儿园中班下学期评语大全.html","views":11159,"date":"2018-01-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班下学期评语大全/20260219004403_page_01.jpg","categories":["幼儿评语","中班","评语"]},{"title":"幼儿园中班期末的评语","path":"/categories/幼儿评语/中班/评语/幼儿园中班期末的评语.html","views":16863,"date":"2016-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/中班/幼儿园中班期末的评语/20260219004410_page_01.jpg","categories":["幼儿评语","中班","评语"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

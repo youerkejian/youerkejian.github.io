@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"原木风  春季  环创图片","path":"/categories/主题环创/原木风  春季  环创图片.html","views":25859,"date":"2025-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_651aeee2/grid_20260222123109_1.jpg","categories":["主题环创","春季","原木风  春季  环创图片"]},{"title":"春天主题墙素材","path":"/categories/主题环创/春天主题墙素材.html","views":22581,"date":"2025-04-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_ca99ce07/grid_20260222123201_1.jpg","categories":["主题环创","春季","春天主题墙素材"]},{"title":"春游环创素材","path":"/categories/主题环创/春游环创素材.html","views":34574,"date":"2023-06-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_8a3b0889/grid_20260222123225_1.jpg","categories":["主题环创","春季","春游环创素材"]},{"title":"镂空画素材可直接打印","path":"/categories/主题环创/镂空画素材可直接打印.html","views":49358,"date":"2022-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_d586df29/grid_20260222123227_1.jpg","categories":["主题环创","春季","镂空画素材可直接打印"]},{"title":"春季探索素材","path":"/categories/主题环创/春季探索素材.html","views":27649,"date":"2022-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_00736440/grid_20260222123224_1.jpg","categories":["主题环创","春季","春季探索素材"]},{"title":"春天主题素材","path":"/categories/主题环创/春天主题素材.html","views":22181,"date":"2021-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_80ad1e6b/grid_20260222123204_1.jpg","categories":["主题环创","春季","春天主题素材"]},{"title":"植树节➕春素材","path":"/categories/主题环创/植树节➕春素材.html","views":7873,"date":"2020-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_6ed42002/grid_20260222123226_1.jpg","categories":["主题环创","春季","植树节➕春素材"]},{"title":"春天主题墙(上)","path":"/categories/主题环创/春天主题墙(上).html","views":33304,"date":"2020-09-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_13961146/grid_20260222123137_1.jpg","categories":["主题环创","春季","春天主题墙(上)"]},{"title":"春季传染病环境创设","path":"/categories/主题环创/春季传染病环境创设.html","views":37811,"date":"2018-12-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_fceb7ed7/grid_20260222123209_1.jpg","categories":["主题环创","春季","春季传染病环境创设"]},{"title":"关于春天的环创素材","path":"/categories/主题环创/关于春天的环创素材.html","views":34512,"date":"2018-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_56f9229e/grid_20260222123106_1.jpg","categories":["主题环创","春季","关于春天的环创素材"]},{"title":"春天主题墙(下)","path":"/categories/主题环创/春天主题墙(下).html","views":49429,"date":"2018-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_c463c92b/grid_20260222123143_1.jpg","categories":["主题环创","春季","春天主题墙(下)"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

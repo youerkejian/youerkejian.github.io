@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"新学期幼儿园家长工作计划（三）","path":"/categories/各类计划/新学期幼儿园家长工作计划（三）.html","views":19355,"date":"2023-01-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E6%96%B0%E5%AD%A6%E6%9C%9F%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%EF%BC%88%E4%B8%89%EF%BC%89/20260222161926_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","家长工作计划"]},{"title":"亲子活动：家长半日活动计划","path":"/categories/各类计划/亲子活动：家长半日活动计划.html","views":9065,"date":"2022-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E4%BA%B2%E5%AD%90%E6%B4%BB%E5%8A%A8%EF%BC%9A%E5%AE%B6%E9%95%BF%E5%8D%8A%E6%97%A5%E6%B4%BB%E5%8A%A8%E8%AE%A1%E5%88%92/20260222161914_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","家长工作计划"]},{"title":"家长开放半日活动计划","path":"/categories/各类计划/家长开放半日活动计划.html","views":7811,"date":"2020-09-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%AE%B6%E9%95%BF%E5%BC%80%E6%94%BE%E5%8D%8A%E6%97%A5%E6%B4%BB%E5%8A%A8%E8%AE%A1%E5%88%92/20260222161918_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","家长工作计划"]},{"title":"幼儿园家委会工作计划3篇","path":"/categories/各类计划/幼儿园家委会工作计划3篇.html","views":12324,"date":"2018-10-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%AE%B6%E5%A7%94%E4%BC%9A%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%923%E7%AF%87/20260222161923_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","家长工作计划"]},{"title":"幼儿园大班春季家长工作计划","path":"/categories/各类计划/幼儿园大班春季家长工作计划.html","views":9696,"date":"2017-05-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%A4%A7%E7%8F%AD%E6%98%A5%E5%AD%A3%E5%AE%B6%E9%95%BF%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222161920_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","家长工作计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

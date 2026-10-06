@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"元宵节猜灯谜","path":"/categories/节日环创/元宵节猜灯谜.html","views":25271,"date":"2023-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/standalone_20260222123534.jpg","categories":["节日环创","元宵节","元宵节猜灯谜"]},{"title":"元宵节邀请函","path":"/categories/节日环创/元宵节邀请函.html","views":40953,"date":"2022-09-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/standalone_20260222123540.jpg","categories":["节日环创","元宵节","元宵节邀请函"]},{"title":"元宵节灯谜对应谜底","path":"/categories/节日环创/元宵节灯谜对应谜底.html","views":44792,"date":"2022-07-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/standalone_20260222123528.jpg","categories":["节日环创","元宵节","元宵节灯谜对应谜底"]},{"title":"元宵节字体图片素材","path":"/categories/节日环创/元宵节字体图片素材.html","views":1779,"date":"2021-05-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/standalone_20260222123512.jpg","categories":["节日环创","元宵节","元宵节字体图片素材"]},{"title":"元宵中国结","path":"/categories/节日环创/元宵中国结.html","views":43216,"date":"2021-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/part_8c2bbbaa/grid_20260222123506_1.jpg","categories":["节日环创","元宵节","元宵中国结"]},{"title":"元宵节习俗环创","path":"/categories/节日环创/元宵节习俗环创.html","views":18598,"date":"2018-10-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/standalone_20260222123508.jpg","categories":["节日环创","元宵节","元宵节习俗环创"]},{"title":"元宵节黑白素材","path":"/categories/节日环创/元宵节黑白素材.html","views":14089,"date":"2017-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/part_d688e4b7/grid_20260222123544_1.jpg","categories":["节日环创","元宵节","元宵节黑白素材"]},{"title":"元宵节抠图素材","path":"/categories/节日环创/元宵节抠图素材.html","views":42334,"date":"2017-01-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_5e747e1f/part_88e8a7ea/grid_20260222123528_1.jpg","categories":["节日环创","元宵节","元宵节抠图素材"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

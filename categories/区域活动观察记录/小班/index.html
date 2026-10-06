@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"小班区域游戏观察记录图文","path":"/categories/区域活动观察记录/小班/小班区域游戏观察记录图文.html","views":12491,"date":"2025-02-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/小班区域游戏观察记录图文/20260222221948_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"幼儿园9月观察记录表10篇","path":"/categories/区域活动观察记录/小班/幼儿园9月观察记录表10篇.html","views":9070,"date":"2023-04-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/幼儿园9月观察记录表10篇/20260222222046_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"小班区域游戏观察记录范文80篇","path":"/categories/区域活动观察记录/小班/小班区域游戏观察记录范文80篇.html","views":12172,"date":"2023-03-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/小班区域游戏观察记录范文80篇/20260222221959_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"幼儿园小班区域游戏108篇","path":"/categories/区域活动观察记录/小班/幼儿园小班区域游戏108篇.html","views":33748,"date":"2021-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/幼儿园小班区域游戏108篇/20260222222110_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"幼儿园10月观察记录表9篇","path":"/categories/区域活动观察记录/小班/幼儿园10月观察记录表9篇.html","views":9208,"date":"2020-08-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/幼儿园10月观察记录表9篇/20260222222037_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"小班自主性游戏观察记录90篇","path":"/categories/区域活动观察记录/小班/小班自主性游戏观察记录90篇.html","views":13255,"date":"2019-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/小班自主性游戏观察记录90篇/20260222222019_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"幼儿园11月观察记录表10篇","path":"/categories/区域活动观察记录/小班/幼儿园11月观察记录表10篇.html","views":11504,"date":"2018-12-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/幼儿园11月观察记录表10篇/20260222222042_文稿_01.jpg","categories":["区域活动观察记录","小班"]},{"title":"幼儿园小班-区角活动观察记录表-4份","path":"/categories/区域活动观察记录/小班/幼儿园小班-区角活动观察记录表-4份.html","views":4895,"date":"2016-04-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班/幼儿园小班-区角活动观察记录表-4份/20260222222051_文稿_01.jpg","categories":["区域活动观察记录","小班"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

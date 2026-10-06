@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"1月份工作计划与重点","path":"/categories/各类计划/1月份工作计划与重点.html","views":12507,"date":"2025-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/1%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162403_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"5月份工作计划与重点","path":"/categories/各类计划/5月份工作计划与重点.html","views":12625,"date":"2025-04-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/5%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162411_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"9月份工作计划与重点","path":"/categories/各类计划/9月份工作计划与重点.html","views":118824,"date":"2024-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/9%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162419_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"幼儿园全年工作计划","path":"/categories/各类计划/幼儿园全年工作计划.html","views":85593,"date":"2023-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222162422_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"8月份工作计划与重点","path":"/categories/各类计划/8月份工作计划与重点.html","views":19773,"date":"2023-09-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/8%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162417_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"3月份工作计划与重点","path":"/categories/各类计划/3月份工作计划与重点.html","views":7993,"date":"2021-12-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/3%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162407_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"12月份工作计划与重点","path":"/categories/各类计划/12月份工作计划与重点.html","views":9272,"date":"2021-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/12%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162401_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"11月份工作计划与重点","path":"/categories/各类计划/11月份工作计划与重点.html","views":6227,"date":"2018-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/11%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162359_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"6月份工作计划与重点","path":"/categories/各类计划/6月份工作计划与重点.html","views":9152,"date":"2018-04-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/6%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162413_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"10月份工作计划与重点","path":"/categories/各类计划/10月份工作计划与重点.html","views":14827,"date":"2017-06-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/10%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162356_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"4月份工作计划与重点","path":"/categories/各类计划/4月份工作计划与重点.html","views":18287,"date":"2016-12-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/4%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162409_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"2月份工作计划与重点","path":"/categories/各类计划/2月份工作计划与重点.html","views":8556,"date":"2016-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/2%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162405_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]},{"title":"7月份工作计划与重点","path":"/categories/各类计划/7月份工作计划与重点.html","views":9013,"date":"2016-02-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%85%A8%E5%B9%B4%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/7%E6%9C%88%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%E4%B8%8E%E9%87%8D%E7%82%B9/20260222162415_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","全年工作计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

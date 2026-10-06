@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"大班幼儿常规培养计划","path":"/categories/各类计划/大班幼儿常规培养计划.html","views":15891,"date":"2022-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%A4%A7%E7%8F%AD%E5%B9%BC%E5%84%BF%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/20260222163156_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"小班秋季学期常规培养计划","path":"/categories/各类计划/小班秋季学期常规培养计划.html","views":7936,"date":"2021-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%B0%8F%E7%8F%AD%E7%A7%8B%E5%AD%A3%E5%AD%A6%E6%9C%9F%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/20260222163208_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"幼儿园常规培养工作计划","path":"/categories/各类计划/幼儿园常规培养工作计划.html","views":10370,"date":"2019-08-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163215_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"中班秋季学期常规培养计划","path":"/categories/各类计划/中班秋季学期常规培养计划.html","views":8631,"date":"2019-07-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E7%A7%8B%E5%AD%A3%E5%AD%A6%E6%9C%9F%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/20260222163143_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"中班级组常规工作计划","path":"/categories/各类计划/中班级组常规工作计划.html","views":5743,"date":"2019-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E4%B8%AD%E7%8F%AD%E7%BA%A7%E7%BB%84%E5%B8%B8%E8%A7%84%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92/20260222163145_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"大一班常规教育计划表","path":"/categories/各类计划/大一班常规教育计划表.html","views":7057,"date":"2017-07-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%A4%A7%E4%B8%80%E7%8F%AD%E5%B8%B8%E8%A7%84%E6%95%99%E8%82%B2%E8%AE%A1%E5%88%92%E8%A1%A8/20260222163147_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"幼儿园常规培养工作计划(1)","path":"/categories/各类计划/幼儿园常规培养工作计划(1).html","views":18629,"date":"2017-05-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E5%B7%A5%E4%BD%9C%E8%AE%A1%E5%88%92%281%29/20260222163211_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"大班秋季学期常规培养计划","path":"/categories/各类计划/大班秋季学期常规培养计划.html","views":7765,"date":"2017-02-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%A4%A7%E7%8F%AD%E7%A7%8B%E5%AD%A3%E5%AD%A6%E6%9C%9F%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/20260222163206_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"幼儿园教育常规计划","path":"/categories/各类计划/幼儿园教育常规计划.html","views":7662,"date":"2016-08-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E6%95%99%E8%82%B2%E5%B8%B8%E8%A7%84%E8%AE%A1%E5%88%92/20260222163218_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]},{"title":"幼儿园第一学期常规教育计划","path":"/categories/各类计划/幼儿园第一学期常规教育计划.html","views":18005,"date":"2016-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/plans/%E5%B8%B8%E8%A7%84%E5%9F%B9%E5%85%BB%E8%AE%A1%E5%88%92/%E5%B9%BC%E5%84%BF%E5%9B%AD%E7%AC%AC%E4%B8%80%E5%AD%A6%E6%9C%9F%E5%B8%B8%E8%A7%84%E6%95%99%E8%82%B2%E8%AE%A1%E5%88%92/20260222163221_%25E6%2595%2599%25E6%25A1%2588_01.jpg","categories":["各类计划","常规培养计划"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

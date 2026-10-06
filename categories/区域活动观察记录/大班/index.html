@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"大班区域观察记录20篇","path":"/categories/区域活动观察记录/大班/大班区域观察记录20篇.html","views":5384,"date":"2025-08-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/大班区域观察记录20篇/20260222221844_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"大班自主游戏观察记录42份","path":"/categories/区域活动观察记录/大班/大班自主游戏观察记录42份.html","views":16722,"date":"2025-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/大班自主游戏观察记录42份/20260222221909_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"幼儿园lj9月份区域观察记录表4篇","path":"/categories/区域活动观察记录/大班/幼儿园lj9月份区域观察记录表4篇.html","views":10650,"date":"2022-06-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/幼儿园lj9月份区域观察记录表4篇/20260222221925_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"幼儿园hsy9月份区域观察记录表4篇","path":"/categories/区域活动观察记录/大班/幼儿园hsy9月份区域观察记录表4篇.html","views":13630,"date":"2022-04-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/幼儿园hsy9月份区域观察记录表4篇/20260222221922_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"幼儿园hsy10月份区域观察记录表4篇","path":"/categories/区域活动观察记录/大班/幼儿园hsy10月份区域观察记录表4篇.html","views":17662,"date":"2021-11-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/幼儿园hsy10月份区域观察记录表4篇/20260222221914_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"幼儿园hsy11月份区域观察记录表16篇","path":"/categories/区域活动观察记录/大班/幼儿园hsy11月份区域观察记录表16篇.html","views":15033,"date":"2019-12-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/幼儿园hsy11月份区域观察记录表16篇/20260222221919_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"幼儿园大班自主性游戏观察记录表80份","path":"/categories/区域活动观察记录/大班/幼儿园大班自主性游戏观察记录表80份.html","views":19476,"date":"2019-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/幼儿园大班自主性游戏观察记录表80份/20260222221940_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"大班自主性游戏观察记录51份","path":"/categories/区域活动观察记录/大班/大班自主性游戏观察记录51份.html","views":13142,"date":"2019-05-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/大班自主性游戏观察记录51份/20260222221855_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"大班区域游戏观察记录9份","path":"/categories/区域活动观察记录/大班/大班区域游戏观察记录9份.html","views":14982,"date":"2016-02-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/大班区域游戏观察记录9份/20260222221838_文稿_01.jpg","categories":["区域活动观察记录","大班"]},{"title":"幼儿园大班游戏活动观察记录表8份","path":"/categories/区域活动观察记录/大班/幼儿园大班游戏活动观察记录表8份.html","views":17250,"date":"2016-02-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/大班/幼儿园大班游戏活动观察记录表8份/20260222221929_文稿_01.jpg","categories":["区域活动观察记录","大班"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

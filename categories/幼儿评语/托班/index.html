@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"托班期末评语","path":"/categories/幼儿评语/托班/评语/托班期末评语.html","views":18065,"date":"2024-10-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/托班/托班期末评语/20260219004307_page_01.jpg","categories":["幼儿评语","托班","评语"]},{"title":"幼儿园托班教师评语","path":"/categories/幼儿评语/托班/评语/幼儿园托班教师评语_1.html","views":5720,"date":"2017-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/托班/幼儿园托班教师评语/20260219004301_page_01.jpg","categories":["幼儿评语","托班","评语"]},{"title":"幼儿园托班教师评语","path":"/categories/幼儿评语/托班/评语/幼儿园托班教师评语.html","views":6587,"date":"2017-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/托班/幼儿园托班教师评语/20260219004300_page_01.jpg","categories":["幼儿评语","托班","评语"]},{"title":"幼儿园上学期小小班评语","path":"/categories/幼儿评语/托班/评语/幼儿园上学期小小班评语.html","views":9632,"date":"2017-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/托班/幼儿园上学期小小班评语/20260219004258_page_01.jpg","categories":["幼儿评语","托班","评语"]},{"title":"幼儿园托班教师评语33","path":"/categories/幼儿评语/托班/评语/幼儿园托班教师评语33.html","views":18411,"date":"2016-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/托班/幼儿园托班教师评语33/20260219004303_page_01.jpg","categories":["幼儿评语","托班","评语"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

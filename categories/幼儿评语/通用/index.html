@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"幼儿园评语：托班优秀评语","path":"/categories/幼儿评语/通用/评语/幼儿园评语：托班优秀评语.html","views":7486,"date":"2026-01-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园评语：托班优秀评语/20260219004620_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园评语大全(一)","path":"/categories/幼儿评语/通用/评语/幼儿园评语大全(一).html","views":9459,"date":"2025-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园评语大全(一)/20260219004618_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"行为习惯","path":"/categories/幼儿评语/通用/评语/行为习惯.html","views":15329,"date":"2025-02-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/行为习惯/20260219004629_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"期末评语小中大 关键词","path":"/categories/幼儿评语/通用/评语/期末评语小中大 关键词.html","views":18819,"date":"2024-06-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/期末评语小中大 关键词/20260219004625_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园学生评语大全","path":"/categories/幼儿评语/通用/评语/幼儿园学生评语大全.html","views":18502,"date":"2023-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园学生评语大全/20260219004550_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园期末评语大全","path":"/categories/幼儿评语/通用/评语/幼儿园期末评语大全.html","views":4333,"date":"2022-05-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园期末评语大全/20260219004559_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园新年老师、园长寄语","path":"/categories/幼儿评语/通用/评语/幼儿园新年老师、园长寄语.html","views":9411,"date":"2021-08-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园新年老师、园长寄语/20260219004556_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园期末评语怎么写","path":"/categories/幼儿评语/通用/评语/幼儿园期末评语怎么写.html","views":13162,"date":"2019-09-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园期末评语怎么写/20260219004603_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"你会用的上的幼儿园评语","path":"/categories/幼儿评语/通用/评语/你会用的上的幼儿园评语.html","views":14654,"date":"2019-09-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/你会用的上的幼儿园评语/20260219004545_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园每月评语","path":"/categories/幼儿评语/通用/评语/幼儿园每月评语.html","views":17819,"date":"2019-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园每月评语/20260219004609_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园教师评语大全","path":"/categories/幼儿评语/通用/评语/幼儿园教师评语大全.html","views":10128,"date":"2019-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园教师评语大全/20260219004554_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"性格特点","path":"/categories/幼儿评语/通用/评语/性格特点.html","views":10211,"date":"2018-08-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/性格特点/20260219004621_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"女孩评语","path":"/categories/幼儿评语/通用/评语/女孩评语.html","views":15808,"date":"2018-07-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/女孩评语/20260219004547_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园班主任的评语","path":"/categories/幼儿评语/通用/评语/幼儿园班主任的评语.html","views":9241,"date":"2018-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园班主任的评语/20260219004612_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园评语","path":"/categories/幼儿评语/通用/评语/幼儿园评语.html","views":9146,"date":"2018-03-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园评语/20260219004616_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"男孩评语","path":"/categories/幼儿评语/通用/评语/男孩评语.html","views":17491,"date":"2017-09-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/男孩评语/20260219004627_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园班主任评语","path":"/categories/幼儿评语/通用/评语/幼儿园班主任评语.html","views":17224,"date":"2017-03-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园班主任评语/20260219004614_page_01.jpg","categories":["幼儿评语","通用","评语"]},{"title":"幼儿园期末评语集锦","path":"/categories/幼儿评语/通用/评语/幼儿园期末评语集锦.html","views":17713,"date":"2016-10-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/pingyu/评语/通用/幼儿园期末评语集锦/20260219004605_page_01.jpg","categories":["幼儿评语","通用","评语"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

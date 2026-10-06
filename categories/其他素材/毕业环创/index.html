@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"大班毕业典礼素材","path":"/categories/其他素材/大班毕业典礼素材.html","views":32247,"date":"2024-11-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_cab6bc53/grid_20260222131428_1.jpg","categories":["其他素材","毕业环创","大班毕业典礼素材"]},{"title":"毕业主题墙","path":"/categories/其他素材/毕业主题墙.html","views":12782,"date":"2023-06-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_9a412dfa/grid_20260222131432_1.jpg","categories":["其他素材","毕业环创","毕业主题墙"]},{"title":"再见幼儿园主题墙","path":"/categories/其他素材/再见幼儿园主题墙.html","views":1098,"date":"2022-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_4e363a44/grid_20260222131422_1.jpg","categories":["其他素材","毕业环创","再见幼儿园主题墙"]},{"title":"创意毕业季手举牌道具可打印(1)","path":"/categories/其他素材/创意毕业季手举牌道具可打印(1).html","views":12261,"date":"2022-02-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/1/grid_20260222131424_1.jpg","categories":["其他素材","毕业环创","创意毕业季手举牌道具可打印(1)"]},{"title":"毕业季手举牌＋拍照道具","path":"/categories/其他素材/毕业季手举牌＋拍照道具.html","views":30062,"date":"2021-10-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_7fb6ee1c/grid_20260222131433_1.jpg","categories":["其他素材","毕业环创","毕业季手举牌＋拍照道具"]},{"title":"毕业抠图素材","path":"/categories/其他素材/毕业抠图素材.html","views":23091,"date":"2021-08-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_88b01df6/grid_20260222131444_1.jpg","categories":["其他素材","毕业环创","毕业抠图素材"]},{"title":"毕业典礼，多款创意主席台布置","path":"/categories/其他素材/毕业典礼_多款创意主席台布置.html","views":22466,"date":"2019-10-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_19e8fe8b/grid_20260222131433_1.jpg","categories":["其他素材","毕业环创","毕业典礼，多款创意主席台布置"]},{"title":"奖状（大班）","path":"/categories/其他素材/奖状_大班.html","views":21121,"date":"2019-09-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_17d089df/grid_20260222131431_1.jpg","categories":["其他素材","毕业环创","奖状（大班）"]},{"title":"毕业季拍照手举牌道具素材","path":"/categories/其他素材/毕业季拍照手举牌道具素材.html","views":38048,"date":"2019-09-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_f10e8ad3/grid_20260222131437_1.jpg","categories":["其他素材","毕业环创","毕业季拍照手举牌道具素材"]},{"title":"毕业照","path":"/categories/其他素材/毕业照.html","views":46886,"date":"2019-06-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_07ef2f6b/grid_20260222131449_1.jpg","categories":["其他素材","毕业环创","毕业照"]},{"title":"大班升小学环创","path":"/categories/其他素材/大班升小学环创.html","views":7192,"date":"2018-02-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_238e655a/grid_20260222131426_1.jpg","categories":["其他素材","毕业环创","大班升小学环创"]},{"title":"毕业季环创","path":"/categories/其他素材/毕业季环创.html","views":34693,"date":"2017-11-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_0f85f3fc/grid_20260222131441_1.jpg","categories":["其他素材","毕业环创","毕业季环创"]},{"title":"毕业季手拿道具","path":"/categories/其他素材/毕业季手拿道具.html","views":19877,"date":"2017-01-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_5f482fbb/part_5a116dea/grid_20260222131435_1.jpg","categories":["其他素材","毕业环创","毕业季手拿道具"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

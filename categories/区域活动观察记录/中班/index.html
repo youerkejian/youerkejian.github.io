@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"S2班89月观察记录表5篇","path":"/categories/区域活动观察记录/中班/S2班89月观察记录表5篇.html","views":6208,"date":"2025-10-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/S2班89月观察记录表5篇/20260222221223_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"中班幼儿观察记录表35篇","path":"/categories/区域活动观察记录/中班/中班幼儿观察记录表35篇.html","views":14994,"date":"2025-08-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/中班幼儿观察记录表35篇/20260222221241_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"幼儿园中班自主性游戏观察记录90篇","path":"/categories/区域活动观察记录/中班/幼儿园中班自主性游戏观察记录90篇.html","views":9618,"date":"2025-05-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/幼儿园中班自主性游戏观察记录90篇/20260222221312_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"S2班11月观察记录表6篇","path":"/categories/区域活动观察记录/中班/S2班11月观察记录表6篇.html","views":19267,"date":"2025-05-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/S2班11月观察记录表6篇/20260222221220_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"幼儿园中班建构区观察记录甄选","path":"/categories/区域活动观察记录/中班/幼儿园中班建构区观察记录甄选.html","views":4797,"date":"2025-05-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/幼儿园中班建构区观察记录甄选/20260222221256_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"中班月区域个人观察记录5篇","path":"/categories/区域活动观察记录/中班/中班月区域个人观察记录5篇.html","views":9694,"date":"2024-09-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/中班月区域个人观察记录5篇/20260222221245_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"M1班10月观察记录表5篇","path":"/categories/区域活动观察记录/中班/M1班10月观察记录表5篇.html","views":19294,"date":"2023-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/M1班10月观察记录表5篇/20260222221214_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"S2班910月观察记录表6篇","path":"/categories/区域活动观察记录/中班/S2班910月观察记录表6篇.html","views":9450,"date":"2023-03-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/S2班910月观察记录表6篇/20260222221226_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"M1班9月份观察记录表5篇","path":"/categories/区域活动观察记录/中班/M1班9月份观察记录表5篇.html","views":10399,"date":"2023-01-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/M1班9月份观察记录表5篇/20260222221217_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"中班体育观察记录12篇","path":"/categories/区域活动观察记录/中班/中班体育观察记录12篇.html","views":14719,"date":"2022-06-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/中班体育观察记录12篇/20260222221230_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"中班游戏观察记录20篇","path":"/categories/区域活动观察记录/中班/中班游戏观察记录20篇.html","views":4344,"date":"2020-11-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/中班游戏观察记录20篇/20260222221252_文稿_01.jpg","categories":["区域活动观察记录","中班"]},{"title":"中班区域活动方案与观察记录12篇","path":"/categories/区域活动观察记录/中班/中班区域活动方案与观察记录12篇.html","views":17026,"date":"2019-05-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班/中班区域活动方案与观察记录12篇/20260222221235_文稿_01.jpg","categories":["区域活动观察记录","中班"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

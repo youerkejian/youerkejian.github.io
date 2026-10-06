@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"001大班第一学期期末家长会PPT讲稿","path":"/categories/家长会/第一学期/托班/001大班第一学期期末家长会PPT讲稿.html","views":18768,"date":"2024-11-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001大班第一学期期末家长会PPT讲稿/ppt_1_cover/20260221015337_ppt_cover_wm.jpg","categories":["家长会","第一学期","期末家长会"]},{"title":"001小班第一学期期末家长会","path":"/categories/家长会/第一学期/托班/001小班第一学期期末家长会.html","views":18577,"date":"2022-03-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001小班第一学期期末家长会/ppt_1_cover/20260221015349_ppt_cover_wm.jpg","categories":["家长会","第一学期","期末家长会"]},{"title":"002中班第一学期期末家长会PPT讲稿","path":"/categories/家长会/第一学期/托班/002中班第一学期期末家长会PPT讲稿.html","views":14083,"date":"2021-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002中班第一学期期末家长会PPT讲稿/ppt_1_cover/20260221015411_ppt_cover_wm.jpg","categories":["家长会","第一学期","期末家长会"]},{"title":"001中班期末家长会PPT发言稿","path":"/categories/家长会/第一学期/托班/001中班期末家长会PPT发言稿.html","views":8296,"date":"2018-02-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001中班期末家长会PPT发言稿/ppt_1_cover/20260221015325_ppt_cover_wm.jpg","categories":["家长会","第一学期","期末家长会"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

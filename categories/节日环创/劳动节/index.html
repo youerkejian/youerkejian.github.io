@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"劳动节图片素材包","path":"/categories/节日环创/劳动节图片素材包.html","views":24816,"date":"2025-11-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_86eeefb1/part_104d53bc/grid_20260222123914_1.jpg","categories":["节日环创","劳动节","劳动节图片素材包"]},{"title":"劳动最光荣主题墙2","path":"/categories/节日环创/劳动最光荣主题墙2.html","views":44894,"date":"2018-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_86eeefb1/2/grid_20260222123856_1.jpg","categories":["节日环创","劳动节","劳动最光荣主题墙2"]},{"title":"劳动最光荣主题墙","path":"/categories/节日环创/劳动最光荣主题墙.html","views":22718,"date":"2016-12-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_86eeefb1/part_22760a1e/grid_20260222123847_1.jpg","categories":["节日环创","劳动节","劳动最光荣主题墙"]},{"title":"劳动节环创素材包","path":"/categories/节日环创/劳动节环创素材包.html","views":46141,"date":"2016-07-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_86eeefb1/part_199285c2/grid_20260222124513_1.jpg","categories":["节日环创","劳动节","劳动节环创素材包"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

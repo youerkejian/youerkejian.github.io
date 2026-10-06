@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"中班区域美发屋观察记录","path":"/categories/区域活动观察记录/补充/中班区域美发屋观察记录.html","views":7253,"date":"2024-10-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/中班区域美发屋观察记录/20260222222140_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"二等奖观察记录中班美工区观察记录","path":"/categories/区域活动观察记录/补充/二等奖观察记录中班美工区观察记录.html","views":14667,"date":"2024-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/二等奖观察记录中班美工区观察记录/20260222222146_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"一等奖观察记录小班建构区观察记录","path":"/categories/区域活动观察记录/补充/一等奖观察记录小班建构区观察记录.html","views":11383,"date":"2024-01-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/一等奖观察记录小班建构区观察记录/20260222222134_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"二等奖观察记录中班城市赛道区域角活动观察记录","path":"/categories/区域活动观察记录/补充/二等奖观察记录中班城市赛道区域角活动观察记录.html","views":8486,"date":"2021-10-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/二等奖观察记录中班城市赛道区域角活动观察记录/20260222222144_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"特等奖观察记录中班区角活动中幼儿的交往意识","path":"/categories/区域活动观察记录/补充/特等奖观察记录中班区角活动中幼儿的交往意识.html","views":10913,"date":"2021-04-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/特等奖观察记录中班区角活动中幼儿的交往意识/20260222222200_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"三等奖观察记录小班我爱表演之表演区的改变","path":"/categories/区域活动观察记录/补充/三等奖观察记录小班我爱表演之表演区的改变.html","views":12103,"date":"2019-05-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/三等奖观察记录小班我爱表演之表演区的改变/20260222222138_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"幼儿区角观察记录26篇","path":"/categories/区域活动观察记录/补充/幼儿区角观察记录26篇.html","views":85182,"date":"2018-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/幼儿区角观察记录26篇/20260222222157_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"大班建构区观察记录","path":"/categories/区域活动观察记录/补充/大班建构区观察记录.html","views":11425,"date":"2018-01-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/大班建构区观察记录/20260222222150_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"大班大班幼儿建筑区角观察记录","path":"/categories/区域活动观察记录/补充/大班大班幼儿建筑区角观察记录.html","views":13842,"date":"2017-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/大班大班幼儿建筑区角观察记录/20260222222148_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"一等奖观察记录中班中班交往区的观察","path":"/categories/区域活动观察记录/补充/一等奖观察记录中班中班交往区的观察.html","views":11859,"date":"2017-01-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/一等奖观察记录中班中班交往区的观察/20260222222131_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"大班积木区学习观察记录","path":"/categories/区域活动观察记录/补充/大班积木区学习观察记录.html","views":4967,"date":"2016-08-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/大班积木区学习观察记录/20260222222152_文稿_01.jpg","categories":["区域活动观察记录","补充"]},{"title":"二等奖观察记录中班区域游戏中发展成长","path":"/categories/区域活动观察记录/补充/二等奖观察记录中班区域游戏中发展成长.html","views":16959,"date":"2016-04-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/补充/二等奖观察记录中班区域游戏中发展成长/20260222222142_文稿_01.jpg","categories":["区域活动观察记录","补充"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"004秋季上学期幼小衔接家长会PPT粽-花开有时衔接有度","path":"/categories/家长会/幼小衔接/004秋季上学期幼小衔接家长会PPT粽-花开有时衔接有度.html","views":15233,"date":"2025-03-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/004秋季上学期幼小衔接家长会PPT粽-花开有时衔接有度/ppt_1_cover/20260221022539_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"009大班幼小衔接春季开学家长会PPT-童心同行共话成长","path":"/categories/家长会/幼小衔接/009大班幼小衔接春季开学家长会PPT-童心同行共话成长.html","views":19955,"date":"2025-02-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/009大班幼小衔接春季开学家长会PPT-童心同行共话成长/ppt_1_cover/20260221022634_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"010大班幼小衔接春季开学家长会PPT","path":"/categories/家长会/幼小衔接/010大班幼小衔接春季开学家长会PPT.html","views":7987,"date":"2024-06-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/010大班幼小衔接春季开学家长会PPT/ppt_1_cover/20260221022641_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"001幼儿园幼小衔接家长会","path":"/categories/家长会/幼小衔接/001幼儿园幼小衔接家长会.html","views":17253,"date":"2024-04-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/001幼儿园幼小衔接家长会/ppt_1_cover/20260221022450_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"011大班幼小衔接开学家长会PPT","path":"/categories/家长会/幼小衔接/011大班幼小衔接开学家长会PPT.html","views":9076,"date":"2023-07-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/011大班幼小衔接开学家长会PPT/ppt_1_cover/20260221022648_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"012大班幼小衔接开学家长会","path":"/categories/家长会/幼小衔接/012大班幼小衔接开学家长会.html","views":5925,"date":"2022-05-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/012大班幼小衔接开学家长会/ppt_1_cover/20260221022657_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"002幼小衔接家长会ppt","path":"/categories/家长会/幼小衔接/002幼小衔接家长会ppt.html","views":19741,"date":"2022-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/002幼小衔接家长会ppt/ppt_1_cover/20260221022506_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"008花开有时衔接有度开简约卡通","path":"/categories/家长会/幼小衔接/008花开有时衔接有度开简约卡通.html","views":19585,"date":"2021-02-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/008花开有时衔接有度开简约卡通/ppt_1_cover/20260221022619_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"003幼小衔接开学家长会配套版","path":"/categories/家长会/幼小衔接/003幼小衔接开学家长会配套版.html","views":19169,"date":"2021-01-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/003幼小衔接开学家长会配套版/ppt_1_cover/20260221022524_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"006幼小衔接家长会-衔接梦想-PPT","path":"/categories/家长会/幼小衔接/006幼小衔接家长会-衔接梦想-PPT.html","views":8189,"date":"2020-08-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/006幼小衔接家长会-衔接梦想-PPT/ppt_1_cover/20260221022558_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"007幼小衔接家长会粉色向日葵","path":"/categories/家长会/幼小衔接/007幼小衔接家长会粉色向日葵.html","views":7437,"date":"2020-07-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/007幼小衔接家长会粉色向日葵/ppt_1_cover/20260221022610_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"005幼儿园大班家长会PPT花开有时","path":"/categories/家长会/幼小衔接/005幼儿园大班家长会PPT花开有时.html","views":13536,"date":"2019-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/005幼儿园大班家长会PPT花开有时/ppt_1_cover/20260221022547_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]},{"title":"幼小衔接家长会花开有时衔接有度","path":"/categories/家长会/幼小衔接/幼小衔接家长会花开有时衔接有度.html","views":8073,"date":"2016-08-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼小衔接家长会花开有时衔接有度/ppt_1_cover/20260221022707_ppt_cover_wm.jpg","categories":["家长会","幼小衔接"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

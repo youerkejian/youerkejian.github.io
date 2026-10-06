@@ -843,14 +843,20 @@ function renderContent() {
             <span class="content-count">共 ${filtered.length} 篇文章</span>
         </div>
         <div class="posts-grid">${pageData.map(p => {
+            // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+            const escHtml = s => String(s == null ? '' : s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
             const imgHtml = p.cover_img
-                ? `<img src="${p.cover_img}" alt="${p.title}">`
+                ? `<img src="${p.cover_img}" alt="${escHtml(p.title)}">`
                 : `<div class="card-img-placeholder"><span>🌸</span></div>`;
             return `
             <div class="post-card">
                 <div class="card-img-wrapper">${imgHtml}</div>
                 <div class="card-body">
-                    <div class="card-title"><a href="${p.path}">${p.title}</a></div>
+                    <div class="card-title"><a href="${p.path}">${escHtml(p.title)}</a></div>
                     <div class="card-meta">
                         <span>👁 ${p.views || 0}</span>
                         <span>📅 ${p.date}</span>

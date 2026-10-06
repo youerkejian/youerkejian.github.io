@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"2025世界卒中日","path":"/categories/节日课件/2025世界卒中日.html","views":4825,"date":"2025-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2025世界卒中日/ppt_covers/20260219161341_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]},{"title":"2025国家宪法日","path":"/categories/节日课件/2025国家宪法日.html","views":10530,"date":"2025-03-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2025国家宪法日/ppt_covers/20260219161356_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]},{"title":"爱耳日","path":"/categories/节日课件/爱耳日.html","views":5725,"date":"2023-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/爱耳日/ppt_covers/20260219171126_ppt_1_cover.jpg","categories":["优质领域课件","课件教案","小班","语言领域"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

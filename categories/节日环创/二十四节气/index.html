@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"二十四节气素材","path":"/categories/节日环创/二十四节气素材.html","views":47618,"date":"2026-02-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_ba4a7d71/standalone_20260222123503.jpg","categories":["节日环创","二十四节气","二十四节气素材"]},{"title":"谷雨环创素材","path":"/categories/节日环创/谷雨环创素材.html","views":25265,"date":"2022-07-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_ba4a7d71/standalone_20260222123505.jpg","categories":["节日环创","二十四节气","谷雨环创素材"]},{"title":"节气素材","path":"/categories/节日环创/节气素材.html","views":29436,"date":"2022-06-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_0e552e40/part_ba4a7d71/part_0791be75/grid_20260222123505_1.jpg","categories":["节日环创","二十四节气","节气素材"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>

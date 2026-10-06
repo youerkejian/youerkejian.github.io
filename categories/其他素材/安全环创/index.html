@@ -775,6 +775,7 @@ function handleSearchClick(e) {
 <!-- 分类页逻辑脚本 -->
 <script>
     // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
     const allPosts = dedupePosts([{"title":"安全标志可打印素材","path":"/categories/其他素材/安全标志可打印素材.html","views":37022,"date":"2023-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_5b444a16/grid_20260222131405_1.jpg","categories":["其他素材","安全环创","安全标志可打印素材"]},{"title":"上下楼梯安全注意事项","path":"/categories/其他素材/上下楼梯安全注意事项.html","views":33132,"date":"2023-11-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/standalone_20260222131341.jpg","categories":["其他素材","安全环创","上下楼梯安全注意事项"]},{"title":"家园联系-安全教育","path":"/categories/其他素材/家园联系-安全教育.html","views":16008,"date":"2023-11-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/standalone_20260222131412.jpg","categories":["其他素材","安全环创","家园联系-安全教育"]},{"title":"安全标志","path":"/categories/其他素材/安全标志.html","views":38171,"date":"2023-04-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_124c8c02/grid_20260222131404_1.jpg","categories":["其他素材","安全环创","安全标志"]},{"title":"楼道安全素材","path":"/categories/其他素材/楼道安全素材.html","views":13030,"date":"2022-12-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_d24459c5/grid_20260222131415_1.jpg","categories":["其他素材","安全环创","楼道安全素材"]},{"title":"安全防疫“一米”线","path":"/categories/其他素材/安全防疫“一米”线.html","views":13302,"date":"2021-07-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_42e7af49/grid_20260222131410_1.jpg","categories":["其他素材","安全环创","安全防疫“一米”线"]},{"title":"安全环创素材","path":"/categories/其他素材/安全环创素材.html","views":24909,"date":"2020-05-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_8c388634/grid_20260222131408_1.jpg","categories":["其他素材","安全环创","安全环创素材"]},{"title":"幼儿园安全环创主题墙","path":"/categories/其他素材/幼儿园安全环创主题墙.html","views":29431,"date":"2019-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_cc7d2684/grid_20260222131413_1.jpg","categories":["其他素材","安全环创","幼儿园安全环创主题墙"]},{"title":"交通安全主题墙","path":"/categories/其他素材/交通安全主题墙.html","views":16613,"date":"2018-12-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_919fca9b/grid_20260222131341_1.jpg","categories":["其他素材","安全环创","交通安全主题墙"]},{"title":"安全宣传主题墙","path":"/categories/其他素材/安全宣传主题墙.html","views":39691,"date":"2018-09-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_4c5b44da/grid_20260222131345_1.jpg","categories":["其他素材","安全环创","安全宣传主题墙"]},{"title":"交通安全素材","path":"/categories/其他素材/交通安全素材.html","views":34692,"date":"2018-05-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_de588308/grid_20260222131344_1.jpg","categories":["其他素材","安全环创","交通安全素材"]},{"title":"居家安全环创素材","path":"/categories/其他素材/居家安全环创素材.html","views":8070,"date":"2016-07-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_95e51fa8/part_a75eb27c/part_60372557/grid_20260222131412_1.jpg","categories":["其他素材","安全环创","居家安全环创素材"]}]);
 
     let currentPage = 1;
@@ -804,16 +805,24 @@ function handleSearchClick(e) {
                     btnLink: '/'
                 });
             } else {
+                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
+                function escTitle(s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                }
                 pageData.forEach(post => {
                     const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
                     const html = `
                         <div class="post-card">
                             <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${post.title}">
+                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
                             </div>
                             <div class="card-body">
                                 <div class="card-title">
-                                    <a href="${post.path}">${post.title}</a>
+                                    <a href="${post.path}">${escTitle(post.title)}</a>
                                 </div>
                                 <div class="card-meta">
                                     <span>👁 ${post.views}</span>
