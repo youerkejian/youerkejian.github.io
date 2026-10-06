@@ -70,13 +70,73 @@
         }
 
 
-        /* 顶部四个大方框 */
-        .top-boxes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 40px; }
-        .big-box { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #3498db; }
-        .box-title { font-size: 1.4rem; font-weight: bold; color: #2c3e50; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .box-content { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
-        .box-link { flex: 0 0 calc(50% - 5px); text-decoration: none; color: #555; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; text-align: center; transition: all 0.2s; border: 1px solid #eee; }
-        .box-link:hover { background: #3498db; color: #fff; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3); }
+        /* 🌟 顶部四个班级课程卡片（参考图设计：彩色大圆角卡片 + 半透明胶囊子标签） */
+        .top-boxes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-bottom: 40px; }
+        .big-box {
+            position: relative;
+            border-radius: 20px;
+            padding: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(44, 62, 80, 0.18);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .big-box:hover { transform: translateY(-5px); box-shadow: 0 18px 32px -8px rgba(44, 62, 80, 0.3); }
+        .big-box:active { transform: translateY(-1px); }
+        /* 四张卡片各自的配色：小班橙 / 中班青 / 大班蓝 / 其他紫 */
+        .course-xiaoban  { background: linear-gradient(135deg, #ffb199 0%, #ff8f70 100%); }
+        .course-zhongban { background: linear-gradient(135deg, #5fc9bd 0%, #35b3a4 100%); }
+        .course-daban    { background: linear-gradient(135deg, #7ec3f8 0%, #55a8f0 100%); }
+        .course-qita     { background: linear-gradient(135deg, #b39ddb 0%, #9575cd 100%); }
+        /* 卡片右上角大号半透明装饰 emoji（模仿参考图卡片里的大图标） */
+        .course-deco {
+            position: absolute;
+            right: -8px;
+            top: -12px;
+            font-size: 5rem;
+            line-height: 1;
+            opacity: 0.22;
+            pointer-events: none;
+            user-select: none;
+            filter: saturate(1.2);
+        }
+        /* 卡片头部：emoji 图标块 + 标题 + 副标题 */
+        .box-head { display: flex; align-items: center; gap: 13px; margin-bottom: 16px; position: relative; z-index: 1; }
+        .box-emoji {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 14px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        }
+        .box-title { font-size: 1.35rem; font-weight: bold; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+        .box-sub { font-size: 0.82rem; color: rgba(255, 255, 255, 0.92); margin-top: 3px; }
+        /* 子分类：半透明白色胶囊标签（毛玻璃质感） */
+        .box-content { display: flex; flex-wrap: wrap; gap: 9px; position: relative; z-index: 1; }
+        .box-link {
+            text-decoration: none;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            padding: 8px 15px;
+            border-radius: 999px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .box-link:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.16);
+        }
+        .box-link:active { transform: translateY(0); background: rgba(255, 255, 255, 0.42); }
 
         /* 筛选按钮行 */
         .filter-section { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
@@ -139,7 +199,23 @@
             .ad-slider-container { margin-top: 10px !important; /* 🌟 改成 10px，继续往下调整 */border-radius: 0; margin-left: -20px; margin-right: -20px; width: calc(100% + 40px); }
             .ad-img { height: auto !important; width: 100%; }
             .top-boxes-grid { grid-template-columns: 1fr; gap: 15px; }
-            .box-content { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .big-box { padding: 18px; }
+            .box-emoji { width: 44px; height: 44px; font-size: 1.4rem; border-radius: 12px; }
+            .box-title { font-size: 1.15rem; }
+            .box-sub { font-size: 0.76rem; }
+            .course-deco { font-size: 4rem; }
+            .box-content { gap: 8px; }
+            .box-link {
+                flex: 1 1 calc(50% - 4px);          /* 手机端一行两个，铺满宽度更好按 */
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                min-height: 44px;                   /* 44px 触摸标准 */
+                padding: 8px 6px;
+                font-size: 0.88rem;
+                box-sizing: border-box;
+            }
             .filter-section { padding: 15px; text-align: left; overflow-x: auto; white-space: nowrap; }
             .filter-bar { display: flex; gap: 8px; width: max-content; }
             .posts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -360,28 +436,7 @@ function handleSearchClick(e) {
   }
 
   /* ============================================================
-     🌟 3. 首页四个大方框里的科目链接，也顺便加上立体感
-     ============================================================ */
-  .box-link {
-    /* 底部加一条厚度线，链接像小按钮一样凸起 */
-    box-shadow: 0 2px 0 #e2e6ea, 0 2px 5px rgba(0, 0, 0, 0.06) !important;
-    transition: all 0.15s ease !important;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .box-link:hover {
-    background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%) !important;
-    color: #fff !important;
-    border-color: #3498db !important;
-    box-shadow: 0 3px 0 #23719f, 0 6px 12px rgba(52, 152, 219, 0.35) !important;
-    transform: translateY(-3px) !important;
-  }
-  .box-link:active {
-    box-shadow: 0 1px 0 #23719f !important;
-    transform: translateY(1px) !important;
-  }
-
-  /* ============================================================
-     🌟 4. 翻页按钮（上一页 / 下一页）立体感
+     🌟 3. 翻页按钮（上一页 / 下一页）立体感
      ============================================================ */
   .page-btn {
     background: linear-gradient(180deg, #46657c 0%, #34495e 100%) !important;
@@ -633,20 +688,10 @@ function handleSearchClick(e) {
   }
 
   /* ============================================================
-     🌟 移动端优化补丁 D：分类标签/筛选按钮加大到 44px 触摸标准
+     🌟 移动端优化补丁 D：筛选按钮加大到 44px 触摸标准
+     （课程卡片子标签的手机端适配已放入 layout.ejs 的媒体查询里）
      ============================================================ */
   @media (max-width: 768px) {
-    .box-link {
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 10px 4px !important;
-      font-size: 0.92rem !important;
-      line-height: 1.25;
-      box-sizing: border-box;
-    }
     .filter-btn {
       padding: 11px 18px !important;
       font-size: 0.95rem !important;
@@ -818,11 +863,18 @@ function handleSearchClick(e) {
   </div>
 </div>
 
-<!-- 第一部分：四个大方框 -->
+<!-- 第一部分：四个班级课程彩色卡片（参考图设计：彩色渐变卡片 + 头部emoji图标 + 半透明胶囊子标签） -->
 <div class="top-boxes-grid">
   <!-- 小班 -->
-  <div class="big-box">
-    <div class="box-title">小班课程</div>
+  <div class="big-box course-xiaoban">
+    <div class="course-deco">🧸</div>
+    <div class="box-head">
+      <span class="box-emoji">🧸</span>
+      <div>
+        <div class="box-title">小班课程</div>
+        <div class="box-sub">3-4岁 · 启蒙适应期</div>
+      </div>
+    </div>
     <div class="box-content">
       <a href="/categories/语言/小班/" class="box-link">🔤 语言</a>
       <a href="/categories/健康/小班/" class="box-link">❤️ 健康</a>
@@ -835,8 +887,15 @@ function handleSearchClick(e) {
     </div>
   </div>
   <!-- 中班 -->
-  <div class="big-box">
-    <div class="box-title">中班课程</div>
+  <div class="big-box course-zhongban">
+    <div class="course-deco">🌱</div>
+    <div class="box-head">
+      <span class="box-emoji">🌱</span>
+      <div>
+        <div class="box-title">中班课程</div>
+        <div class="box-sub">4-5岁 · 探索成长期</div>
+      </div>
+    </div>
     <div class="box-content">
       <a href="/categories/语言/中班/" class="box-link">🔤 语言</a>
       <a href="/categories/健康/中班/" class="box-link">❤️ 健康</a>
@@ -849,8 +908,15 @@ function handleSearchClick(e) {
     </div>
   </div>
   <!-- 大班 -->
-  <div class="big-box">
-    <div class="box-title">大班课程</div>
+  <div class="big-box course-daban">
+    <div class="course-deco">🚀</div>
+    <div class="box-head">
+      <span class="box-emoji">🚀</span>
+      <div>
+        <div class="box-title">大班课程</div>
+        <div class="box-sub">5-6岁 · 幼小衔接期</div>
+      </div>
+    </div>
     <div class="box-content">
       <a href="/categories/语言/大班/" class="box-link">🔤 语言</a>
       <a href="/categories/健康/大班/" class="box-link">❤️ 健康</a>
@@ -863,8 +929,15 @@ function handleSearchClick(e) {
     </div>
   </div>
   <!-- 其他课程 -->
-  <div class="big-box" style="border-top-color: #e74c3c;">
-    <div class="box-title">其他课程</div>
+  <div class="big-box course-qita">
+    <div class="course-deco">🎒</div>
+    <div class="box-head">
+      <span class="box-emoji">🎒</span>
+      <div>
+        <div class="box-title">其他课程</div>
+        <div class="box-sub">特色专题 · 丰富多彩</div>
+      </div>
+    </div>
     <div class="box-content">
       <a href="/categories/班本课程/" class="box-link">👶 班本课程</a>
       <a href="/categories/绘本课程/" class="box-link">📖 绘本课程</a>
