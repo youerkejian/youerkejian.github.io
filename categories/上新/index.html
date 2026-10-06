@@ -366,231 +366,262 @@ function handleSearchClick(e) {
     <div class="container">
         <!-- 🌟 仅保留分类页独有的样式 -->
 <style>
-    /* 顶部标题区域 */
-    .category-header { 
-        text-align: center; 
-        padding: 1.5rem 1rem;  /* 🌟 稍微减少一点内边距 */
-        background: #fff; 
-        margin-bottom: 30px; 
-        border-radius: 10px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-        margin-top: 0 !important; /* 🌟 确保容器本身没有大边距 */
-    }
-    
-    /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
-    .category-title { 
-        font-size: 2rem; 
-        color: #2c3e50; 
-        margin-bottom: 0.5rem;
-        margin-top: 0 !important; /* 强制归零，覆盖全局设置 */
-    }
+  /* 顶部标题区域 */
+  .category-header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: #fff;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: 0 !important;
+  }
+  /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
+  .category-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    margin-top: 0 !important;
+  }
+  .back-link { margin-top: 10px; }
+  .back-link a { color: #7f8c8d; text-decoration: none; }
 
-    .back-link { margin-top: 10px; }
-    .back-link a { color: #7f8c8d; text-decoration: none; }
+  /* 带封面的网格列表 */
+  .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px)  { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
 
-    /* 带封面的网格列表 */
-    .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
-    @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 768px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+  .post-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
 
-    .post-card { background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; }
-    .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-    
-    /* 图片区域 */
-    .card-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
-    .card-img-wrapper img { width: 100%; height: auto; max-height: 180px; object-fit: contain; transition: transform 0.5s; }
-    .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
+  /* 图片区域 */
+  .card-img-wrapper {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-img-wrapper img {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: contain;
+    transition: transform 0.5s;
+  }
+  .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
 
-    .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-    .card-title { font-size: 1rem; font-weight: bold; margin-bottom: 10px; color: #2c3e50; line-height: 1.4; flex: 1; }
-    .card-title a { text-decoration: none; color: inherit; }
-    .card-meta { font-size: 0.8rem; color: #999; margin-top: auto; display: flex; justify-content: space-between; }
+  .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+  .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .card-title a { text-decoration: none; color: inherit; }
+  .card-meta {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+  }
 
-    /* 翻页按钮 */
-    .pagination { margin-top: 30px; text-align: center; }
-    .page-btn { padding: 10px 20px; background: #34495e; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin: 0 10px; }
-    .page-btn:disabled { background: #ccc; cursor: not-allowed; }
-    .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
+  /* 翻页按钮 */
+  .pagination { margin-top: 30px; text-align: center; }
+  .page-btn {
+    padding: 10px 20px;
+    background: #34495e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+  }
+  .page-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 
-    /* ============================================================
-       🌟 本周上新（上新分类专用）：竖向时间轴分组样式
-       布局参考设计稿：左侧时间轴 + 右侧单列卡片流
-       分组：最新（7天内）/ 上周（7~14天）/ 更早（14天以前）
-       ============================================================ */
+  /* ============================================================
+     🌟 本周上新（上新分类专用）：竖向时间轴分组样式
+     ============================================================ */
+  .weekly-wrap { max-width: 860px; margin: 0 auto; }
 
-    /* 页面整体：限宽居中，和全站风格一致 */
-    .weekly-wrap { max-width: 860px; margin: 0 auto; }
+  .weekly-header {
+    text-align: center;
+    padding: 1.6rem 1rem 1.3rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    margin-top: 0 !important;
+  }
+  .weekly-header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin: 0 0 8px;
+    margin-top: 0 !important;
+  }
+  .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
+  .weekly-header .back-link { margin-top: 12px; }
 
-    /* 页头：白卡片，与其他页面页头统一 */
-    .weekly-header {
-        text-align: center;
-        padding: 1.6rem 1rem 1.3rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 24px;
-        margin-top: 0 !important;
-    }
-    .weekly-header h1 {
-        font-size: 2rem;
-        color: #2c3e50;
-        margin: 0 0 8px;
-        margin-top: 0 !important; /* 抵消 layout.ejs 给 h1 的全局上边距 */
-    }
-    .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
-    .weekly-header .back-link { margin-top: 12px; }
+  .weekly-board {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
+    padding: 28px 24px 8px;
+  }
 
-    /* 时间轴大容器：白色圆角卡片包住整个时间轴 */
-    .weekly-board {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
-        padding: 28px 24px 8px;
-    }
+  .timeline { position: relative; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 21px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: #e8ecf1;
+    border-radius: 1px;
+  }
 
-    /* 时间轴：左侧贯穿的浅灰色竖线 */
-    .timeline { position: relative; }
-    .timeline::before {
-        content: "";
-        position: absolute;
-        left: 21px;             /* 正好在图标圆心下方 */
-        top: 18px;
-        bottom: 18px;
-        width: 2px;
-        background: #e8ecf1;
-        border-radius: 1px;
-    }
+  .time-group { position: relative; }
 
-    /* 单个分组 */
-    .time-group { position: relative; }
-    .time-group-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        position: relative;
-        z-index: 1;              /* 盖住背后的时间轴竖线 */
-        margin-bottom: 14px;
-    }
+  .time-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 14px;
+  }
 
-    /* 分组标题左侧的圆形时钟图标（带立体厚度，呼应全站按钮语言） */
-    .time-icon {
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        background: #2c3e50;
-        box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
-    }
-    /* 三个分组用同形不同色，方便快速扫读 */
-    .time-icon.icon-latest   { background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%); box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35); }
-    .time-icon.icon-lastweek { background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%); box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35); }
-    .time-icon.icon-earlier  { background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%); box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35); }
+  .time-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: #2c3e50;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
+  }
+  .time-icon.icon-latest {
+    background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%);
+    box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35);
+  }
+  .time-icon.icon-lastweek {
+    background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%);
+    box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35);
+  }
+  .time-icon.icon-earlier {
+    background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%);
+    box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35);
+  }
 
-    .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
-    .time-sub   { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
+  .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
+  .time-sub { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
 
-    /* 右侧的数量徽章 */
-    .time-count {
-        margin-left: auto;
-        font-size: 0.8rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        padding: 4px 12px;
-        border-radius: 12px;
-        white-space: nowrap;
-    }
+  .time-count {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
 
-    /* 分组内的卡片列表：整体向右缩进，让出时间轴位置 */
-    .time-card-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        padding-left: 58px;
-        margin-bottom: 30px;
-    }
+  .time-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 58px;
+    margin-bottom: 30px;
+  }
 
-    /* 单张课件卡片：左封面 + 右信息，整卡可点 */
-    .time-card {
-        display: flex;
-        gap: 16px;
-        padding: 12px;
-        background: #fbfcfe;
-        border: 1px solid #eef1f5;
-        border-radius: 14px;
-        text-decoration: none;
-        transition: all 0.18s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .time-card:hover {
-        transform: translateY(-2px);
-        background: #fff;
-        border-color: #d8e4f2;
-        box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
-    }
-    .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
+  .time-card {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    background: #fbfcfe;
+    border: 1px solid #eef1f5;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .time-card:hover {
+    transform: translateY(-2px);
+    background: #fff;
+    border-color: #d8e4f2;
+    box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
+  }
+  .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
 
-    /* 左侧封面缩略图 */
-    .time-card-img {
-        flex-shrink: 0;
-        width: 190px;
-        height: 120px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #f1f3f6;
-    }
-    .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .time-card-img {
+    flex-shrink: 0;
+    width: 190px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f1f3f6;
+  }
+  .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* 右侧信息区 */
-    .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
-    .time-card-title {
-        font-size: 1.02rem;
-        font-weight: 600;
-        color: #2c3e50;
-        line-height: 1.45;
-        margin-bottom: 6px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;   /* 标题最多两行 */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .time-card:hover .time-card-title { color: #3498db; }
-    .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
+  .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
 
-    /* 分类标签胶囊 */
-    .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag-pill {
-        font-size: 0.75rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        border-radius: 10px;
-        padding: 3px 10px;
-        white-space: nowrap;
-    }
+  .time-card-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.45;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .time-card:hover .time-card-title { color: #3498db; }
 
-    /* 底部提示：超出上限时说明只展示了最近 N 条 */
-    .weekly-more {
-        text-align: center;
-        color: #98a2b3;
-        font-size: 0.85rem;
-        padding: 4px 0 20px;
-    }
+  .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
 
-    /* 手机端：收起时间轴竖线和缩进，卡片封面缩小 */
-    @media (max-width: 640px) {
-        .weekly-board { padding: 20px 14px 4px; }
-        .timeline::before { display: none; }
-        .time-card-list { padding-left: 0; }
-        .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
-        .time-label { font-size: 1.05rem; }
-        .time-card { gap: 12px; padding: 10px; }
-        .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
-        .time-card-title { font-size: 0.92rem; }
-        .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
-    }
+  .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-pill {
+    font-size: 0.75rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    border-radius: 10px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .weekly-more { text-align: center; color: #98a2b3; font-size: 0.85rem; padding: 4px 0 20px; }
+
+  @media (max-width: 640px) {
+    .weekly-board { padding: 20px 14px 4px; }
+    .timeline::before { display: none; }
+    .time-card-list { padding-left: 0; }
+    .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
+    .time-label { font-size: 1.05rem; }
+    .time-card { gap: 12px; padding: 10px; }
+    .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
+    .time-card-title { font-size: 0.92rem; }
+    .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
+  }
 </style>
 
 <!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
@@ -751,169 +782,176 @@ function handleSearchClick(e) {
 
 <!-- 页头 -->
 <div class="weekly-wrap">
-    <div class="weekly-header">
-        <h1>🎉 本周上新</h1>
-        <p class="weekly-sub">按发布时间排列，最新课件第一时间看</p>
-        <div class="back-link">
-            <a href="/">&larr; 返回首页</a>
-        </div>
+  <div class="weekly-header">
+    <h1>🎉 本周上新</h1>
+    <p class="weekly-sub">按发布时间排列，最新课件第一时间看</p>
+    <div class="back-link">
+      <a href="/">&larr; 返回首页</a>
     </div>
+  </div>
 
-    <!-- 时间轴容器（初始状态：加载中，统一状态组件） -->
-    <div class="weekly-board">
-        <div id="weekly-container">
-            <div class="state-block">
-                <div class="spinner"></div>
-                <h3>加载中...</h3>
-                <p>正在整理最新上架的课件，请稍候</p>
-            </div>
-        </div>
+  <!-- 时间轴容器（初始状态：加载中，统一状态组件） -->
+  <div class="weekly-board">
+    <div id="weekly-container">
+      <div class="state-block">
+        <div class="spinner"></div>
+        <h3>加载中...</h3>
+        <p>正在整理最新上架的课件，请稍候</p>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- 本周上新页逻辑脚本 -->
 <script>
-    /* ============================================================
-       🌟 可调参数（想改数量改这里就行）
-       ============================================================ */
-    const MAX_ITEMS = 50;      // 整页最多展示的课件总数（可改成 40）
-    const NEW_DAYS = 7;        // "最新"：7 天内发布（含未来日期）
-    const LAST_WEEK_DAYS = 14; // "上周"：7 ~ 14 天前；更早 = 14 天以前
+  /* ============================================================
+     🌟 可调参数（想改数量改这里就行）
+     ============================================================ */
+  const MAX_ITEMS = 50;        // 整页最多展示的课件总数（可改成 40）
+  const NEW_DAYS = 7;          // "最新"：7 天内发布（含未来日期）
+  const LAST_WEEK_DAYS = 14;   // "上周"：7 ~ 14 天前；更早 = 14 天以前
 
-    // 🌟 去重保护：按文章 path（唯一地址）去重后，再按日期从新到旧排序
-    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
-    const allPosts = dedupePosts([{"title":"15优化体能循环共促幼儿发展","path":"/categories/上新/15优化体能循环共促幼儿发展.html","views":19240,"date":"2026-10-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/15优化体能循环共促幼儿发展/ppt_1_cover/20260228134836_ppt_cover_wm.jpg","categories":["上新"]},{"title":"22园本教研基于儿童视角优化过渡环节","path":"/categories/上新/22园本教研基于儿童视角优化过渡环节.html","views":7783,"date":"2026-09-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/22园本教研基于儿童视角优化过渡环节/ppt_1_cover/20260228135055_ppt_cover_wm.jpg","categories":["上新"]},{"title":"9深度教研基于户外游戏的一对一倾听与记录","path":"/categories/上新/9深度教研基于户外游戏的一对一倾听与记录.html","views":11684,"date":"2025-04-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/9深度教研基于户外游戏的一对一倾听与记录/ppt_1_cover/20260228135740_ppt_cover_wm.jpg","categories":["上新"]},{"title":"16区域游戏中支持幼儿深度学习的有效策略","path":"/categories/上新/16区域游戏中支持幼儿深度学习的有效策略.html","views":108628,"date":"2025-02-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/16区域游戏中支持幼儿深度学习的有效策略/ppt_1_cover/20260228134849_ppt_cover_wm.jpg","categories":["上新"]},{"title":"3平凡岗位上的星光","path":"/categories/上新/3平凡岗位上的星光.html","views":16084,"date":"2024-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3平凡岗位上的星光/ppt_1_cover/20260228135630_ppt_cover_wm.jpg","categories":["上新"]},{"title":"17师幼共舞平凡时刻的非凡生长课件","path":"/categories/上新/17师幼共舞平凡时刻的非凡生长课件.html","views":16675,"date":"2023-12-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/17师幼共舞平凡时刻的非凡生长课件/ppt_1_cover/20260228134906_ppt_cover_wm.jpg","categories":["上新"]},{"title":"23画里有话","path":"/categories/上新/23画里有话.html","views":13724,"date":"2023-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/23画里有话/ppt_1_cover/20260228135114_ppt_cover_wm.jpg","categories":["上新"]},{"title":"14学前儿童音乐游戏教育活动","path":"/categories/上新/14学前儿童音乐游戏教育活动.html","views":4806,"date":"2023-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/14学前儿童音乐游戏教育活动/ppt_1_cover/20260228134822_ppt_cover_wm.jpg","categories":["上新"]},{"title":"35看见儿童的师幼互动","path":"/categories/上新/35看见儿童的师幼互动.html","views":4750,"date":"2023-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/35看见儿童的师幼互动/ppt_1_cover/20260228135457_ppt_cover_wm.jpg","categories":["上新"]},{"title":"34沟通有术共育有方沟通技巧与方式","path":"/categories/上新/34沟通有术共育有方沟通技巧与方式.html","views":90045,"date":"2023-01-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/34沟通有术共育有方沟通技巧与方式/ppt_1_cover/20260228135435_ppt_cover_wm.jpg","categories":["上新"]},{"title":"13班本课程的组织与实施","path":"/categories/上新/13班本课程的组织与实施.html","views":7892,"date":"2022-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/13班本课程的组织与实施/ppt_1_cover/20260228134812_ppt_cover_wm.jpg","categories":["上新"]},{"title":"10蹲下来听见花开师德师风演讲ppt","path":"/categories/上新/10蹲下来听见花开师德师风演讲ppt.html","views":10428,"date":"2022-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/10蹲下来听见花开师德师风演讲ppt/ppt_1_cover/20260228134719_ppt_cover_wm.jpg","categories":["上新"]},{"title":"33打开绘本看世界","path":"/categories/上新/33打开绘本看世界.html","views":5395,"date":"2022-10-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/33打开绘本看世界/ppt_1_cover/20260228135419_ppt_cover_wm.jpg","categories":["上新"]},{"title":"21聚焦儿童视角探寻美术之趣","path":"/categories/上新/21聚焦儿童视角探寻美术之趣.html","views":10760,"date":"2022-10-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/21聚焦儿童视角探寻美术之趣/ppt_1_cover/20260228135038_ppt_cover_wm.jpg","categories":["上新"]},{"title":"20项前一步解锁幼儿深度学习策略","path":"/categories/上新/20项前一步解锁幼儿深度学习策略.html","views":17323,"date":"2022-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/20项前一步解锁幼儿深度学习策略/ppt_1_cover/20260228135017_ppt_cover_wm.jpg","categories":["上新"]},{"title":"18幼儿园融合教育新空间","path":"/categories/上新/18幼儿园融合教育新空间.html","views":4595,"date":"2022-04-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/18幼儿园融合教育新空间/ppt_1_cover/20260228134924_ppt_cover_wm.jpg","categories":["上新"]},{"title":"28专题教研慧玩民间游戏悦享传统文化教研方案","path":"/categories/上新/28专题教研慧玩民间游戏悦享传统文化教研方案.html","views":8951,"date":"2022-04-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/28专题教研慧玩民间游戏悦享传统文化教研方案/ppt_1_cover/20260228135230_ppt_cover_wm.jpg","categories":["上新"]},{"title":"1以儿童为中心的班级环境创设","path":"/categories/上新/1以儿童为中心的班级环境创设.html","views":17873,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/1以儿童为中心的班级环境创设/ppt_1_cover/20260228134958_ppt_cover_wm.jpg","categories":["上新"]},{"title":"32教研材料层次性投放","path":"/categories/上新/32教研材料层次性投放.html","views":6238,"date":"2021-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/32教研材料层次性投放/ppt_1_cover/20260228135409_ppt_cover_wm.jpg","categories":["上新"]},{"title":"2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结","path":"/categories/上新/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结.html","views":17174,"date":"2021-07-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结/ppt_1_cover/20260228135300_ppt_cover_wm.jpg","categories":["上新"]},{"title":"36聚焦儿童本位优化集体教学","path":"/categories/上新/36聚焦儿童本位优化集体教学.html","views":5974,"date":"2021-06-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/36聚焦儿童本位优化集体教学/ppt_1_cover/20260228135519_ppt_cover_wm.jpg","categories":["上新"]},{"title":"38专题教研聚焦绘画表征让幼儿的成长看得见","path":"/categories/上新/38专题教研聚焦绘画表征让幼儿的成长看得见.html","views":6382,"date":"2021-01-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/38专题教研聚焦绘画表征让幼儿的成长看得见/ppt_1_cover/20260228135551_ppt_cover_wm.jpg","categories":["上新"]},{"title":"5解读幼儿表征","path":"/categories/上新/5解读幼儿表征.html","views":11118,"date":"2020-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/5解读幼儿表征/ppt_1_cover/20260228135655_ppt_cover_wm.jpg","categories":["上新"]},{"title":"26合理规划室内区域环境注重一般要求及指导要点","path":"/categories/上新/26合理规划室内区域环境注重一般要求及指导要点.html","views":12207,"date":"2020-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/26合理规划室内区域环境注重一般要求及指导要点/ppt_1_cover/20260228135202_ppt_cover_wm.jpg","categories":["上新"]},{"title":"6研户外游戏优化探材料投放智慧","path":"/categories/上新/6研户外游戏优化探材料投放智慧.html","views":19860,"date":"2019-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/6研户外游戏优化探材料投放智慧/ppt_1_cover/20260228135707_ppt_cover_wm.jpg","categories":["上新"]},{"title":"24教研培训37度语言刚刚好","path":"/categories/上新/24教研培训37度语言刚刚好.html","views":90998,"date":"2019-11-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/24教研培训37度语言刚刚好/ppt_1_cover/20260228135135_ppt_cover_wm.jpg","categories":["上新"]},{"title":"4蹲下身倾听每一颗童心","path":"/categories/上新/4蹲下身倾听每一颗童心.html","views":15540,"date":"2019-09-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/4蹲下身倾听每一颗童心/ppt_1_cover/20260228135645_ppt_cover_wm.jpg","categories":["上新"]},{"title":"30看见读懂支持自主游戏中教师的观察与指导","path":"/categories/上新/30看见读懂支持自主游戏中教师的观察与指导.html","views":81977,"date":"2019-06-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/30看见读懂支持自主游戏中教师的观察与指导/ppt_1_cover/20260228135326_ppt_cover_wm.jpg","categories":["上新"]},{"title":"8不吼不叫幼师不用吼也能镇住孩子","path":"/categories/上新/8不吼不叫幼师不用吼也能镇住孩子.html","views":18532,"date":"2018-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/8不吼不叫幼师不用吼也能镇住孩子/ppt_1_cover/20260228135727_ppt_cover_wm.jpg","categories":["上新"]},{"title":"29启智幼教AI共研","path":"/categories/上新/29启智幼教AI共研.html","views":7158,"date":"2018-07-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/29启智幼教AI共研/ppt_1_cover/20260228135246_ppt_cover_wm.jpg","categories":["上新"]},{"title":"31从有到优","path":"/categories/上新/31从有到优.html","views":19955,"date":"2018-04-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/31从有到优/ppt_1_cover/20260228135351_ppt_cover_wm.jpg","categories":["上新"]},{"title":"25深度解读评估指南吃透师幼互动","path":"/categories/上新/25深度解读评估指南吃透师幼互动.html","views":16533,"date":"2018-04-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25深度解读评估指南吃透师幼互动/ppt_1_cover/20260228135149_ppt_cover_wm.jpg","categories":["上新"]},{"title":"19研以促教做有温度的教育","path":"/categories/上新/19研以促教做有温度的教育.html","views":13338,"date":"2018-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/19研以促教做有温度的教育/ppt_1_cover/20260228134944_ppt_cover_wm.jpg","categories":["上新"]},{"title":"37园本教研聚焦养成教育点亮成长微光","path":"/categories/上新/37园本教研聚焦养成教育点亮成长微光.html","views":4633,"date":"2018-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/37园本教研聚焦养成教育点亮成长微光/ppt_1_cover/20260228135533_ppt_cover_wm.jpg","categories":["上新"]},{"title":"12幼儿与自然对话自然资源班本化","path":"/categories/上新/12幼儿与自然对话自然资源班本化.html","views":11033,"date":"2017-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/12幼儿与自然对话自然资源班本化/ppt_1_cover/20260228134758_ppt_cover_wm.jpg","categories":["上新"]},{"title":"7观察读懂与回应儿童读书分享","path":"/categories/上新/7观察读懂与回应儿童读书分享.html","views":13084,"date":"2017-07-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/7观察读懂与回应儿童读书分享/ppt_1_cover/20260228135719_ppt_cover_wm.jpg","categories":["上新"]},{"title":"27强化幼儿园和小学的双向衔接避免小学化倾向","path":"/categories/上新/27强化幼儿园和小学的双向衔接避免小学化倾向.html","views":18582,"date":"2017-07-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/27强化幼儿园和小学的双向衔接避免小学化倾向/ppt_1_cover/20260228135216_ppt_cover_wm.jpg","categories":["上新"]},{"title":"39专题教研聚焦游戏分享支持幼儿有意义学习","path":"/categories/上新/39专题教研聚焦游戏分享支持幼儿有意义学习.html","views":15368,"date":"2016-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/39专题教研聚焦游戏分享支持幼儿有意义学习/ppt_1_cover/20260228135603_ppt_cover_wm.jpg","categories":["上新"]},{"title":"11化等为机过渡环节中幼儿发展的教育智慧课件","path":"/categories/上新/11化等为机过渡环节中幼儿发展的教育智慧课件.html","views":18667,"date":"2016-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/11化等为机过渡环节中幼儿发展的教育智慧课件/ppt_1_cover/20260228134732_ppt_cover_wm.jpg","categories":["上新"]}]).sort(function (a, b) {
-        return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0);
+  // 🌟 去重保护：按文章 path（唯一地址）去重后，再按日期从新到旧排序
+  // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
+  // 🌟 修复跳转：path 前补 "/"，否则文章链接会缺少域名根路径，网页打不开
+  const allPosts = dedupePosts([{"title":"15优化体能循环共促幼儿发展","path":"//categories/上新/15优化体能循环共促幼儿发展.html","views":19240,"date":"2026-10-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/15优化体能循环共促幼儿发展/ppt_1_cover/20260228134836_ppt_cover_wm.jpg","categories":["上新"]},{"title":"22园本教研基于儿童视角优化过渡环节","path":"//categories/上新/22园本教研基于儿童视角优化过渡环节.html","views":7783,"date":"2026-09-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/22园本教研基于儿童视角优化过渡环节/ppt_1_cover/20260228135055_ppt_cover_wm.jpg","categories":["上新"]},{"title":"9深度教研基于户外游戏的一对一倾听与记录","path":"//categories/上新/9深度教研基于户外游戏的一对一倾听与记录.html","views":11684,"date":"2025-04-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/9深度教研基于户外游戏的一对一倾听与记录/ppt_1_cover/20260228135740_ppt_cover_wm.jpg","categories":["上新"]},{"title":"16区域游戏中支持幼儿深度学习的有效策略","path":"//categories/上新/16区域游戏中支持幼儿深度学习的有效策略.html","views":108628,"date":"2025-02-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/16区域游戏中支持幼儿深度学习的有效策略/ppt_1_cover/20260228134849_ppt_cover_wm.jpg","categories":["上新"]},{"title":"3平凡岗位上的星光","path":"//categories/上新/3平凡岗位上的星光.html","views":16084,"date":"2024-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/3平凡岗位上的星光/ppt_1_cover/20260228135630_ppt_cover_wm.jpg","categories":["上新"]},{"title":"17师幼共舞平凡时刻的非凡生长课件","path":"//categories/上新/17师幼共舞平凡时刻的非凡生长课件.html","views":16675,"date":"2023-12-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/17师幼共舞平凡时刻的非凡生长课件/ppt_1_cover/20260228134906_ppt_cover_wm.jpg","categories":["上新"]},{"title":"23画里有话","path":"//categories/上新/23画里有话.html","views":13724,"date":"2023-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/23画里有话/ppt_1_cover/20260228135114_ppt_cover_wm.jpg","categories":["上新"]},{"title":"14学前儿童音乐游戏教育活动","path":"//categories/上新/14学前儿童音乐游戏教育活动.html","views":4806,"date":"2023-06-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/14学前儿童音乐游戏教育活动/ppt_1_cover/20260228134822_ppt_cover_wm.jpg","categories":["上新"]},{"title":"35看见儿童的师幼互动","path":"//categories/上新/35看见儿童的师幼互动.html","views":4750,"date":"2023-05-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/35看见儿童的师幼互动/ppt_1_cover/20260228135457_ppt_cover_wm.jpg","categories":["上新"]},{"title":"34沟通有术共育有方沟通技巧与方式","path":"//categories/上新/34沟通有术共育有方沟通技巧与方式.html","views":90045,"date":"2023-01-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/34沟通有术共育有方沟通技巧与方式/ppt_1_cover/20260228135435_ppt_cover_wm.jpg","categories":["上新"]},{"title":"13班本课程的组织与实施","path":"//categories/上新/13班本课程的组织与实施.html","views":7892,"date":"2022-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/13班本课程的组织与实施/ppt_1_cover/20260228134812_ppt_cover_wm.jpg","categories":["上新"]},{"title":"10蹲下来听见花开师德师风演讲ppt","path":"//categories/上新/10蹲下来听见花开师德师风演讲ppt.html","views":10428,"date":"2022-11-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/10蹲下来听见花开师德师风演讲ppt/ppt_1_cover/20260228134719_ppt_cover_wm.jpg","categories":["上新"]},{"title":"33打开绘本看世界","path":"//categories/上新/33打开绘本看世界.html","views":5395,"date":"2022-10-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/33打开绘本看世界/ppt_1_cover/20260228135419_ppt_cover_wm.jpg","categories":["上新"]},{"title":"21聚焦儿童视角探寻美术之趣","path":"//categories/上新/21聚焦儿童视角探寻美术之趣.html","views":10760,"date":"2022-10-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/21聚焦儿童视角探寻美术之趣/ppt_1_cover/20260228135038_ppt_cover_wm.jpg","categories":["上新"]},{"title":"20项前一步解锁幼儿深度学习策略","path":"//categories/上新/20项前一步解锁幼儿深度学习策略.html","views":17323,"date":"2022-06-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/20项前一步解锁幼儿深度学习策略/ppt_1_cover/20260228135017_ppt_cover_wm.jpg","categories":["上新"]},{"title":"18幼儿园融合教育新空间","path":"//categories/上新/18幼儿园融合教育新空间.html","views":4595,"date":"2022-04-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/18幼儿园融合教育新空间/ppt_1_cover/20260228134924_ppt_cover_wm.jpg","categories":["上新"]},{"title":"28专题教研慧玩民间游戏悦享传统文化教研方案","path":"//categories/上新/28专题教研慧玩民间游戏悦享传统文化教研方案.html","views":8951,"date":"2022-04-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/28专题教研慧玩民间游戏悦享传统文化教研方案/ppt_1_cover/20260228135230_ppt_cover_wm.jpg","categories":["上新"]},{"title":"1以儿童为中心的班级环境创设","path":"//categories/上新/1以儿童为中心的班级环境创设.html","views":17873,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/1以儿童为中心的班级环境创设/ppt_1_cover/20260228134958_ppt_cover_wm.jpg","categories":["上新"]},{"title":"32教研材料层次性投放","path":"//categories/上新/32教研材料层次性投放.html","views":6238,"date":"2021-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/32教研材料层次性投放/ppt_1_cover/20260228135409_ppt_cover_wm.jpg","categories":["上新"]},{"title":"2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结","path":"//categories/上新/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结.html","views":17174,"date":"2021-07-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/2幼儿园教研活动聚焦前书写科学巧衔接PPT方案讲稿小结/ppt_1_cover/20260228135300_ppt_cover_wm.jpg","categories":["上新"]},{"title":"36聚焦儿童本位优化集体教学","path":"//categories/上新/36聚焦儿童本位优化集体教学.html","views":5974,"date":"2021-06-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/36聚焦儿童本位优化集体教学/ppt_1_cover/20260228135519_ppt_cover_wm.jpg","categories":["上新"]},{"title":"38专题教研聚焦绘画表征让幼儿的成长看得见","path":"//categories/上新/38专题教研聚焦绘画表征让幼儿的成长看得见.html","views":6382,"date":"2021-01-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/38专题教研聚焦绘画表征让幼儿的成长看得见/ppt_1_cover/20260228135551_ppt_cover_wm.jpg","categories":["上新"]},{"title":"5解读幼儿表征","path":"//categories/上新/5解读幼儿表征.html","views":11118,"date":"2020-04-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/5解读幼儿表征/ppt_1_cover/20260228135655_ppt_cover_wm.jpg","categories":["上新"]},{"title":"26合理规划室内区域环境注重一般要求及指导要点","path":"//categories/上新/26合理规划室内区域环境注重一般要求及指导要点.html","views":12207,"date":"2020-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/26合理规划室内区域环境注重一般要求及指导要点/ppt_1_cover/20260228135202_ppt_cover_wm.jpg","categories":["上新"]},{"title":"6研户外游戏优化探材料投放智慧","path":"//categories/上新/6研户外游戏优化探材料投放智慧.html","views":19860,"date":"2019-12-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/6研户外游戏优化探材料投放智慧/ppt_1_cover/20260228135707_ppt_cover_wm.jpg","categories":["上新"]},{"title":"24教研培训37度语言刚刚好","path":"//categories/上新/24教研培训37度语言刚刚好.html","views":90998,"date":"2019-11-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/24教研培训37度语言刚刚好/ppt_1_cover/20260228135135_ppt_cover_wm.jpg","categories":["上新"]},{"title":"4蹲下身倾听每一颗童心","path":"//categories/上新/4蹲下身倾听每一颗童心.html","views":15540,"date":"2019-09-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/4蹲下身倾听每一颗童心/ppt_1_cover/20260228135645_ppt_cover_wm.jpg","categories":["上新"]},{"title":"30看见读懂支持自主游戏中教师的观察与指导","path":"//categories/上新/30看见读懂支持自主游戏中教师的观察与指导.html","views":81977,"date":"2019-06-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/30看见读懂支持自主游戏中教师的观察与指导/ppt_1_cover/20260228135326_ppt_cover_wm.jpg","categories":["上新"]},{"title":"8不吼不叫幼师不用吼也能镇住孩子","path":"//categories/上新/8不吼不叫幼师不用吼也能镇住孩子.html","views":18532,"date":"2018-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/8不吼不叫幼师不用吼也能镇住孩子/ppt_1_cover/20260228135727_ppt_cover_wm.jpg","categories":["上新"]},{"title":"29启智幼教AI共研","path":"//categories/上新/29启智幼教AI共研.html","views":7158,"date":"2018-07-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/29启智幼教AI共研/ppt_1_cover/20260228135246_ppt_cover_wm.jpg","categories":["上新"]},{"title":"31从有到优","path":"//categories/上新/31从有到优.html","views":19955,"date":"2018-04-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/31从有到优/ppt_1_cover/20260228135351_ppt_cover_wm.jpg","categories":["上新"]},{"title":"25深度解读评估指南吃透师幼互动","path":"//categories/上新/25深度解读评估指南吃透师幼互动.html","views":16533,"date":"2018-04-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/25深度解读评估指南吃透师幼互动/ppt_1_cover/20260228135149_ppt_cover_wm.jpg","categories":["上新"]},{"title":"19研以促教做有温度的教育","path":"//categories/上新/19研以促教做有温度的教育.html","views":13338,"date":"2018-03-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/19研以促教做有温度的教育/ppt_1_cover/20260228134944_ppt_cover_wm.jpg","categories":["上新"]},{"title":"37园本教研聚焦养成教育点亮成长微光","path":"//categories/上新/37园本教研聚焦养成教育点亮成长微光.html","views":4633,"date":"2018-01-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/37园本教研聚焦养成教育点亮成长微光/ppt_1_cover/20260228135533_ppt_cover_wm.jpg","categories":["上新"]},{"title":"12幼儿与自然对话自然资源班本化","path":"//categories/上新/12幼儿与自然对话自然资源班本化.html","views":11033,"date":"2017-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/12幼儿与自然对话自然资源班本化/ppt_1_cover/20260228134758_ppt_cover_wm.jpg","categories":["上新"]},{"title":"7观察读懂与回应儿童读书分享","path":"//categories/上新/7观察读懂与回应儿童读书分享.html","views":13084,"date":"2017-07-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/7观察读懂与回应儿童读书分享/ppt_1_cover/20260228135719_ppt_cover_wm.jpg","categories":["上新"]},{"title":"27强化幼儿园和小学的双向衔接避免小学化倾向","path":"//categories/上新/27强化幼儿园和小学的双向衔接避免小学化倾向.html","views":18582,"date":"2017-07-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/27强化幼儿园和小学的双向衔接避免小学化倾向/ppt_1_cover/20260228135216_ppt_cover_wm.jpg","categories":["上新"]},{"title":"39专题教研聚焦游戏分享支持幼儿有意义学习","path":"//categories/上新/39专题教研聚焦游戏分享支持幼儿有意义学习.html","views":15368,"date":"2016-11-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/39专题教研聚焦游戏分享支持幼儿有意义学习/ppt_1_cover/20260228135603_ppt_cover_wm.jpg","categories":["上新"]},{"title":"11化等为机过渡环节中幼儿发展的教育智慧课件","path":"//categories/上新/11化等为机过渡环节中幼儿发展的教育智慧课件.html","views":18667,"date":"2016-09-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/11化等为机过渡环节中幼儿发展的教育智慧课件/ppt_1_cover/20260228134732_ppt_cover_wm.jpg","categories":["上新"]}]).sort(function (a, b) {
+    return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0);
+  });
+
+  // 简单 HTML 转义，防止标题里的特殊字符破坏页面结构
+  function escHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // 计算一篇课件是"几天前"发布的（按自然日计算）
+  function daysAgo(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.floor((today - d) / 86400000);
+  }
+
+  /* ============================================================
+     🌟 分桶 + 总量分配
+     ============================================================ */
+  function buildGroups() {
+    var latest = [], lastWeek = [], earlier = [];
+
+    allPosts.forEach(function (p) {
+      var n = daysAgo(p.date);
+      if (n < NEW_DAYS) {
+        latest.push(p);
+      } else if (n < LAST_WEEK_DAYS) {
+        lastWeek.push(p);
+      } else {
+        earlier.push(p);
+      }
     });
 
-    // 简单 HTML 转义，防止标题里的特殊字符破坏页面结构
-    function escHtml(str) {
-        return String(str == null ? '' : str)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    // 三桶都已按日期从新到旧排好，直接按优先级分配总量
+    var budget = MAX_ITEMS;
 
-    // 计算一篇课件是"几天前"发布的（按自然日计算）
-    function daysAgo(dateStr) {
-        var d = new Date(dateStr + 'T00:00:00');
-        var now = new Date();
-        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        return Math.floor((today - d) / 86400000);
-    }
+    var showLatest = latest.slice(0, budget);
+    budget -= showLatest.length;
 
-    /* ============================================================
-       🌟 分桶 + 总量分配
-       规则（以 50 条为例）：
-         1. "最新"有多少展示多少（最多不超过 50）
-         2. 剩余的名额给"上周"，再剩下的给"更早"
-         3. 例：最新 30 条 → 上周 + 更早 平分剩余 20 条（上周优先）
-       ============================================================ */
-    function buildGroups() {
-        var latest = [], lastWeek = [], earlier = [];
+    var showLastWeek = budget > 0 ? lastWeek.slice(0, budget) : [];
+    budget -= showLastWeek.length;
 
-        allPosts.forEach(function (p) {
-            var n = daysAgo(p.date);
-            if (n < NEW_DAYS) { latest.push(p); }
-            else if (n < LAST_WEEK_DAYS) { lastWeek.push(p); }
-            else { earlier.push(p); }
+    var showEarlier = budget > 0 ? earlier.slice(0, budget) : [];
+
+    return {
+      latest: showLatest,
+      lastWeek: showLastWeek,
+      earlier: showEarlier,
+      latestTotal: latest.length,
+      lastWeekTotal: lastWeek.length,
+      earlierTotal: earlier.length
+    };
+  }
+
+  // 渲染单个分组（没有内容时返回空字符串，整组隐藏）
+  function renderGroup(icon, iconClass, label, sub, posts, totalOfGroup) {
+    if (!posts.length) return '';
+
+    var cards = posts.map(function (p) {
+      var imgUrl = p.cover_img || 'https://via.placeholder.com/400x200?text=No+Image';
+
+      // 标签：取文章自身分类，去掉"上新"本身，最多 3 个
+      var tags = (p.categories || [])
+        .filter(function (c) { return c !== '上新'; })
+        .slice(0, 3)
+        .map(function (c) { return '<span class="tag-pill">' + escHtml(c) + '</span>'; })
+        .join('');
+
+      return '<a class="time-card" href="' + escHtml(p.path) + '">' +
+        '<div class="time-card-img"><img src="' + escHtml(imgUrl) + '" alt="' + escHtml(p.title) + '" loading="lazy"></div>' +
+        '<div class="time-card-info">' +
+          '<div class="time-card-title">' + escHtml(p.title) + '</div>' +
+          '<div class="time-card-meta">📅 ' + escHtml(p.date) + ' · 👁 ' + p.views + '</div>' +
+          '<div class="time-card-tags">' + tags + '</div>' +
+        '</div>' +
+      '</a>';
+    }).join('');
+
+    var countText = posts.length < totalOfGroup
+      ? '展示 ' + posts.length + ' / 共 ' + totalOfGroup
+      : posts.length + ' 个课件';
+
+    return '<div class="time-group">' +
+      '<div class="time-group-header">' +
+        '<span class="time-icon ' + iconClass + '">' + icon + '</span>' +
+        '<span class="time-label">' + label + '<span class="time-sub">' + sub + '</span></span>' +
+        '<span class="time-count">' + countText + '</span>' +
+      '</div>' +
+      '<div class="time-card-list">' + cards + '</div>' +
+    '</div>';
+  }
+
+  function renderWeekly() {
+    var container = document.getElementById('weekly-container');
+
+    try {
+      var g = buildGroups();
+      var shown = g.latest.length + g.lastWeek.length + g.earlier.length;
+
+      // 🌟 统一状态组件：暂无数据
+      if (shown === 0) {
+        container.innerHTML = renderState('empty', {
+          icon: '📭',
+          title: '暂时还没有上新课件',
+          desc: '最近 7 天内没有新发布的课件，可以先去其他分类看看',
+          btnText: '返回首页',
+          btnLink: '/'
         });
+        return;
+      }
 
-        // 三桶都已按日期从新到旧排好，直接按优先级分配总量
-        var budget = MAX_ITEMS;
-        var showLatest = latest.slice(0, budget);
-        budget -= showLatest.length;
-        var showLastWeek = budget > 0 ? lastWeek.slice(0, budget) : [];
-        budget -= showLastWeek.length;
-        var showEarlier = budget > 0 ? earlier.slice(0, budget) : [];
+      var html = '<div class="timeline">';
+      html += renderGroup('🕐', 'icon-latest', '最新', '7 天内发布', g.latest, g.latestTotal);
+      html += renderGroup('🕒', 'icon-lastweek', '上周', '7 ~ 14 天前', g.lastWeek, g.lastWeekTotal);
+      html += renderGroup('🕓', 'icon-earlier', '更早', '14 天以前', g.earlier, g.earlierTotal);
+      html += '</div>';
 
-        return {
-            latest: showLatest, lastWeek: showLastWeek, earlier: showEarlier,
-            latestTotal: latest.length, lastWeekTotal: lastWeek.length, earlierTotal: earlier.length
-        };
+      // 超出总量上限时给一句说明
+      if (allPosts.length > MAX_ITEMS) {
+        html += '<div class="weekly-more">仅按时间展示最近的 ' + MAX_ITEMS + ' 条上新课件，更早的内容请前往对应分类查看</div>';
+      }
+
+      container.innerHTML = html;
+    } catch (e) {
+      // 🌟 统一状态组件：出错
+      container.innerHTML = renderState('error', {
+        title: '加载出错',
+        desc: '数据加载失败，请刷新页面重试',
+        btnText: '刷新页面',
+        btnLink: 'javascript:location.reload()'
+      });
     }
+  }
 
-    // 渲染单个分组（没有内容时返回空字符串，整组隐藏）
-    function renderGroup(icon, iconClass, label, sub, posts, totalOfGroup) {
-        if (!posts.length) return '';
-
-        var cards = posts.map(function (p) {
-            var imgUrl = p.cover_img || 'https://via.placeholder.com/400x200?text=No+Image';
-            // 标签：取文章自身分类，去掉"上新"本身，最多 3 个
-            var tags = (p.categories || [])
-                .filter(function (c) { return c !== '上新'; })
-                .slice(0, 3)
-                .map(function (c) { return '<span class="tag-pill">' + escHtml(c) + '</span>'; })
-                .join('');
-
-            return '<a class="time-card" href="' + escHtml(p.path) + '">' +
-                     '<div class="time-card-img"><img src="' + escHtml(imgUrl) + '" alt="' + escHtml(p.title) + '" loading="lazy"></div>' +
-                     '<div class="time-card-info">' +
-                       '<div class="time-card-title">' + escHtml(p.title) + '</div>' +
-                       '<div class="time-card-meta">📅 ' + escHtml(p.date) + ' · 👁 ' + p.views + '</div>' +
-                       '<div class="time-card-tags">' + tags + '</div>' +
-                     '</div>' +
-                   '</a>';
-        }).join('');
-
-        // 数量徽章：如果分组实际数量比展示的多（被总量截断），显示"展示 X / 共 Y"
-        var countText = posts.length < totalOfGroup
-            ? '展示 ' + posts.length + ' / 共 ' + totalOfGroup
-            : posts.length + ' 个课件';
-
-        return '<div class="time-group">' +
-                 '<div class="time-group-header">' +
-                   '<span class="time-icon ' + iconClass + '">' + icon + '</span>' +
-                   '<span class="time-label">' + label + '<span class="time-sub">' + sub + '</span></span>' +
-                   '<span class="time-count">' + countText + '</span>' +
-                 '</div>' +
-                 '<div class="time-card-list">' + cards + '</div>' +
-               '</div>';
-    }
-
-    function renderWeekly() {
-        var container = document.getElementById('weekly-container');
-
-        try {
-            var g = buildGroups();
-            var shown = g.latest.length + g.lastWeek.length + g.earlier.length;
-
-            // 🌟 统一状态组件：暂无数据
-            if (shown === 0) {
-                container.innerHTML = renderState('empty', {
-                    icon: '📭',
-                    title: '暂时还没有上新课件',
-                    desc: '最近 7 天内没有新发布的课件，可以先去其他分类看看',
-                    btnText: '返回首页',
-                    btnLink: '/'
-                });
-                return;
-            }
-
-            var html = '<div class="timeline">';
-            html += renderGroup('🕐', 'icon-latest',   '最新', '7 天内发布',  g.latest,   g.latestTotal);
-            html += renderGroup('🕒', 'icon-lastweek', '上周', '7 ~ 14 天前', g.lastWeek, g.lastWeekTotal);
-            html += renderGroup('🕓', 'icon-earlier',  '更早', '14 天以前',   g.earlier,  g.earlierTotal);
-            html += '</div>';
-
-            // 超出总量上限时给一句说明
-            if (allPosts.length > MAX_ITEMS) {
-                html += '<div class="weekly-more">仅按时间展示最近的 ' + MAX_ITEMS +
-                        ' 条上新课件，更早的内容请前往对应分类查看</div>';
-            }
-
-            container.innerHTML = html;
-        } catch (e) {
-            // 🌟 统一状态组件：出错
-            container.innerHTML = renderState('error', {
-                title: '加载出错',
-                desc: '数据加载失败，请刷新页面重试',
-                btnText: '刷新页面',
-                btnLink: 'javascript:location.reload()'
-            });
-        }
-    }
-
-    renderWeekly();
+  renderWeekly();
 </script>
 
 

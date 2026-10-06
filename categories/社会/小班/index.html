@@ -366,231 +366,262 @@ function handleSearchClick(e) {
     <div class="container">
         <!-- 🌟 仅保留分类页独有的样式 -->
 <style>
-    /* 顶部标题区域 */
-    .category-header { 
-        text-align: center; 
-        padding: 1.5rem 1rem;  /* 🌟 稍微减少一点内边距 */
-        background: #fff; 
-        margin-bottom: 30px; 
-        border-radius: 10px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-        margin-top: 0 !important; /* 🌟 确保容器本身没有大边距 */
-    }
-    
-    /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
-    .category-title { 
-        font-size: 2rem; 
-        color: #2c3e50; 
-        margin-bottom: 0.5rem;
-        margin-top: 0 !important; /* 强制归零，覆盖全局设置 */
-    }
+  /* 顶部标题区域 */
+  .category-header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: #fff;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: 0 !important;
+  }
+  /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
+  .category-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    margin-top: 0 !important;
+  }
+  .back-link { margin-top: 10px; }
+  .back-link a { color: #7f8c8d; text-decoration: none; }
 
-    .back-link { margin-top: 10px; }
-    .back-link a { color: #7f8c8d; text-decoration: none; }
+  /* 带封面的网格列表 */
+  .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px)  { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
 
-    /* 带封面的网格列表 */
-    .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
-    @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 768px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+  .post-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
 
-    .post-card { background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; }
-    .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-    
-    /* 图片区域 */
-    .card-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
-    .card-img-wrapper img { width: 100%; height: auto; max-height: 180px; object-fit: contain; transition: transform 0.5s; }
-    .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
+  /* 图片区域 */
+  .card-img-wrapper {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-img-wrapper img {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: contain;
+    transition: transform 0.5s;
+  }
+  .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
 
-    .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-    .card-title { font-size: 1rem; font-weight: bold; margin-bottom: 10px; color: #2c3e50; line-height: 1.4; flex: 1; }
-    .card-title a { text-decoration: none; color: inherit; }
-    .card-meta { font-size: 0.8rem; color: #999; margin-top: auto; display: flex; justify-content: space-between; }
+  .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+  .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .card-title a { text-decoration: none; color: inherit; }
+  .card-meta {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+  }
 
-    /* 翻页按钮 */
-    .pagination { margin-top: 30px; text-align: center; }
-    .page-btn { padding: 10px 20px; background: #34495e; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin: 0 10px; }
-    .page-btn:disabled { background: #ccc; cursor: not-allowed; }
-    .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
+  /* 翻页按钮 */
+  .pagination { margin-top: 30px; text-align: center; }
+  .page-btn {
+    padding: 10px 20px;
+    background: #34495e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+  }
+  .page-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 
-    /* ============================================================
-       🌟 本周上新（上新分类专用）：竖向时间轴分组样式
-       布局参考设计稿：左侧时间轴 + 右侧单列卡片流
-       分组：最新（7天内）/ 上周（7~14天）/ 更早（14天以前）
-       ============================================================ */
+  /* ============================================================
+     🌟 本周上新（上新分类专用）：竖向时间轴分组样式
+     ============================================================ */
+  .weekly-wrap { max-width: 860px; margin: 0 auto; }
 
-    /* 页面整体：限宽居中，和全站风格一致 */
-    .weekly-wrap { max-width: 860px; margin: 0 auto; }
+  .weekly-header {
+    text-align: center;
+    padding: 1.6rem 1rem 1.3rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    margin-top: 0 !important;
+  }
+  .weekly-header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin: 0 0 8px;
+    margin-top: 0 !important;
+  }
+  .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
+  .weekly-header .back-link { margin-top: 12px; }
 
-    /* 页头：白卡片，与其他页面页头统一 */
-    .weekly-header {
-        text-align: center;
-        padding: 1.6rem 1rem 1.3rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 24px;
-        margin-top: 0 !important;
-    }
-    .weekly-header h1 {
-        font-size: 2rem;
-        color: #2c3e50;
-        margin: 0 0 8px;
-        margin-top: 0 !important; /* 抵消 layout.ejs 给 h1 的全局上边距 */
-    }
-    .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
-    .weekly-header .back-link { margin-top: 12px; }
+  .weekly-board {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
+    padding: 28px 24px 8px;
+  }
 
-    /* 时间轴大容器：白色圆角卡片包住整个时间轴 */
-    .weekly-board {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
-        padding: 28px 24px 8px;
-    }
+  .timeline { position: relative; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 21px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: #e8ecf1;
+    border-radius: 1px;
+  }
 
-    /* 时间轴：左侧贯穿的浅灰色竖线 */
-    .timeline { position: relative; }
-    .timeline::before {
-        content: "";
-        position: absolute;
-        left: 21px;             /* 正好在图标圆心下方 */
-        top: 18px;
-        bottom: 18px;
-        width: 2px;
-        background: #e8ecf1;
-        border-radius: 1px;
-    }
+  .time-group { position: relative; }
 
-    /* 单个分组 */
-    .time-group { position: relative; }
-    .time-group-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        position: relative;
-        z-index: 1;              /* 盖住背后的时间轴竖线 */
-        margin-bottom: 14px;
-    }
+  .time-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 14px;
+  }
 
-    /* 分组标题左侧的圆形时钟图标（带立体厚度，呼应全站按钮语言） */
-    .time-icon {
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        background: #2c3e50;
-        box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
-    }
-    /* 三个分组用同形不同色，方便快速扫读 */
-    .time-icon.icon-latest   { background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%); box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35); }
-    .time-icon.icon-lastweek { background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%); box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35); }
-    .time-icon.icon-earlier  { background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%); box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35); }
+  .time-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: #2c3e50;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
+  }
+  .time-icon.icon-latest {
+    background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%);
+    box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35);
+  }
+  .time-icon.icon-lastweek {
+    background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%);
+    box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35);
+  }
+  .time-icon.icon-earlier {
+    background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%);
+    box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35);
+  }
 
-    .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
-    .time-sub   { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
+  .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
+  .time-sub { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
 
-    /* 右侧的数量徽章 */
-    .time-count {
-        margin-left: auto;
-        font-size: 0.8rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        padding: 4px 12px;
-        border-radius: 12px;
-        white-space: nowrap;
-    }
+  .time-count {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
 
-    /* 分组内的卡片列表：整体向右缩进，让出时间轴位置 */
-    .time-card-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        padding-left: 58px;
-        margin-bottom: 30px;
-    }
+  .time-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 58px;
+    margin-bottom: 30px;
+  }
 
-    /* 单张课件卡片：左封面 + 右信息，整卡可点 */
-    .time-card {
-        display: flex;
-        gap: 16px;
-        padding: 12px;
-        background: #fbfcfe;
-        border: 1px solid #eef1f5;
-        border-radius: 14px;
-        text-decoration: none;
-        transition: all 0.18s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .time-card:hover {
-        transform: translateY(-2px);
-        background: #fff;
-        border-color: #d8e4f2;
-        box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
-    }
-    .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
+  .time-card {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    background: #fbfcfe;
+    border: 1px solid #eef1f5;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .time-card:hover {
+    transform: translateY(-2px);
+    background: #fff;
+    border-color: #d8e4f2;
+    box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
+  }
+  .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
 
-    /* 左侧封面缩略图 */
-    .time-card-img {
-        flex-shrink: 0;
-        width: 190px;
-        height: 120px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #f1f3f6;
-    }
-    .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .time-card-img {
+    flex-shrink: 0;
+    width: 190px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f1f3f6;
+  }
+  .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* 右侧信息区 */
-    .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
-    .time-card-title {
-        font-size: 1.02rem;
-        font-weight: 600;
-        color: #2c3e50;
-        line-height: 1.45;
-        margin-bottom: 6px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;   /* 标题最多两行 */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .time-card:hover .time-card-title { color: #3498db; }
-    .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
+  .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
 
-    /* 分类标签胶囊 */
-    .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag-pill {
-        font-size: 0.75rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        border-radius: 10px;
-        padding: 3px 10px;
-        white-space: nowrap;
-    }
+  .time-card-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.45;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .time-card:hover .time-card-title { color: #3498db; }
 
-    /* 底部提示：超出上限时说明只展示了最近 N 条 */
-    .weekly-more {
-        text-align: center;
-        color: #98a2b3;
-        font-size: 0.85rem;
-        padding: 4px 0 20px;
-    }
+  .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
 
-    /* 手机端：收起时间轴竖线和缩进，卡片封面缩小 */
-    @media (max-width: 640px) {
-        .weekly-board { padding: 20px 14px 4px; }
-        .timeline::before { display: none; }
-        .time-card-list { padding-left: 0; }
-        .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
-        .time-label { font-size: 1.05rem; }
-        .time-card { gap: 12px; padding: 10px; }
-        .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
-        .time-card-title { font-size: 0.92rem; }
-        .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
-    }
+  .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-pill {
+    font-size: 0.75rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    border-radius: 10px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .weekly-more { text-align: center; color: #98a2b3; font-size: 0.85rem; padding: 4px 0 20px; }
+
+  @media (max-width: 640px) {
+    .weekly-board { padding: 20px 14px 4px; }
+    .timeline::before { display: none; }
+    .time-card-list { padding-left: 0; }
+    .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
+    .time-label { font-size: 1.05rem; }
+    .time-card { gap: 12px; padding: 10px; }
+    .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
+    .time-card-title { font-size: 0.92rem; }
+    .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
+  }
 </style>
 
 <!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
@@ -750,115 +781,118 @@ function handleSearchClick(e) {
 
 <!-- 分类页头部 -->
 <div class="category-header">
-    <h1 class="category-title">📂 分类：小班</h1>
-    <div class="back-link">
-        <a href="/">&larr; 返回首页</a>
-    </div>
+  <h1 class="category-title">📂 分类：小班</h1>
+  <div class="back-link">
+    <a href="/">&larr; 返回首页</a>
+  </div>
 </div>
 
 <!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div class="state-block">
-        <div class="spinner"></div>
-        <h3>加载中...</h3>
-        <p>正在加载该分类下的课件，请稍候</p>
-    </div>
+  <div class="state-block">
+    <div class="spinner"></div>
+    <h3>加载中...</h3>
+    <p>正在加载该分类下的课件，请稍候</p>
+  </div>
 </div>
 
 <!-- 翻页按钮 -->
 <div class="pagination">
-    <button id="cat-prev-btn" class="page-btn" onclick="changeCategoryPage(-1)">上一页</button>
-    <span class="page-info" id="cat-page-info">第 1 页</span>
-    <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
+  <button id="cat-prev-btn" class="page-btn" onclick="changeCategoryPage(-1)">上一页</button>
+  <span class="page-info" id="cat-page-info">第 1 页</span>
+  <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
 <!-- 分类页逻辑脚本 -->
 <script>
-    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
-    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
-    const allPosts = dedupePosts([{"title":"我会交朋友 社会小班","path":"/categories/社会/我会交朋友 社会小班_小班.html","views":4364,"date":"2026-02-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我会交朋友-社会小班/ppt/20260220144242_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"跟着月饼去赏月 社会语言小班","path":"/categories/社会/跟着月饼去赏月 社会语言小班_小班.html","views":18186,"date":"2025-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/跟着月饼去赏月-社会语言小班/ppt/20260220155614_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会 我会排队","path":"/categories/社会/小班社会 我会排队_小班.html","views":14446,"date":"2025-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会-我会排队/ppt/20260220004614_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班语言社会 我们一起玩","path":"/categories/社会/小班语言社会 我们一起玩_小班.html","views":15495,"date":"2025-12-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言社会-我们一起玩/ppt/20260220004656_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会语言 美好的一天","path":"/categories/社会/小班社会语言 美好的一天_小班.html","views":12435,"date":"2025-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会语言-美好的一天/ppt/20260220004625_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"中秋节 社会语言小班","path":"/categories/社会/中秋节 社会语言小班_小班.html","views":5951,"date":"2025-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中秋节-社会语言小班/ppt/20260220121538_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班中班不一样 社会中班","path":"/categories/社会/小班中班不一样 社会中班_小班.html","views":11797,"date":"2025-07-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班中班不一样-社会中班/ppt/20260220155050_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"让座 社会语言小班","path":"/categories/社会/让座 社会语言小班_小班.html","views":13179,"date":"2025-03-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/让座-社会语言小班/ppt/20260220124807_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"美好的一天 社会语言小班","path":"/categories/社会/美好的一天 社会语言小班_小班.html","views":11487,"date":"2025-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/美好的一天-社会语言小班/ppt/20260220124615_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"爷爷奶奶的童年 社会语言小班","path":"/categories/社会/爷爷奶奶的童年 社会语言小班_小班.html","views":6575,"date":"2025-01-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爷爷奶奶的童年-社会语言小班/ppt/20260220124241_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"防空警报长鸣 社会 小班","path":"/categories/社会/防空警报长鸣 社会 小班_小班.html","views":4967,"date":"2024-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防空警报长鸣_社会_小班/ppt/20260131125408_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"幼儿园的一天 社会 小班","path":"/categories/社会/幼儿园的一天 社会 小班_小班.html","views":6029,"date":"2024-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园的一天_社会_小班/ppt/20260130234544_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我会交朋友 社会 小班","path":"/categories/社会/我会交朋友 社会 小班_小班.html","views":13638,"date":"2024-02-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我会交朋友_社会_小班/ppt/20260131125145_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的物品在哪里 社会 小班","path":"/categories/社会/我的物品在哪里 社会 小班_小班.html","views":11166,"date":"2023-08-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的物品在哪里_社会_小班/ppt/20260130234657_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小汤圆过元宵 社会 小班","path":"/categories/社会/小汤圆过元宵 社会 小班_小班.html","views":14815,"date":"2023-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小汤圆过元宵_社会_小班/ppt/20260130221258_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的标记 社会科学 小班","path":"/categories/社会/我的标记 社会科学 小班_小班.html","views":12425,"date":"2023-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的标记_社会科学_小班/ppt/20260131013224_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班语言社会 我想和你做朋友","path":"/categories/社会/小班语言社会 我想和你做朋友_小班.html","views":5410,"date":"2023-02-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言社会-我想和你做朋友/ppt/20260220155211_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我爱爷爷奶奶 语言社会小班","path":"/categories/社会/我爱爷爷奶奶 语言社会小班_小班.html","views":87788,"date":"2023-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我爱爷爷奶奶-语言社会小班/ppt/20260220123442_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"布娃娃 社会语言小班","path":"/categories/社会/布娃娃 社会语言小班_小班.html","views":7767,"date":"2023-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/布娃娃-社会语言小班/ppt/20260220123120_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"《防溺水》小中大班 社会","path":"/categories/社会/《防溺水》小中大班 社会_小班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"一二三自己站起来 语言社会小班","path":"/categories/社会/一二三自己站起来 语言社会小班_小班.html","views":16960,"date":"2022-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/一二三自己站起来-语言社会小班/ppt/20260220154221_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"蛇年奇遇记 社会语言小班","path":"/categories/社会/蛇年奇遇记 社会语言小班_小班.html","views":9757,"date":"2022-02-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蛇年奇遇记-社会语言小班/ppt/20260220124714_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会环保《一只塑料袋》PPT课件 教案","path":"/categories/社会/小班社会环保《一只塑料袋》PPT课件 plus 教案 plus 教具图_小班.html","views":19267,"date":"2022-01-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会环保《一只塑料袋》PPT课件_plus_教案_plus_教具图/ppt/20260130234229_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班中班不一样 社会 中班","path":"/categories/社会/小班中班不一样 社会 中班_小班.html","views":4417,"date":"2021-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班中班不一样_社会_中班/ppt/20260131013027_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"红绿灯 社会小班","path":"/categories/社会/红绿灯 社会小班_小班.html","views":8226,"date":"2021-11-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/红绿灯-社会小班/ppt/20260220155506_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"拔萝卜 语言社会小班","path":"/categories/社会/拔萝卜 语言社会小班_小班.html","views":4097,"date":"2021-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/拔萝卜-语言社会小班/ppt/20260220123556_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的爷爷奶奶 社会语言小班","path":"/categories/社会/我的爷爷奶奶 社会语言小班_小班.html","views":12625,"date":"2021-09-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我的爷爷奶奶-社会语言小班/ppt/20260220123502_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"米奇森林历险记","path":"/categories/通用/米奇森林历险记_通用.html","views":12445,"date":"2021-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/米奇森林历险记/ppt/20260130221730_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"世界水日","path":"/categories/通用/世界水日_通用_3.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"跟爸爸在一起 语言社会小班","path":"/categories/社会/跟爸爸在一起 语言社会小班_小班.html","views":19226,"date":"2021-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/跟爸爸在一起-语言社会小班/ppt/20260220124849_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"爸爸妈妈的爱 社会语言小班","path":"/categories/社会/爸爸妈妈的爱 社会语言小班_小班.html","views":14525,"date":"2021-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爸爸妈妈的爱-社会语言小班/ppt/20260220124247_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班语言社会 小乌龟上幼儿园","path":"/categories/社会/小班语言社会 小乌龟上幼儿园_小班.html","views":15649,"date":"2020-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言社会-小乌龟上幼儿园/ppt/20260220004651_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"开开心心在一起 社会语言小班","path":"/categories/社会/开开心心在一起 社会语言小班_小班.html","views":6775,"date":"2020-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/开开心心在一起-社会语言小班/ppt/20260220123212_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《我会排队》","path":"/categories/社会/小班社会《我会排队》_小班.html","views":8468,"date":"2020-05-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《我会排队》/ppt/20260131124856_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"种子嘟嘟的梦想 语言社会小班","path":"/categories/社会/种子嘟嘟的梦想 语言社会小班_小班.html","views":9287,"date":"2020-04-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/种子嘟嘟的梦想-语言社会小班/ppt/20260220124523_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"入园适应游戏 社会 小班","path":"/categories/社会/入园适应游戏 社会 小班_小班.html","views":4881,"date":"2020-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/入园适应游戏_社会_小班/ppt/20260130233937_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"袋鼠老师讲故事 语言社会小班","path":"/categories/社会/袋鼠老师讲故事 语言社会小班_小班.html","views":11961,"date":"2019-12-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/袋鼠老师讲故事-语言社会小班/ppt/20260220124743_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的朋友在哪里 音乐社会 小班","path":"/categories/社会/我的朋友在哪里 音乐社会 小班_小班.html","views":13517,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的朋友在哪里_音乐社会_小班/ppt/20260131013214_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会 参观幼儿园","path":"/categories/社会/小班社会 参观幼儿园_小班.html","views":6560,"date":"2019-08-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会-参观幼儿园/ppt/20260220004608_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"认识班级 社会 小班","path":"/categories/社会/认识班级 社会 小班_小班.html","views":5799,"date":"2019-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/认识班级_社会_小班/ppt/20260130234916_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我是小帮手 语言社会小班","path":"/categories/社会/我是小帮手 语言社会小班_小班.html","views":6410,"date":"2019-06-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我是小帮手-语言社会小班/ppt/20260220123432_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"庆祝妇女节 社会美术 小班","path":"/categories/社会/庆祝妇女节 社会美术 小班_小班.html","views":12610,"date":"2019-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/庆祝妇女节_社会美术_小班/ppt/20260130221613_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"防空警报长鸣 社会小班","path":"/categories/社会/防空警报长鸣 社会小班_小班.html","views":10631,"date":"2019-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/防空警报长鸣-社会小班/ppt/20260220144519_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会科学 我的标记","path":"/categories/社会/小班社会科学 我的标记_小班.html","views":12235,"date":"2019-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会科学-我的标记/ppt/20260220004620_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"妈妈的爱 语言社会小班","path":"/categories/社会/妈妈的爱 语言社会小班_小班.html","views":6664,"date":"2019-03-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/妈妈的爱-语言社会小班/ppt/20260220122616_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《轻轻跑、慢慢跳》","path":"/categories/社会/小班社会《轻轻跑、慢慢跳》_小班.html","views":16566,"date":"2019-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《轻轻跑、慢慢跳》/ppt/20260130221423_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"懂礼貌的好宝宝 社会语言小班","path":"/categories/社会/懂礼貌的好宝宝 社会语言小班_小班.html","views":14292,"date":"2018-12-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/懂礼貌的好宝宝-社会语言小班/ppt/20260220123327_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"不怕热的人们 社会语言小班","path":"/categories/社会/不怕热的人们 社会语言小班_小班.html","views":5015,"date":"2018-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/不怕热的人们-社会语言小班/ppt/20260220121226_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《孤独的小熊》","path":"/categories/社会/小班社会《孤独的小熊》_小班.html","views":7318,"date":"2018-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《孤独的小熊》/ppt/20260130221411_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小乌龟上幼儿园 社会语言小班","path":"/categories/社会/小乌龟上幼儿园 社会语言小班_小班.html","views":8304,"date":"2018-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小乌龟上幼儿园-社会语言小班/ppt/20260220122725_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会我爱五星红旗视频教案PPT课件音乐","path":"/categories/社会/小班社会我爱五星红旗视频教案PPT课件音乐_小班.html","views":18832,"date":"2018-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会我爱五星红旗视频教案PPT课件音乐/ppt/20260219210822_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会语言 自我介绍","path":"/categories/社会/小班社会语言 自我介绍_小班.html","views":17136,"date":"2018-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会语言-自我介绍/ppt/20260220004631_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我上幼儿园啦 语言社会小班","path":"/categories/社会/我上幼儿园啦 语言社会小班_小班.html","views":19669,"date":"2017-05-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我上幼儿园啦-语言社会小班/ppt/20260220123335_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会语言 自我介绍","path":"/categories/社会/小班社会语言 自我介绍_小班_2.html","views":45030,"date":"2016-10-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会语言-自我介绍/ppt/20260220122832_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"幸福的叮咚 语言社会小班","path":"/categories/社会/幸福的叮咚 语言社会小班_小班.html","views":19334,"date":"2016-08-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/幸福的叮咚-语言社会小班/ppt/20260220155234_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我家的国庆味 社会 小班","path":"/categories/社会/我家的国庆味 社会 小班_小班.html","views":17540,"date":"2016-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我家的国庆味_社会_小班/ppt/20260131125152_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"可爱的大熊猫 科学社会 小班","path":"/categories/社会/可爱的大熊猫 科学社会 小班_小班.html","views":14335,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/可爱的大熊猫_科学社会_小班/ppt/20260130233953_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"跟着月饼去赏月 社会语言小班","path":"/categories/社会/跟着月饼去赏月 社会语言小班_小班_2.html","views":11394,"date":"2016-04-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/跟着月饼去赏月-社会语言小班/ppt/20260220124857_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小中班社会 特殊的电话号码","path":"/categories/社会/小中班社会 特殊的电话号码_小班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"/categories/社会/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我家的国庆味 社会小班","path":"/categories/社会/我家的国庆味 社会小班_小班.html","views":14545,"date":"2016-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我家的国庆味-社会小班/ppt/20260220144250_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"不怕冷的人小班社会","path":"/categories/社会/不怕冷的人小班社会_小班.html","views":17691,"date":"2016-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/不怕冷的人小班社会/ppt/20260219215311_ppt_cover_wm.jpg","categories":["社会","小班"]}]);
+  // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+  // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
+  // 🌟 修复跳转：path 前补 "/"，否则文章链接会缺少域名根路径，网页打不开
+  const allPosts = dedupePosts([{"title":"我会交朋友 社会小班","path":"//categories/社会/我会交朋友 社会小班_小班.html","views":4364,"date":"2026-02-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我会交朋友-社会小班/ppt/20260220144242_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"跟着月饼去赏月 社会语言小班","path":"//categories/社会/跟着月饼去赏月 社会语言小班_小班.html","views":18186,"date":"2025-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/跟着月饼去赏月-社会语言小班/ppt/20260220155614_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会 我会排队","path":"//categories/社会/小班社会 我会排队_小班.html","views":14446,"date":"2025-12-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会-我会排队/ppt/20260220004614_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班语言社会 我们一起玩","path":"//categories/社会/小班语言社会 我们一起玩_小班.html","views":15495,"date":"2025-12-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言社会-我们一起玩/ppt/20260220004656_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会语言 美好的一天","path":"//categories/社会/小班社会语言 美好的一天_小班.html","views":12435,"date":"2025-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会语言-美好的一天/ppt/20260220004625_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"中秋节 社会语言小班","path":"//categories/社会/中秋节 社会语言小班_小班.html","views":5951,"date":"2025-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中秋节-社会语言小班/ppt/20260220121538_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班中班不一样 社会中班","path":"//categories/社会/小班中班不一样 社会中班_小班.html","views":11797,"date":"2025-07-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班中班不一样-社会中班/ppt/20260220155050_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"让座 社会语言小班","path":"//categories/社会/让座 社会语言小班_小班.html","views":13179,"date":"2025-03-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/让座-社会语言小班/ppt/20260220124807_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"美好的一天 社会语言小班","path":"//categories/社会/美好的一天 社会语言小班_小班.html","views":11487,"date":"2025-03-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/美好的一天-社会语言小班/ppt/20260220124615_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"爷爷奶奶的童年 社会语言小班","path":"//categories/社会/爷爷奶奶的童年 社会语言小班_小班.html","views":6575,"date":"2025-01-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爷爷奶奶的童年-社会语言小班/ppt/20260220124241_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"防空警报长鸣 社会 小班","path":"//categories/社会/防空警报长鸣 社会 小班_小班.html","views":4967,"date":"2024-12-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/防空警报长鸣_社会_小班/ppt/20260131125408_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"幼儿园的一天 社会 小班","path":"//categories/社会/幼儿园的一天 社会 小班_小班.html","views":6029,"date":"2024-02-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/幼儿园的一天_社会_小班/ppt/20260130234544_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我会交朋友 社会 小班","path":"//categories/社会/我会交朋友 社会 小班_小班.html","views":13638,"date":"2024-02-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我会交朋友_社会_小班/ppt/20260131125145_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的物品在哪里 社会 小班","path":"//categories/社会/我的物品在哪里 社会 小班_小班.html","views":11166,"date":"2023-08-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的物品在哪里_社会_小班/ppt/20260130234657_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小汤圆过元宵 社会 小班","path":"//categories/社会/小汤圆过元宵 社会 小班_小班.html","views":14815,"date":"2023-04-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小汤圆过元宵_社会_小班/ppt/20260130221258_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的标记 社会科学 小班","path":"//categories/社会/我的标记 社会科学 小班_小班.html","views":12425,"date":"2023-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的标记_社会科学_小班/ppt/20260131013224_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班语言社会 我想和你做朋友","path":"//categories/社会/小班语言社会 我想和你做朋友_小班.html","views":5410,"date":"2023-02-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言社会-我想和你做朋友/ppt/20260220155211_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我爱爷爷奶奶 语言社会小班","path":"//categories/社会/我爱爷爷奶奶 语言社会小班_小班.html","views":87788,"date":"2023-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我爱爷爷奶奶-语言社会小班/ppt/20260220123442_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"布娃娃 社会语言小班","path":"//categories/社会/布娃娃 社会语言小班_小班.html","views":7767,"date":"2023-01-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/布娃娃-社会语言小班/ppt/20260220123120_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"《防溺水》小中大班 社会","path":"//categories/社会/《防溺水》小中大班 社会_小班.html","views":12537,"date":"2022-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/《防溺水》小中大班-社会/ppt/20260130201419_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"一二三自己站起来 语言社会小班","path":"//categories/社会/一二三自己站起来 语言社会小班_小班.html","views":16960,"date":"2022-06-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/一二三自己站起来-语言社会小班/ppt/20260220154221_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"蛇年奇遇记 社会语言小班","path":"//categories/社会/蛇年奇遇记 社会语言小班_小班.html","views":9757,"date":"2022-02-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蛇年奇遇记-社会语言小班/ppt/20260220124714_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会环保《一只塑料袋》PPT课件 教案","path":"//categories/社会/小班社会环保《一只塑料袋》PPT课件 plus 教案 plus 教具图_小班.html","views":19267,"date":"2022-01-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会环保《一只塑料袋》PPT课件_plus_教案_plus_教具图/ppt/20260130234229_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班中班不一样 社会 中班","path":"//categories/社会/小班中班不一样 社会 中班_小班.html","views":4417,"date":"2021-12-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班中班不一样_社会_中班/ppt/20260131013027_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"红绿灯 社会小班","path":"//categories/社会/红绿灯 社会小班_小班.html","views":8226,"date":"2021-11-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/红绿灯-社会小班/ppt/20260220155506_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"拔萝卜 语言社会小班","path":"//categories/社会/拔萝卜 语言社会小班_小班.html","views":4097,"date":"2021-11-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/拔萝卜-语言社会小班/ppt/20260220123556_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的爷爷奶奶 社会语言小班","path":"//categories/社会/我的爷爷奶奶 社会语言小班_小班.html","views":12625,"date":"2021-09-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我的爷爷奶奶-社会语言小班/ppt/20260220123502_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"米奇森林历险记","path":"//categories/通用/米奇森林历险记_通用.html","views":12445,"date":"2021-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/米奇森林历险记/ppt/20260130221730_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"世界水日","path":"//categories/通用/世界水日_通用_3.html","views":6172,"date":"2021-07-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/世界水日/ppt/20260130220427_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"跟爸爸在一起 语言社会小班","path":"//categories/社会/跟爸爸在一起 语言社会小班_小班.html","views":19226,"date":"2021-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/跟爸爸在一起-语言社会小班/ppt/20260220124849_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"爸爸妈妈的爱 社会语言小班","path":"//categories/社会/爸爸妈妈的爱 社会语言小班_小班.html","views":14525,"date":"2021-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/爸爸妈妈的爱-社会语言小班/ppt/20260220124247_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班语言社会 小乌龟上幼儿园","path":"//categories/社会/小班语言社会 小乌龟上幼儿园_小班.html","views":15649,"date":"2020-11-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班语言社会-小乌龟上幼儿园/ppt/20260220004651_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"开开心心在一起 社会语言小班","path":"//categories/社会/开开心心在一起 社会语言小班_小班.html","views":6775,"date":"2020-08-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/开开心心在一起-社会语言小班/ppt/20260220123212_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《我会排队》","path":"//categories/社会/小班社会《我会排队》_小班.html","views":8468,"date":"2020-05-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《我会排队》/ppt/20260131124856_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"种子嘟嘟的梦想 语言社会小班","path":"//categories/社会/种子嘟嘟的梦想 语言社会小班_小班.html","views":9287,"date":"2020-04-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/种子嘟嘟的梦想-语言社会小班/ppt/20260220124523_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"入园适应游戏 社会 小班","path":"//categories/社会/入园适应游戏 社会 小班_小班.html","views":4881,"date":"2020-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/入园适应游戏_社会_小班/ppt/20260130233937_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"袋鼠老师讲故事 语言社会小班","path":"//categories/社会/袋鼠老师讲故事 语言社会小班_小班.html","views":11961,"date":"2019-12-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/袋鼠老师讲故事-语言社会小班/ppt/20260220124743_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我的朋友在哪里 音乐社会 小班","path":"//categories/社会/我的朋友在哪里 音乐社会 小班_小班.html","views":13517,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我的朋友在哪里_音乐社会_小班/ppt/20260131013214_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会 参观幼儿园","path":"//categories/社会/小班社会 参观幼儿园_小班.html","views":6560,"date":"2019-08-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会-参观幼儿园/ppt/20260220004608_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"认识班级 社会 小班","path":"//categories/社会/认识班级 社会 小班_小班.html","views":5799,"date":"2019-06-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/认识班级_社会_小班/ppt/20260130234916_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我是小帮手 语言社会小班","path":"//categories/社会/我是小帮手 语言社会小班_小班.html","views":6410,"date":"2019-06-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我是小帮手-语言社会小班/ppt/20260220123432_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"庆祝妇女节 社会美术 小班","path":"//categories/社会/庆祝妇女节 社会美术 小班_小班.html","views":12610,"date":"2019-06-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/庆祝妇女节_社会美术_小班/ppt/20260130221613_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"防空警报长鸣 社会小班","path":"//categories/社会/防空警报长鸣 社会小班_小班.html","views":10631,"date":"2019-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/防空警报长鸣-社会小班/ppt/20260220144519_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会科学 我的标记","path":"//categories/社会/小班社会科学 我的标记_小班.html","views":12235,"date":"2019-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会科学-我的标记/ppt/20260220004620_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"妈妈的爱 语言社会小班","path":"//categories/社会/妈妈的爱 语言社会小班_小班.html","views":6664,"date":"2019-03-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/妈妈的爱-语言社会小班/ppt/20260220122616_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《轻轻跑、慢慢跳》","path":"//categories/社会/小班社会《轻轻跑、慢慢跳》_小班.html","views":16566,"date":"2019-01-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《轻轻跑、慢慢跳》/ppt/20260130221423_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"懂礼貌的好宝宝 社会语言小班","path":"//categories/社会/懂礼貌的好宝宝 社会语言小班_小班.html","views":14292,"date":"2018-12-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/懂礼貌的好宝宝-社会语言小班/ppt/20260220123327_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"不怕热的人们 社会语言小班","path":"//categories/社会/不怕热的人们 社会语言小班_小班.html","views":5015,"date":"2018-09-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/不怕热的人们-社会语言小班/ppt/20260220121226_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会《孤独的小熊》","path":"//categories/社会/小班社会《孤独的小熊》_小班.html","views":7318,"date":"2018-09-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小班社会《孤独的小熊》/ppt/20260130221411_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小乌龟上幼儿园 社会语言小班","path":"//categories/社会/小乌龟上幼儿园 社会语言小班_小班.html","views":8304,"date":"2018-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小乌龟上幼儿园-社会语言小班/ppt/20260220122725_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会我爱五星红旗视频教案PPT课件音乐","path":"//categories/社会/小班社会我爱五星红旗视频教案PPT课件音乐_小班.html","views":18832,"date":"2018-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会我爱五星红旗视频教案PPT课件音乐/ppt/20260219210822_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会语言 自我介绍","path":"//categories/社会/小班社会语言 自我介绍_小班.html","views":17136,"date":"2018-04-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会语言-自我介绍/ppt/20260220004631_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我上幼儿园啦 语言社会小班","path":"//categories/社会/我上幼儿园啦 语言社会小班_小班.html","views":19669,"date":"2017-05-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我上幼儿园啦-语言社会小班/ppt/20260220123335_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小班社会语言 自我介绍","path":"//categories/社会/小班社会语言 自我介绍_小班_2.html","views":45030,"date":"2016-10-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小班社会语言-自我介绍/ppt/20260220122832_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"幸福的叮咚 语言社会小班","path":"//categories/社会/幸福的叮咚 语言社会小班_小班.html","views":19334,"date":"2016-08-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/幸福的叮咚-语言社会小班/ppt/20260220155234_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我家的国庆味 社会 小班","path":"//categories/社会/我家的国庆味 社会 小班_小班.html","views":17540,"date":"2016-08-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/我家的国庆味_社会_小班/ppt/20260131125152_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"可爱的大熊猫 科学社会 小班","path":"//categories/社会/可爱的大熊猫 科学社会 小班_小班.html","views":14335,"date":"2016-06-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/可爱的大熊猫_科学社会_小班/ppt/20260130233953_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"跟着月饼去赏月 社会语言小班","path":"//categories/社会/跟着月饼去赏月 社会语言小班_小班_2.html","views":11394,"date":"2016-04-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/跟着月饼去赏月-社会语言小班/ppt/20260220124857_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"小中班社会 特殊的电话号码","path":"//categories/社会/小中班社会 特殊的电话号码_小班.html","views":7314,"date":"2016-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中班社会-特殊的电话号码/ppt/20260130201645_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"水果躲猫猫 音乐社会 小班","path":"//categories/社会/水果躲猫猫 音乐社会 小班_小班.html","views":4548,"date":"2016-03-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/水果躲猫猫_音乐社会_小班/ppt/20260130201800_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"我家的国庆味 社会小班","path":"//categories/社会/我家的国庆味 社会小班_小班.html","views":14545,"date":"2016-03-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我家的国庆味-社会小班/ppt/20260220144250_ppt_cover_wm.jpg","categories":["社会","小班"]},{"title":"不怕冷的人小班社会","path":"//categories/社会/不怕冷的人小班社会_小班.html","views":17691,"date":"2016-02-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/不怕冷的人小班社会/ppt/20260219215311_ppt_cover_wm.jpg","categories":["社会","小班"]}]);
 
-    let currentPage = 1;
-    const itemsPerPage = 12; 
+  let currentPage = 1;
+  const itemsPerPage = 12;
 
-    function renderCategoryPosts() {
-        const container = document.getElementById('category-posts-container');
-        container.innerHTML = '';
+  function renderCategoryPosts() {
+    const container = document.getElementById('category-posts-container');
+    container.innerHTML = '';
 
-        try {
-            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+    try {
+      const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
 
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageData = allPosts.slice(start, end);
 
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageData = allPosts.slice(start, end);
-
-            // 🌟 统一状态组件：暂无数据
-            if (pageData.length === 0) {
-                container.innerHTML = renderState('empty', {
-                    icon: '📭',
-                    title: '该分类下暂无课件',
-                    desc: '可以去其他分类看看',
-                    btnText: '返回首页',
-                    btnLink: '/'
-                });
-            } else {
-                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
-                function escTitle(s) {
-                    return String(s == null ? '' : s)
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/"/g, '&quot;');
-                }
-                pageData.forEach(post => {
-                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                    const html = `
-                        <div class="post-card">
-                            <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
-                            </div>
-                            <div class="card-body">
-                                <div class="card-title">
-                                    <a href="${post.path}">${escTitle(post.title)}</a>
-                                </div>
-                                <div class="card-meta">
-                                    <span>👁 ${post.views}</span>
-                                    <span>📅 ${post.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += html;
-                });
-            }
-
-            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
-        } catch (e) {
-            // 🌟 统一状态组件：出错
-            container.innerHTML = renderState('error', {
-                title: '加载出错',
-                desc: '数据加载失败，请刷新页面重试',
-                btnText: '刷新页面',
-                btnLink: 'javascript:location.reload()'
-            });
+      // 🌟 统一状态组件：暂无数据
+      if (pageData.length === 0) {
+        container.innerHTML = renderState('empty', {
+          icon: '📭',
+          title: '该分类下暂无课件',
+          desc: '可以去其他分类看看',
+          btnText: '返回首页',
+          btnLink: '/'
+        });
+      } else {
+        // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构
+        function escTitle(s) {
+          return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
         }
-    }
 
-    function changeCategoryPage(delta) {
-        currentPage += delta;
-        renderCategoryPosts();
-        // 翻页后回到列表顶部
-        window.scrollTo({ top: document.querySelector('.category-header').offsetTop - 20, behavior: 'smooth' });
-    }
+        pageData.forEach(post => {
+          const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+          const html = `
+            <div class="post-card">
+              <div class="card-img-wrapper">
+                <img src="${imgUrl}" alt="${escTitle(post.title)}">
+              </div>
+              <div class="card-body">
+                <div class="card-title">
+                  <a href="${post.path}">${escTitle(post.title)}</a>
+                </div>
+                <div class="card-meta">
+                  <span>👁 ${post.views}</span>
+                  <span>📅 ${post.date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          container.innerHTML += html;
+        });
+      }
 
+      document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+      document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+      document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+    } catch (e) {
+      // 🌟 统一状态组件：出错
+      container.innerHTML = renderState('error', {
+        title: '加载出错',
+        desc: '数据加载失败，请刷新页面重试',
+        btnText: '刷新页面',
+        btnLink: 'javascript:location.reload()'
+      });
+    }
+  }
+
+  function changeCategoryPage(delta) {
+    currentPage += delta;
     renderCategoryPosts();
-</script>
+    // 翻页后回到列表顶部
+    window.scrollTo({
+      top: document.querySelector('.category-header').offsetTop - 20,
+      behavior: 'smooth'
+    });
+  }
 
+  renderCategoryPosts();
+</script>
 
 
         </div>

@@ -366,231 +366,262 @@ function handleSearchClick(e) {
     <div class="container">
         <!-- 🌟 仅保留分类页独有的样式 -->
 <style>
-    /* 顶部标题区域 */
-    .category-header { 
-        text-align: center; 
-        padding: 1.5rem 1rem;  /* 🌟 稍微减少一点内边距 */
-        background: #fff; 
-        margin-bottom: 30px; 
-        border-radius: 10px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-        margin-top: 0 !important; /* 🌟 确保容器本身没有大边距 */
-    }
-    
-    /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
-    .category-title { 
-        font-size: 2rem; 
-        color: #2c3e50; 
-        margin-bottom: 0.5rem;
-        margin-top: 0 !important; /* 强制归零，覆盖全局设置 */
-    }
+  /* 顶部标题区域 */
+  .category-header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: #fff;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: 0 !important;
+  }
+  /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
+  .category-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    margin-top: 0 !important;
+  }
+  .back-link { margin-top: 10px; }
+  .back-link a { color: #7f8c8d; text-decoration: none; }
 
-    .back-link { margin-top: 10px; }
-    .back-link a { color: #7f8c8d; text-decoration: none; }
+  /* 带封面的网格列表 */
+  .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px)  { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
 
-    /* 带封面的网格列表 */
-    .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
-    @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 768px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+  .post-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
 
-    .post-card { background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; }
-    .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-    
-    /* 图片区域 */
-    .card-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
-    .card-img-wrapper img { width: 100%; height: auto; max-height: 180px; object-fit: contain; transition: transform 0.5s; }
-    .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
+  /* 图片区域 */
+  .card-img-wrapper {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-img-wrapper img {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: contain;
+    transition: transform 0.5s;
+  }
+  .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
 
-    .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-    .card-title { font-size: 1rem; font-weight: bold; margin-bottom: 10px; color: #2c3e50; line-height: 1.4; flex: 1; }
-    .card-title a { text-decoration: none; color: inherit; }
-    .card-meta { font-size: 0.8rem; color: #999; margin-top: auto; display: flex; justify-content: space-between; }
+  .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+  .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .card-title a { text-decoration: none; color: inherit; }
+  .card-meta {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+  }
 
-    /* 翻页按钮 */
-    .pagination { margin-top: 30px; text-align: center; }
-    .page-btn { padding: 10px 20px; background: #34495e; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin: 0 10px; }
-    .page-btn:disabled { background: #ccc; cursor: not-allowed; }
-    .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
+  /* 翻页按钮 */
+  .pagination { margin-top: 30px; text-align: center; }
+  .page-btn {
+    padding: 10px 20px;
+    background: #34495e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+  }
+  .page-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 
-    /* ============================================================
-       🌟 本周上新（上新分类专用）：竖向时间轴分组样式
-       布局参考设计稿：左侧时间轴 + 右侧单列卡片流
-       分组：最新（7天内）/ 上周（7~14天）/ 更早（14天以前）
-       ============================================================ */
+  /* ============================================================
+     🌟 本周上新（上新分类专用）：竖向时间轴分组样式
+     ============================================================ */
+  .weekly-wrap { max-width: 860px; margin: 0 auto; }
 
-    /* 页面整体：限宽居中，和全站风格一致 */
-    .weekly-wrap { max-width: 860px; margin: 0 auto; }
+  .weekly-header {
+    text-align: center;
+    padding: 1.6rem 1rem 1.3rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    margin-top: 0 !important;
+  }
+  .weekly-header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin: 0 0 8px;
+    margin-top: 0 !important;
+  }
+  .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
+  .weekly-header .back-link { margin-top: 12px; }
 
-    /* 页头：白卡片，与其他页面页头统一 */
-    .weekly-header {
-        text-align: center;
-        padding: 1.6rem 1rem 1.3rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 24px;
-        margin-top: 0 !important;
-    }
-    .weekly-header h1 {
-        font-size: 2rem;
-        color: #2c3e50;
-        margin: 0 0 8px;
-        margin-top: 0 !important; /* 抵消 layout.ejs 给 h1 的全局上边距 */
-    }
-    .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
-    .weekly-header .back-link { margin-top: 12px; }
+  .weekly-board {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
+    padding: 28px 24px 8px;
+  }
 
-    /* 时间轴大容器：白色圆角卡片包住整个时间轴 */
-    .weekly-board {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
-        padding: 28px 24px 8px;
-    }
+  .timeline { position: relative; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 21px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: #e8ecf1;
+    border-radius: 1px;
+  }
 
-    /* 时间轴：左侧贯穿的浅灰色竖线 */
-    .timeline { position: relative; }
-    .timeline::before {
-        content: "";
-        position: absolute;
-        left: 21px;             /* 正好在图标圆心下方 */
-        top: 18px;
-        bottom: 18px;
-        width: 2px;
-        background: #e8ecf1;
-        border-radius: 1px;
-    }
+  .time-group { position: relative; }
 
-    /* 单个分组 */
-    .time-group { position: relative; }
-    .time-group-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        position: relative;
-        z-index: 1;              /* 盖住背后的时间轴竖线 */
-        margin-bottom: 14px;
-    }
+  .time-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 14px;
+  }
 
-    /* 分组标题左侧的圆形时钟图标（带立体厚度，呼应全站按钮语言） */
-    .time-icon {
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        background: #2c3e50;
-        box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
-    }
-    /* 三个分组用同形不同色，方便快速扫读 */
-    .time-icon.icon-latest   { background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%); box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35); }
-    .time-icon.icon-lastweek { background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%); box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35); }
-    .time-icon.icon-earlier  { background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%); box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35); }
+  .time-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: #2c3e50;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
+  }
+  .time-icon.icon-latest {
+    background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%);
+    box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35);
+  }
+  .time-icon.icon-lastweek {
+    background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%);
+    box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35);
+  }
+  .time-icon.icon-earlier {
+    background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%);
+    box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35);
+  }
 
-    .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
-    .time-sub   { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
+  .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
+  .time-sub { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
 
-    /* 右侧的数量徽章 */
-    .time-count {
-        margin-left: auto;
-        font-size: 0.8rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        padding: 4px 12px;
-        border-radius: 12px;
-        white-space: nowrap;
-    }
+  .time-count {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
 
-    /* 分组内的卡片列表：整体向右缩进，让出时间轴位置 */
-    .time-card-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        padding-left: 58px;
-        margin-bottom: 30px;
-    }
+  .time-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 58px;
+    margin-bottom: 30px;
+  }
 
-    /* 单张课件卡片：左封面 + 右信息，整卡可点 */
-    .time-card {
-        display: flex;
-        gap: 16px;
-        padding: 12px;
-        background: #fbfcfe;
-        border: 1px solid #eef1f5;
-        border-radius: 14px;
-        text-decoration: none;
-        transition: all 0.18s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .time-card:hover {
-        transform: translateY(-2px);
-        background: #fff;
-        border-color: #d8e4f2;
-        box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
-    }
-    .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
+  .time-card {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    background: #fbfcfe;
+    border: 1px solid #eef1f5;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .time-card:hover {
+    transform: translateY(-2px);
+    background: #fff;
+    border-color: #d8e4f2;
+    box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
+  }
+  .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
 
-    /* 左侧封面缩略图 */
-    .time-card-img {
-        flex-shrink: 0;
-        width: 190px;
-        height: 120px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #f1f3f6;
-    }
-    .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .time-card-img {
+    flex-shrink: 0;
+    width: 190px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f1f3f6;
+  }
+  .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* 右侧信息区 */
-    .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
-    .time-card-title {
-        font-size: 1.02rem;
-        font-weight: 600;
-        color: #2c3e50;
-        line-height: 1.45;
-        margin-bottom: 6px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;   /* 标题最多两行 */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .time-card:hover .time-card-title { color: #3498db; }
-    .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
+  .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
 
-    /* 分类标签胶囊 */
-    .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag-pill {
-        font-size: 0.75rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        border-radius: 10px;
-        padding: 3px 10px;
-        white-space: nowrap;
-    }
+  .time-card-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.45;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .time-card:hover .time-card-title { color: #3498db; }
 
-    /* 底部提示：超出上限时说明只展示了最近 N 条 */
-    .weekly-more {
-        text-align: center;
-        color: #98a2b3;
-        font-size: 0.85rem;
-        padding: 4px 0 20px;
-    }
+  .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
 
-    /* 手机端：收起时间轴竖线和缩进，卡片封面缩小 */
-    @media (max-width: 640px) {
-        .weekly-board { padding: 20px 14px 4px; }
-        .timeline::before { display: none; }
-        .time-card-list { padding-left: 0; }
-        .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
-        .time-label { font-size: 1.05rem; }
-        .time-card { gap: 12px; padding: 10px; }
-        .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
-        .time-card-title { font-size: 0.92rem; }
-        .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
-    }
+  .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-pill {
+    font-size: 0.75rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    border-radius: 10px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .weekly-more { text-align: center; color: #98a2b3; font-size: 0.85rem; padding: 4px 0 20px; }
+
+  @media (max-width: 640px) {
+    .weekly-board { padding: 20px 14px 4px; }
+    .timeline::before { display: none; }
+    .time-card-list { padding-left: 0; }
+    .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
+    .time-label { font-size: 1.05rem; }
+    .time-card { gap: 12px; padding: 10px; }
+    .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
+    .time-card-title { font-size: 0.92rem; }
+    .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
+  }
 </style>
 
 <!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
@@ -750,115 +781,118 @@ function handleSearchClick(e) {
 
 <!-- 分类页头部 -->
 <div class="category-header">
-    <h1 class="category-title">📂 分类：主题环创</h1>
-    <div class="back-link">
-        <a href="/">&larr; 返回首页</a>
-    </div>
+  <h1 class="category-title">📂 分类：主题环创</h1>
+  <div class="back-link">
+    <a href="/">&larr; 返回首页</a>
+  </div>
 </div>
 
 <!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div class="state-block">
-        <div class="spinner"></div>
-        <h3>加载中...</h3>
-        <p>正在加载该分类下的课件，请稍候</p>
-    </div>
+  <div class="state-block">
+    <div class="spinner"></div>
+    <h3>加载中...</h3>
+    <p>正在加载该分类下的课件，请稍候</p>
+  </div>
 </div>
 
 <!-- 翻页按钮 -->
 <div class="pagination">
-    <button id="cat-prev-btn" class="page-btn" onclick="changeCategoryPage(-1)">上一页</button>
-    <span class="page-info" id="cat-page-info">第 1 页</span>
-    <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
+  <button id="cat-prev-btn" class="page-btn" onclick="changeCategoryPage(-1)">上一页</button>
+  <span class="page-info" id="cat-page-info">第 1 页</span>
+  <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
 <!-- 分类页逻辑脚本 -->
 <script>
-    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
-    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
-    const allPosts = dedupePosts([{"title":"原木风  春季  环创图片","path":"/categories/主题环创/原木风  春季  环创图片.html","views":25859,"date":"2025-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_651aeee2/grid_20260222123109_1.jpg","categories":["主题环创","春季","原木风  春季  环创图片"]},{"title":"秋季区域环创","path":"/categories/主题环创/秋季区域环创.html","views":47822,"date":"2025-08-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_cfcd3177/grid_20260222123319_1.jpg","categories":["主题环创","秋季","秋季区域环创"]},{"title":"秋季主题墙环创","path":"/categories/主题环创/秋季主题墙环创.html","views":37442,"date":"2025-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c148b638/grid_20260222123316_1.jpg","categories":["主题环创","秋季","秋季主题墙环创"]},{"title":"光盘行动","path":"/categories/主题环创/光盘行动.html","views":2537,"date":"2025-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_285b7e2a/grid_20260222123237_1.jpg","categories":["主题环创","秋季","光盘行动"]},{"title":"秋天的树林","path":"/categories/主题环创/秋天的树林.html","views":2538,"date":"2025-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_5dacee66/grid_20260222123312_1.jpg","categories":["主题环创","秋季","秋天的树林"]},{"title":"春天主题墙素材","path":"/categories/主题环创/春天主题墙素材.html","views":22581,"date":"2025-04-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_ca99ce07/grid_20260222123201_1.jpg","categories":["主题环创","春季","春天主题墙素材"]},{"title":"秋冬运动会环创合集","path":"/categories/主题环创/秋冬运动会环创合集.html","views":15889,"date":"2024-11-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_a3af0849/grid_20260222123249_1.jpg","categories":["主题环创","秋季","秋冬运动会环创合集"]},{"title":"Z124+冬天主题墙","path":"/categories/主题环创/Z124+冬天主题墙.html","views":33640,"date":"2024-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/Z124/grid_20260222123354_1.jpg","categories":["主题环创","冬季","Z124+冬天主题墙"]},{"title":"遇见春天","path":"/categories/主题环创/遇见春天.html","views":39771,"date":"2024-04-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_21358b90/part_c6394bf4/grid_20260222123404_1.jpg","categories":["主题环创","季节环创素材","遇见春天"]},{"title":"冬天可以玩什么","path":"/categories/主题环创/冬天可以玩什么.html","views":9224,"date":"2023-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/part_f8dd340b/grid_20260222123403_1.jpg","categories":["主题环创","冬季","冬天可以玩什么"]},{"title":"秋日大丰收","path":"/categories/主题环创/秋日大丰收.html","views":3491,"date":"2023-08-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_6777cb68/grid_20260222123321_1.jpg","categories":["主题环创","秋季","秋日大丰收"]},{"title":"小动物的冬天","path":"/categories/主题环创/小动物的冬天.html","views":11780,"date":"2023-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/part_7f3dc17f/grid_20260222123404_1.jpg","categories":["主题环创","冬季","小动物的冬天"]},{"title":"春游环创素材","path":"/categories/主题环创/春游环创素材.html","views":34574,"date":"2023-06-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_8a3b0889/grid_20260222123225_1.jpg","categories":["主题环创","春季","春游环创素材"]},{"title":"秋游主题墙","path":"/categories/主题环创/秋游主题墙.html","views":29637,"date":"2023-02-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_141b876f/grid_20260222123340_1.jpg","categories":["主题环创","秋季","秋游主题墙"]},{"title":"秋游展板","path":"/categories/主题环创/秋游展板.html","views":27015,"date":"2022-11-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c3c586d9/grid_20260222123348_1.jpg","categories":["主题环创","秋季","秋游展板"]},{"title":"镂空画素材可直接打印","path":"/categories/主题环创/镂空画素材可直接打印.html","views":49358,"date":"2022-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_d586df29/grid_20260222123227_1.jpg","categories":["主题环创","春季","镂空画素材可直接打印"]},{"title":"春季探索素材","path":"/categories/主题环创/春季探索素材.html","views":27649,"date":"2022-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_00736440/grid_20260222123224_1.jpg","categories":["主题环创","春季","春季探索素材"]},{"title":"冬天主题素材","path":"/categories/主题环创/冬天主题素材.html","views":26601,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/part_34b24a6e/grid_20260222123402_1.jpg","categories":["主题环创","冬季","冬天主题素材"]},{"title":"Q01 秋叶记录册","path":"/categories/主题环创/Q01 秋叶记录册.html","views":25262,"date":"2022-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/Q01/grid_20260222123230_1.jpg","categories":["主题环创","秋季","Q01 秋叶记录册"]},{"title":"怎么留住秋天","path":"/categories/主题环创/怎么留住秋天.html","views":26697,"date":"2021-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_e6dc5d74/grid_20260222123246_1.jpg","categories":["主题环创","秋季","怎么留住秋天"]},{"title":"春天主题素材","path":"/categories/主题环创/春天主题素材.html","views":22181,"date":"2021-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_80ad1e6b/grid_20260222123204_1.jpg","categories":["主题环创","春季","春天主题素材"]},{"title":"植树节➕春素材","path":"/categories/主题环创/植树节➕春素材.html","views":7873,"date":"2020-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_6ed42002/grid_20260222123226_1.jpg","categories":["主题环创","春季","植树节➕春素材"]},{"title":"春天主题墙(上)","path":"/categories/主题环创/春天主题墙(上).html","views":33304,"date":"2020-09-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_13961146/grid_20260222123137_1.jpg","categories":["主题环创","春季","春天主题墙(上)"]},{"title":"秋天在哪里","path":"/categories/主题环创/秋天在哪里.html","views":27850,"date":"2019-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_855c8167/grid_20260222123250_1.jpg","categories":["主题环创","秋季","秋天在哪里"]},{"title":"Z22 小动物的冬天","path":"/categories/主题环创/Z22 小动物的冬天.html","views":29837,"date":"2019-03-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/Z22/grid_20260222123401_1.jpg","categories":["主题环创","冬季","Z22 小动物的冬天"]},{"title":"春季传染病环境创设","path":"/categories/主题环创/春季传染病环境创设.html","views":37811,"date":"2018-12-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_fceb7ed7/grid_20260222123209_1.jpg","categories":["主题环创","春季","春季传染病环境创设"]},{"title":"关于春天的环创素材","path":"/categories/主题环创/关于春天的环创素材.html","views":34512,"date":"2018-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_56f9229e/grid_20260222123106_1.jpg","categories":["主题环创","春季","关于春天的环创素材"]},{"title":"秋天环创素材","path":"/categories/主题环创/秋天环创素材.html","views":18865,"date":"2018-01-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c6878266/grid_20260222123253_1.jpg","categories":["主题环创","秋季","秋天环创素材"]},{"title":"春天主题墙(下)","path":"/categories/主题环创/春天主题墙(下).html","views":49429,"date":"2018-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_c463c92b/grid_20260222123143_1.jpg","categories":["主题环创","春季","春天主题墙(下)"]},{"title":"新学期秋季主题网络图","path":"/categories/主题环创/新学期秋季主题网络图.html","views":14008,"date":"2017-11-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_47ebdf77/grid_20260222123248_1.jpg","categories":["主题环创","秋季","新学期秋季主题网络图"]},{"title":"关于秋天的环创","path":"/categories/主题环创/关于秋天的环创.html","views":35583,"date":"2016-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_24e47e9b/grid_20260222123242_1.jpg","categories":["主题环创","秋季","关于秋天的环创"]}]);
+  // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+  // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
+  // 🌟 修复跳转：path 前补 "/"，否则文章链接会缺少域名根路径，网页打不开
+  const allPosts = dedupePosts([{"title":"原木风  春季  环创图片","path":"//categories/主题环创/原木风  春季  环创图片.html","views":25859,"date":"2025-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_651aeee2/grid_20260222123109_1.jpg","categories":["主题环创","春季","原木风  春季  环创图片"]},{"title":"秋季区域环创","path":"//categories/主题环创/秋季区域环创.html","views":47822,"date":"2025-08-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_cfcd3177/grid_20260222123319_1.jpg","categories":["主题环创","秋季","秋季区域环创"]},{"title":"秋季主题墙环创","path":"//categories/主题环创/秋季主题墙环创.html","views":37442,"date":"2025-08-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c148b638/grid_20260222123316_1.jpg","categories":["主题环创","秋季","秋季主题墙环创"]},{"title":"光盘行动","path":"//categories/主题环创/光盘行动.html","views":2537,"date":"2025-07-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_285b7e2a/grid_20260222123237_1.jpg","categories":["主题环创","秋季","光盘行动"]},{"title":"秋天的树林","path":"//categories/主题环创/秋天的树林.html","views":2538,"date":"2025-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_5dacee66/grid_20260222123312_1.jpg","categories":["主题环创","秋季","秋天的树林"]},{"title":"春天主题墙素材","path":"//categories/主题环创/春天主题墙素材.html","views":22581,"date":"2025-04-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_ca99ce07/grid_20260222123201_1.jpg","categories":["主题环创","春季","春天主题墙素材"]},{"title":"秋冬运动会环创合集","path":"//categories/主题环创/秋冬运动会环创合集.html","views":15889,"date":"2024-11-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_a3af0849/grid_20260222123249_1.jpg","categories":["主题环创","秋季","秋冬运动会环创合集"]},{"title":"Z124+冬天主题墙","path":"//categories/主题环创/Z124+冬天主题墙.html","views":33640,"date":"2024-09-06","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/Z124/grid_20260222123354_1.jpg","categories":["主题环创","冬季","Z124+冬天主题墙"]},{"title":"遇见春天","path":"//categories/主题环创/遇见春天.html","views":39771,"date":"2024-04-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_21358b90/part_c6394bf4/grid_20260222123404_1.jpg","categories":["主题环创","季节环创素材","遇见春天"]},{"title":"冬天可以玩什么","path":"//categories/主题环创/冬天可以玩什么.html","views":9224,"date":"2023-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/part_f8dd340b/grid_20260222123403_1.jpg","categories":["主题环创","冬季","冬天可以玩什么"]},{"title":"秋日大丰收","path":"//categories/主题环创/秋日大丰收.html","views":3491,"date":"2023-08-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_6777cb68/grid_20260222123321_1.jpg","categories":["主题环创","秋季","秋日大丰收"]},{"title":"小动物的冬天","path":"//categories/主题环创/小动物的冬天.html","views":11780,"date":"2023-06-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/part_7f3dc17f/grid_20260222123404_1.jpg","categories":["主题环创","冬季","小动物的冬天"]},{"title":"春游环创素材","path":"//categories/主题环创/春游环创素材.html","views":34574,"date":"2023-06-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_8a3b0889/grid_20260222123225_1.jpg","categories":["主题环创","春季","春游环创素材"]},{"title":"秋游主题墙","path":"//categories/主题环创/秋游主题墙.html","views":29637,"date":"2023-02-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_141b876f/grid_20260222123340_1.jpg","categories":["主题环创","秋季","秋游主题墙"]},{"title":"秋游展板","path":"//categories/主题环创/秋游展板.html","views":27015,"date":"2022-11-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c3c586d9/grid_20260222123348_1.jpg","categories":["主题环创","秋季","秋游展板"]},{"title":"镂空画素材可直接打印","path":"//categories/主题环创/镂空画素材可直接打印.html","views":49358,"date":"2022-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_d586df29/grid_20260222123227_1.jpg","categories":["主题环创","春季","镂空画素材可直接打印"]},{"title":"春季探索素材","path":"//categories/主题环创/春季探索素材.html","views":27649,"date":"2022-07-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_00736440/grid_20260222123224_1.jpg","categories":["主题环创","春季","春季探索素材"]},{"title":"冬天主题素材","path":"//categories/主题环创/冬天主题素材.html","views":26601,"date":"2022-05-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/part_34b24a6e/grid_20260222123402_1.jpg","categories":["主题环创","冬季","冬天主题素材"]},{"title":"Q01 秋叶记录册","path":"//categories/主题环创/Q01 秋叶记录册.html","views":25262,"date":"2022-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/Q01/grid_20260222123230_1.jpg","categories":["主题环创","秋季","Q01 秋叶记录册"]},{"title":"怎么留住秋天","path":"//categories/主题环创/怎么留住秋天.html","views":26697,"date":"2021-08-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_e6dc5d74/grid_20260222123246_1.jpg","categories":["主题环创","秋季","怎么留住秋天"]},{"title":"春天主题素材","path":"//categories/主题环创/春天主题素材.html","views":22181,"date":"2021-04-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_80ad1e6b/grid_20260222123204_1.jpg","categories":["主题环创","春季","春天主题素材"]},{"title":"植树节➕春素材","path":"//categories/主题环创/植树节➕春素材.html","views":7873,"date":"2020-12-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_6ed42002/grid_20260222123226_1.jpg","categories":["主题环创","春季","植树节➕春素材"]},{"title":"春天主题墙(上)","path":"//categories/主题环创/春天主题墙(上).html","views":33304,"date":"2020-09-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_13961146/grid_20260222123137_1.jpg","categories":["主题环创","春季","春天主题墙(上)"]},{"title":"秋天在哪里","path":"//categories/主题环创/秋天在哪里.html","views":27850,"date":"2019-06-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_855c8167/grid_20260222123250_1.jpg","categories":["主题环创","秋季","秋天在哪里"]},{"title":"Z22 小动物的冬天","path":"//categories/主题环创/Z22 小动物的冬天.html","views":29837,"date":"2019-03-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_752b9e58/Z22/grid_20260222123401_1.jpg","categories":["主题环创","冬季","Z22 小动物的冬天"]},{"title":"春季传染病环境创设","path":"//categories/主题环创/春季传染病环境创设.html","views":37811,"date":"2018-12-16","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_fceb7ed7/grid_20260222123209_1.jpg","categories":["主题环创","春季","春季传染病环境创设"]},{"title":"关于春天的环创素材","path":"//categories/主题环创/关于春天的环创素材.html","views":34512,"date":"2018-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_56f9229e/grid_20260222123106_1.jpg","categories":["主题环创","春季","关于春天的环创素材"]},{"title":"秋天环创素材","path":"//categories/主题环创/秋天环创素材.html","views":18865,"date":"2018-01-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_c6878266/grid_20260222123253_1.jpg","categories":["主题环创","秋季","秋天环创素材"]},{"title":"春天主题墙(下)","path":"//categories/主题环创/春天主题墙(下).html","views":49429,"date":"2018-01-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_a903d388/part_c463c92b/grid_20260222123143_1.jpg","categories":["主题环创","春季","春天主题墙(下)"]},{"title":"新学期秋季主题网络图","path":"//categories/主题环创/新学期秋季主题网络图.html","views":14008,"date":"2017-11-26","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_47ebdf77/grid_20260222123248_1.jpg","categories":["主题环创","秋季","新学期秋季主题网络图"]},{"title":"关于秋天的环创","path":"//categories/主题环创/关于秋天的环创.html","views":35583,"date":"2016-04-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/huanchuang/part_d220350d/part_15fe0351/part_24e47e9b/grid_20260222123242_1.jpg","categories":["主题环创","秋季","关于秋天的环创"]}]);
 
-    let currentPage = 1;
-    const itemsPerPage = 12; 
+  let currentPage = 1;
+  const itemsPerPage = 12;
 
-    function renderCategoryPosts() {
-        const container = document.getElementById('category-posts-container');
-        container.innerHTML = '';
+  function renderCategoryPosts() {
+    const container = document.getElementById('category-posts-container');
+    container.innerHTML = '';
 
-        try {
-            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+    try {
+      const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
 
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageData = allPosts.slice(start, end);
 
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageData = allPosts.slice(start, end);
-
-            // 🌟 统一状态组件：暂无数据
-            if (pageData.length === 0) {
-                container.innerHTML = renderState('empty', {
-                    icon: '📭',
-                    title: '该分类下暂无课件',
-                    desc: '可以去其他分类看看',
-                    btnText: '返回首页',
-                    btnLink: '/'
-                });
-            } else {
-                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
-                function escTitle(s) {
-                    return String(s == null ? '' : s)
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/"/g, '&quot;');
-                }
-                pageData.forEach(post => {
-                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                    const html = `
-                        <div class="post-card">
-                            <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
-                            </div>
-                            <div class="card-body">
-                                <div class="card-title">
-                                    <a href="${post.path}">${escTitle(post.title)}</a>
-                                </div>
-                                <div class="card-meta">
-                                    <span>👁 ${post.views}</span>
-                                    <span>📅 ${post.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += html;
-                });
-            }
-
-            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
-        } catch (e) {
-            // 🌟 统一状态组件：出错
-            container.innerHTML = renderState('error', {
-                title: '加载出错',
-                desc: '数据加载失败，请刷新页面重试',
-                btnText: '刷新页面',
-                btnLink: 'javascript:location.reload()'
-            });
+      // 🌟 统一状态组件：暂无数据
+      if (pageData.length === 0) {
+        container.innerHTML = renderState('empty', {
+          icon: '📭',
+          title: '该分类下暂无课件',
+          desc: '可以去其他分类看看',
+          btnText: '返回首页',
+          btnLink: '/'
+        });
+      } else {
+        // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构
+        function escTitle(s) {
+          return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
         }
-    }
 
-    function changeCategoryPage(delta) {
-        currentPage += delta;
-        renderCategoryPosts();
-        // 翻页后回到列表顶部
-        window.scrollTo({ top: document.querySelector('.category-header').offsetTop - 20, behavior: 'smooth' });
-    }
+        pageData.forEach(post => {
+          const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+          const html = `
+            <div class="post-card">
+              <div class="card-img-wrapper">
+                <img src="${imgUrl}" alt="${escTitle(post.title)}">
+              </div>
+              <div class="card-body">
+                <div class="card-title">
+                  <a href="${post.path}">${escTitle(post.title)}</a>
+                </div>
+                <div class="card-meta">
+                  <span>👁 ${post.views}</span>
+                  <span>📅 ${post.date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          container.innerHTML += html;
+        });
+      }
 
+      document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+      document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+      document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+    } catch (e) {
+      // 🌟 统一状态组件：出错
+      container.innerHTML = renderState('error', {
+        title: '加载出错',
+        desc: '数据加载失败，请刷新页面重试',
+        btnText: '刷新页面',
+        btnLink: 'javascript:location.reload()'
+      });
+    }
+  }
+
+  function changeCategoryPage(delta) {
+    currentPage += delta;
     renderCategoryPosts();
-</script>
+    // 翻页后回到列表顶部
+    window.scrollTo({
+      top: document.querySelector('.category-header').offsetTop - 20,
+      behavior: 'smooth'
+    });
+  }
 
+  renderCategoryPosts();
+</script>
 
 
         </div>

@@ -366,231 +366,262 @@ function handleSearchClick(e) {
     <div class="container">
         <!-- 🌟 仅保留分类页独有的样式 -->
 <style>
-    /* 顶部标题区域 */
-    .category-header { 
-        text-align: center; 
-        padding: 1.5rem 1rem;  /* 🌟 稍微减少一点内边距 */
-        background: #fff; 
-        margin-bottom: 30px; 
-        border-radius: 10px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-        margin-top: 0 !important; /* 🌟 确保容器本身没有大边距 */
-    }
-    
-    /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
-    .category-title { 
-        font-size: 2rem; 
-        color: #2c3e50; 
-        margin-bottom: 0.5rem;
-        margin-top: 0 !important; /* 强制归零，覆盖全局设置 */
-    }
+  /* 顶部标题区域 */
+  .category-header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: #fff;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: 0 !important;
+  }
+  /* 🔥 关键修复：取消 layout.ejs 给 h1 设置的 100px 上边距 */
+  .category-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    margin-top: 0 !important;
+  }
+  .back-link { margin-top: 10px; }
+  .back-link a { color: #7f8c8d; text-decoration: none; }
 
-    .back-link { margin-top: 10px; }
-    .back-link a { color: #7f8c8d; text-decoration: none; }
+  /* 带封面的网格列表 */
+  .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px)  { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
 
-    /* 带封面的网格列表 */
-    .posts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
-    @media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 768px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+  .post-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
 
-    .post-card { background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; }
-    .post-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-    
-    /* 图片区域 */
-    .card-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
-    .card-img-wrapper img { width: 100%; height: auto; max-height: 180px; object-fit: contain; transition: transform 0.5s; }
-    .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
+  /* 图片区域 */
+  .card-img-wrapper {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-img-wrapper img {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: contain;
+    transition: transform 0.5s;
+  }
+  .post-card:hover .card-img-wrapper img { transform: scale(1.05); }
 
-    .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-    .card-title { font-size: 1rem; font-weight: bold; margin-bottom: 10px; color: #2c3e50; line-height: 1.4; flex: 1; }
-    .card-title a { text-decoration: none; color: inherit; }
-    .card-meta { font-size: 0.8rem; color: #999; margin-top: auto; display: flex; justify-content: space-between; }
+  .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+  .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .card-title a { text-decoration: none; color: inherit; }
+  .card-meta {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+  }
 
-    /* 翻页按钮 */
-    .pagination { margin-top: 30px; text-align: center; }
-    .page-btn { padding: 10px 20px; background: #34495e; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin: 0 10px; }
-    .page-btn:disabled { background: #ccc; cursor: not-allowed; }
-    .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
+  /* 翻页按钮 */
+  .pagination { margin-top: 30px; text-align: center; }
+  .page-btn {
+    padding: 10px 20px;
+    background: #34495e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+  }
+  .page-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .page-info { font-size: 1rem; margin: 0 15px; color: #555; vertical-align: middle; }
 
-    /* ============================================================
-       🌟 本周上新（上新分类专用）：竖向时间轴分组样式
-       布局参考设计稿：左侧时间轴 + 右侧单列卡片流
-       分组：最新（7天内）/ 上周（7~14天）/ 更早（14天以前）
-       ============================================================ */
+  /* ============================================================
+     🌟 本周上新（上新分类专用）：竖向时间轴分组样式
+     ============================================================ */
+  .weekly-wrap { max-width: 860px; margin: 0 auto; }
 
-    /* 页面整体：限宽居中，和全站风格一致 */
-    .weekly-wrap { max-width: 860px; margin: 0 auto; }
+  .weekly-header {
+    text-align: center;
+    padding: 1.6rem 1rem 1.3rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    margin-top: 0 !important;
+  }
+  .weekly-header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin: 0 0 8px;
+    margin-top: 0 !important;
+  }
+  .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
+  .weekly-header .back-link { margin-top: 12px; }
 
-    /* 页头：白卡片，与其他页面页头统一 */
-    .weekly-header {
-        text-align: center;
-        padding: 1.6rem 1rem 1.3rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 24px;
-        margin-top: 0 !important;
-    }
-    .weekly-header h1 {
-        font-size: 2rem;
-        color: #2c3e50;
-        margin: 0 0 8px;
-        margin-top: 0 !important; /* 抵消 layout.ejs 给 h1 的全局上边距 */
-    }
-    .weekly-sub { color: #8a94a6; font-size: 0.95rem; margin: 0; }
-    .weekly-header .back-link { margin-top: 12px; }
+  .weekly-board {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
+    padding: 28px 24px 8px;
+  }
 
-    /* 时间轴大容器：白色圆角卡片包住整个时间轴 */
-    .weekly-board {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
-        padding: 28px 24px 8px;
-    }
+  .timeline { position: relative; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 21px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: #e8ecf1;
+    border-radius: 1px;
+  }
 
-    /* 时间轴：左侧贯穿的浅灰色竖线 */
-    .timeline { position: relative; }
-    .timeline::before {
-        content: "";
-        position: absolute;
-        left: 21px;             /* 正好在图标圆心下方 */
-        top: 18px;
-        bottom: 18px;
-        width: 2px;
-        background: #e8ecf1;
-        border-radius: 1px;
-    }
+  .time-group { position: relative; }
 
-    /* 单个分组 */
-    .time-group { position: relative; }
-    .time-group-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        position: relative;
-        z-index: 1;              /* 盖住背后的时间轴竖线 */
-        margin-bottom: 14px;
-    }
+  .time-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 14px;
+  }
 
-    /* 分组标题左侧的圆形时钟图标（带立体厚度，呼应全站按钮语言） */
-    .time-icon {
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        background: #2c3e50;
-        box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
-    }
-    /* 三个分组用同形不同色，方便快速扫读 */
-    .time-icon.icon-latest   { background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%); box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35); }
-    .time-icon.icon-lastweek { background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%); box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35); }
-    .time-icon.icon-earlier  { background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%); box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35); }
+  .time-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: #2c3e50;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22), 0 5px 10px rgba(44, 62, 80, 0.25);
+  }
+  .time-icon.icon-latest {
+    background: linear-gradient(180deg, #f39c3d 0%, #e67e22 100%);
+    box-shadow: 0 3px 0 #b35c10, 0 5px 10px rgba(230, 126, 34, 0.35);
+  }
+  .time-icon.icon-lastweek {
+    background: linear-gradient(180deg, #4aa3e8 0%, #3498db 100%);
+    box-shadow: 0 3px 0 #23719f, 0 5px 10px rgba(52, 152, 219, 0.35);
+  }
+  .time-icon.icon-earlier {
+    background: linear-gradient(180deg, #aab6c2 0%, #95a5a6 100%);
+    box-shadow: 0 3px 0 #6f7d84, 0 5px 10px rgba(149, 165, 166, 0.35);
+  }
 
-    .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
-    .time-sub   { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
+  .time-label { font-size: 1.18rem; font-weight: 700; color: #2c3e50; line-height: 1.2; }
+  .time-sub { display: block; font-size: 0.78rem; font-weight: 400; color: #98a2b3; margin-top: 2px; }
 
-    /* 右侧的数量徽章 */
-    .time-count {
-        margin-left: auto;
-        font-size: 0.8rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        padding: 4px 12px;
-        border-radius: 12px;
-        white-space: nowrap;
-    }
+  .time-count {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
 
-    /* 分组内的卡片列表：整体向右缩进，让出时间轴位置 */
-    .time-card-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        padding-left: 58px;
-        margin-bottom: 30px;
-    }
+  .time-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 58px;
+    margin-bottom: 30px;
+  }
 
-    /* 单张课件卡片：左封面 + 右信息，整卡可点 */
-    .time-card {
-        display: flex;
-        gap: 16px;
-        padding: 12px;
-        background: #fbfcfe;
-        border: 1px solid #eef1f5;
-        border-radius: 14px;
-        text-decoration: none;
-        transition: all 0.18s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .time-card:hover {
-        transform: translateY(-2px);
-        background: #fff;
-        border-color: #d8e4f2;
-        box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
-    }
-    .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
+  .time-card {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    background: #fbfcfe;
+    border: 1px solid #eef1f5;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .time-card:hover {
+    transform: translateY(-2px);
+    background: #fff;
+    border-color: #d8e4f2;
+    box-shadow: 0 8px 18px rgba(44, 62, 80, 0.1);
+  }
+  .time-card:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); }
 
-    /* 左侧封面缩略图 */
-    .time-card-img {
-        flex-shrink: 0;
-        width: 190px;
-        height: 120px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #f1f3f6;
-    }
-    .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .time-card-img {
+    flex-shrink: 0;
+    width: 190px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f1f3f6;
+  }
+  .time-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* 右侧信息区 */
-    .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
-    .time-card-title {
-        font-size: 1.02rem;
-        font-weight: 600;
-        color: #2c3e50;
-        line-height: 1.45;
-        margin-bottom: 6px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;   /* 标题最多两行 */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .time-card:hover .time-card-title { color: #3498db; }
-    .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
+  .time-card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2px 2px; }
 
-    /* 分类标签胶囊 */
-    .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag-pill {
-        font-size: 0.75rem;
-        color: #5c6b7a;
-        background: #f1f4f8;
-        border-radius: 10px;
-        padding: 3px 10px;
-        white-space: nowrap;
-    }
+  .time-card-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.45;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .time-card:hover .time-card-title { color: #3498db; }
 
-    /* 底部提示：超出上限时说明只展示了最近 N 条 */
-    .weekly-more {
-        text-align: center;
-        color: #98a2b3;
-        font-size: 0.85rem;
-        padding: 4px 0 20px;
-    }
+  .time-card-meta { font-size: 0.82rem; color: #98a2b3; margin-bottom: 10px; }
 
-    /* 手机端：收起时间轴竖线和缩进，卡片封面缩小 */
-    @media (max-width: 640px) {
-        .weekly-board { padding: 20px 14px 4px; }
-        .timeline::before { display: none; }
-        .time-card-list { padding-left: 0; }
-        .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
-        .time-label { font-size: 1.05rem; }
-        .time-card { gap: 12px; padding: 10px; }
-        .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
-        .time-card-title { font-size: 0.92rem; }
-        .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
-    }
+  .time-card-tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-pill {
+    font-size: 0.75rem;
+    color: #5c6b7a;
+    background: #f1f4f8;
+    border-radius: 10px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .weekly-more { text-align: center; color: #98a2b3; font-size: 0.85rem; padding: 4px 0 20px; }
+
+  @media (max-width: 640px) {
+    .weekly-board { padding: 20px 14px 4px; }
+    .timeline::before { display: none; }
+    .time-card-list { padding-left: 0; }
+    .time-icon { width: 38px; height: 38px; font-size: 1.05rem; }
+    .time-label { font-size: 1.05rem; }
+    .time-card { gap: 12px; padding: 10px; }
+    .time-card-img { width: 108px; height: 78px; border-radius: 8px; }
+    .time-card-title { font-size: 0.92rem; }
+    .time-card-meta { font-size: 0.75rem; margin-bottom: 8px; }
+  }
 </style>
 
 <!-- 🌟 统一 UI 组件：renderState() 状态组件 + dedupePosts() 去重函数 -->
@@ -750,115 +781,118 @@ function handleSearchClick(e) {
 
 <!-- 分类页头部 -->
 <div class="category-header">
-    <h1 class="category-title">📂 分类：中班</h1>
-    <div class="back-link">
-        <a href="/">&larr; 返回首页</a>
-    </div>
+  <h1 class="category-title">📂 分类：中班</h1>
+  <div class="back-link">
+    <a href="/">&larr; 返回首页</a>
+  </div>
 </div>
 
 <!-- 列表容器（初始状态：加载中，统一状态组件） -->
 <div class="posts-grid" id="category-posts-container">
-    <div class="state-block">
-        <div class="spinner"></div>
-        <h3>加载中...</h3>
-        <p>正在加载该分类下的课件，请稍候</p>
-    </div>
+  <div class="state-block">
+    <div class="spinner"></div>
+    <h3>加载中...</h3>
+    <p>正在加载该分类下的课件，请稍候</p>
+  </div>
 </div>
 
 <!-- 翻页按钮 -->
 <div class="pagination">
-    <button id="cat-prev-btn" class="page-btn" onclick="changeCategoryPage(-1)">上一页</button>
-    <span class="page-info" id="cat-page-info">第 1 页</span>
-    <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
+  <button id="cat-prev-btn" class="page-btn" onclick="changeCategoryPage(-1)">上一页</button>
+  <span class="page-info" id="cat-page-info">第 1 页</span>
+  <button id="cat-next-btn" class="page-btn" onclick="changeCategoryPage(1)">下一页</button>
 </div>
 
 <!-- 分类页逻辑脚本 -->
 <script>
-    // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
-    // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
-    const allPosts = dedupePosts([{"title":"中班科学 蔬菜从哪里来 PPT课件教案","path":"/categories/科学/中班科学 蔬菜从哪里来 PPT课件教案_中班.html","views":15456,"date":"2026-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-蔬菜从哪里来-PPT课件教案/ppt/20260220154410_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《风的奥秘》","path":"/categories/科学/中班科学《风的奥秘》_中班.html","views":8629,"date":"2025-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《风的奥秘》/ppt/20260131123823_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"甲虫朋友 科学 中班","path":"/categories/科学/甲虫朋友 科学 中班_中班.html","views":7262,"date":"2025-07-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/甲虫朋友_科学_中班/ppt/20260131125258_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小动物的家 科学语言中班","path":"/categories/科学/小动物的家 科学语言中班_中班.html","views":10184,"date":"2025-06-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小动物的家-科学语言中班/ppt/20260220122757_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"一闪一闪亮晶晶 科学 中班","path":"/categories/科学/一闪一闪亮晶晶 科学 中班_中班.html","views":12700,"date":"2025-04-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/一闪一闪亮晶晶_科学_中班/ppt/20260131012203_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蔬菜哪个部位可以吃 科学中班","path":"/categories/科学/蔬菜哪个部位可以吃 科学中班_中班.html","views":18091,"date":"2025-01-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蔬菜哪个部位可以吃-科学中班/ppt/20260220144429_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"《秋天的花》 科学语言 中班(1)","path":"/categories/科学/《秋天的花》 科学语言 中班(1)_中班.html","views":25950,"date":"2024-12-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/《秋天的花》_科学语言_中班(1)/ppt/20260220121115_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"我们为什么会长大 科学中班","path":"/categories/科学/我们为什么会长大 科学中班_中班.html","views":111376,"date":"2024-12-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我们为什么会长大-科学中班/ppt/20260220155317_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"天为什么是蓝的 科学 中班","path":"/categories/科学/天为什么是蓝的 科学 中班_中班.html","views":7214,"date":"2024-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/天为什么是蓝的_科学_中班/ppt/20260131012800_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"躲猫猫的糖 中班科学","path":"/categories/科学/躲猫猫的糖 中班科学_中班.html","views":8076,"date":"2024-07-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/躲猫猫的糖-中班科学/ppt/20260131125333_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学语言 昆虫大比赛","path":"/categories/科学/中班科学语言 昆虫大比赛_中班.html","views":18716,"date":"2024-04-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学语言-昆虫大比赛/ppt/20260220121323_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《各种各样的纸》","path":"/categories/科学/中班科学《各种各样的纸》_中班.html","views":42222,"date":"2023-11-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《各种各样的纸》/ppt/20260130220641_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中大社会科学 逛逛动物园 课件PPT教案","path":"/categories/科学/中大社会科学 逛逛动物园 课件PPT教案_中班.html","views":9453,"date":"2023-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中大社会科学-逛逛动物园-课件PPT教案/ppt/20260219215457_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"不同的动物 科学 中班","path":"/categories/科学/不同的动物 科学 中班_中班.html","views":9497,"date":"2023-09-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/不同的动物_科学_中班/ppt/20260131012226_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《各种各样的纸》课件","path":"/categories/科学/中班科学《各种各样的纸》课件_中班.html","views":17799,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《各种各样的纸》课件/ppt/20260130220646_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学我是小司机","path":"/categories/科学/中班科学我是小司机_中班.html","views":14853,"date":"2023-02-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学我是小司机/ppt/20260220004145_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"谁的尾巴掉啦 语言科学中班","path":"/categories/科学/谁的尾巴掉啦 语言科学中班_中班.html","views":12672,"date":"2023-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/谁的尾巴掉啦-语言科学中班/ppt/20260220124830_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 小动物过冬 课件PPT教案","path":"/categories/科学/中班科学 小动物过冬 课件PPT教案_中班.html","views":11435,"date":"2023-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-小动物过冬-课件PPT教案/ppt/20260219215905_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"落叶 语言科学中班","path":"/categories/科学/落叶 语言科学中班_中班.html","views":8855,"date":"2022-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/落叶-语言科学中班/ppt/20260220124657_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"你家借我躲一下 语言科学中班","path":"/categories/科学/你家借我躲一下 语言科学中班_中班.html","views":4391,"date":"2022-10-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/你家借我躲一下-语言科学中班/ppt/20260220121625_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"阳光的颜色 科学 中班","path":"/categories/科学/阳光的颜色 科学 中班_中班.html","views":12089,"date":"2022-09-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/阳光的颜色_科学_中班/ppt/20260131013632_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学游戏《学习5以内的序数》","path":"/categories/科学/中班科学游戏《学习5以内的序数》_中班.html","views":19344,"date":"2022-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学游戏《学习5以内的序数》/ppt/20260130220705_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"谁的尾巴掉啦 语言科学中班课件","path":"/categories/科学/谁的尾巴掉啦 语言科学中班课件_中班.html","views":19179,"date":"2022-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/谁的尾巴掉啦-语言科学中班课件/ppt/20260220155555_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 冬天取暖我知道 教案PPT课件","path":"/categories/科学/中班科学 冬天取暖我知道 教案PPT课件_中班.html","views":19666,"date":"2022-03-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-冬天取暖我知道-教案PPT课件/ppt/20260219215851_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"春夜喜雨 语言科学中班","path":"/categories/科学/春夜喜雨 语言科学中班_中班.html","views":4175,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/春夜喜雨-语言科学中班/ppt/20260220123637_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"叶子用途多 科学语言活动","path":"/categories/科学/叶子用途多 科学语言活动_通用.html","views":9984,"date":"2021-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/叶子用途多-科学语言活动/ppt/20260220121904_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小草的本领 科学语言中班","path":"/categories/科学/小草的本领 科学语言中班_中班.html","views":19952,"date":"2021-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小草的本领-科学语言中班/ppt/20260220155228_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"坚硬的动物 语言科学中班","path":"/categories/科学/坚硬的动物 语言科学中班_中班.html","views":8531,"date":"2021-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/坚硬的动物-语言科学中班/ppt/20260220122017_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学数学 比较长短","path":"/categories/科学/中班科学数学 比较长短_中班.html","views":15954,"date":"2021-04-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学数学-比较长短/ppt/20260219215910_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"英勇的消防员 语言科学中班","path":"/categories/科学/英勇的消防员 语言科学中班_中班.html","views":17642,"date":"2020-12-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/英勇的消防员-语言科学中班/ppt/20260220124641_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"章鱼小子找工作 语言科学中班","path":"/categories/科学/章鱼小子找工作 语言科学中班_中班.html","views":7864,"date":"2020-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/章鱼小子找工作-语言科学中班/ppt/20260220124531_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 种子变形记","path":"/categories/科学/中班科学 种子变形记_中班.html","views":13049,"date":"2020-11-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-种子变形记/ppt/20260220143831_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"磁铁能吸什么 科学 中班","path":"/categories/科学/磁铁能吸什么 科学 中班_中班.html","views":8811,"date":"2020-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/磁铁能吸什么_科学_中班/ppt/20260131013524_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班语言科学 公鸡喔喔学孵蛋","path":"/categories/科学/中班语言科学 公鸡喔喔学孵蛋_中班.html","views":4384,"date":"2020-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言科学-公鸡喔喔学孵蛋/ppt/20260220121507_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"长高了变矮了 中班科学","path":"/categories/科学/长高了变矮了 中班科学_中班.html","views":12769,"date":"2020-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/长高了变矮了-中班科学/ppt/20260220155623_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"KZ中班科学课件 有趣的水 PPT课件教案图片","path":"/categories/科学/KZ中班科学课件 有趣的水 PPT课件教案图片_中班.html","views":27451,"date":"2020-07-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/KZ中班科学课件-有趣的水-PPT课件教案图片/ppt/20260220154208_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"多变的云 科学 中班","path":"/categories/科学/多变的云 科学 中班_中班.html","views":6792,"date":"2020-07-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/多变的云_科学_中班/ppt/20260131012603_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"美丽的蝴蝶 美术科学中班课件","path":"/categories/科学/美丽的蝴蝶 美术科学中班课件_中班.html","views":11404,"date":"2020-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/美丽的蝴蝶-美术科学中班课件/ppt/20260220155514_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"GZ中班科学活动 保护鸟朋友","path":"/categories/科学/GZ中班科学活动 保护鸟朋友_中班.html","views":15779,"date":"2020-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/GZ中班科学活动-保护鸟朋友/ppt/20260220154109_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"益虫和害虫 语言科学中班","path":"/categories/科学/益虫和害虫 语言科学中班_中班.html","views":13115,"date":"2020-03-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/益虫和害虫-语言科学中班/ppt/20260220124344_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"生活中的纸 科学语言中班","path":"/categories/科学/生活中的纸 科学语言中班_中班.html","views":9780,"date":"2020-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/生活中的纸-科学语言中班/ppt/20260220155439_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小 中班科学图形宝宝捉迷藏","path":"/categories/科学/小 中班科学图形宝宝捉迷藏_中班.html","views":7657,"date":"2020-02-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小-中班科学图形宝宝捉迷藏/ppt/20260220155009_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班 科学 地图上的“蜘蛛网”","path":"/categories/科学/中班 科学 地图上的“蜘蛛网”_中班.html","views":17003,"date":"2019-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_科学_地图上的“蜘蛛网”/ppt/20260131123559_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"坚强的水袋 科学 中班","path":"/categories/科学/坚强的水袋 科学 中班_中班.html","views":12983,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/坚强的水袋_科学_中班/ppt/20260131012556_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"解码水之声 科学 中班","path":"/categories/科学/解码水之声 科学 中班_中班.html","views":12110,"date":"2019-10-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/解码水之声_科学_中班/ppt/20260130234846_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学教育活动：多变的天气","path":"/categories/科学/中班科学教育活动：多变的天气_中班.html","views":18117,"date":"2019-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学教育活动：多变的天气/ppt/20260130220653_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蔬菜大集合 科学中班","path":"/categories/科学/蔬菜大集合 科学中班_中班.html","views":8022,"date":"2019-08-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蔬菜大集合-科学中班/ppt/20260220155530_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小狗的本领 科学语言中班","path":"/categories/科学/小狗的本领 科学语言中班_中班.html","views":7892,"date":"2019-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小狗的本领-科学语言中班/ppt/20260220122821_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"博物馆是什么 中班语言科学课件","path":"/categories/科学/博物馆是什么 中班语言科学课件_中班.html","views":7558,"date":"2019-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/博物馆是什么-中班语言科学课件/ppt/20260220121830_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班 科学 会爬升的水","path":"/categories/科学/中班 科学 会爬升的水_中班.html","views":13233,"date":"2019-03-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_科学_会爬升的水/ppt/20260131012321_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"有趣的水 中班科学课件","path":"/categories/科学/有趣的水 中班科学课件_中班.html","views":17629,"date":"2019-01-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/有趣的水-中班科学课件/ppt/20260220155356_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《种子变形记》","path":"/categories/科学/中班科学《种子变形记》_中班.html","views":6934,"date":"2018-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《种子变形记》/ppt/20260131123817_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"神奇的恐龙 科学 中班","path":"/categories/科学/神奇的恐龙 科学 中班_中班.html","views":11853,"date":"2018-08-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/神奇的恐龙_科学_中班/ppt/20260131125308_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小中科学 可爱的蚕宝宝","path":"/categories/科学/小中科学 可爱的蚕宝宝_通用.html","views":18145,"date":"2018-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中科学-可爱的蚕宝宝/ppt/20260130201652_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学活动：多变的天气PPT","path":"/categories/科学/中班科学活动：多变的天气PPT_中班.html","views":16307,"date":"2017-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学活动：多变的天气PPT/ppt/20260130220700_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"沉浮变变变 科学 中班","path":"/categories/科学/沉浮变变变 科学 中班_中班.html","views":11625,"date":"2017-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/沉浮变变变_科学_中班/ppt/20260131013435_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《神奇的纸巾》","path":"/categories/科学/中班科学《神奇的纸巾》_中班.html","views":8968,"date":"2017-07-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《神奇的纸巾》/ppt/20260130201517_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班语言科学 益虫和害虫","path":"/categories/科学/中班语言科学 益虫和害虫_中班.html","views":11800,"date":"2017-07-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言科学-益虫和害虫/ppt/20260220121514_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"秋天的花 科学语言中班","path":"/categories/科学/秋天的花 科学语言中班_中班.html","views":11648,"date":"2016-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/秋天的花-科学语言中班/ppt/20260220124506_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 冬天的取暖用具 课件PPT教案","path":"/categories/科学/中班科学 冬天的取暖用具 课件PPT教案_中班.html","views":19303,"date":"2016-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-冬天的取暖用具-课件PPT教案/ppt/20260219215857_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"T中班科学 装满口袋的声音 徐鹏","path":"/categories/科学/T中班科学 装满口袋的声音 徐鹏_中班.html","views":90020,"date":"2016-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/T中班科学-装满口袋的声音-徐鹏/ppt/20260220154214_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"公鸡喔喔学孵蛋 语言科学中班","path":"/categories/科学/公鸡喔喔学孵蛋 语言科学中班_中班.html","views":17065,"date":"2016-05-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/公鸡喔喔学孵蛋-语言科学中班/ppt/20260220121703_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蜻蜓 科学语言中班","path":"/categories/科学/蜻蜓 科学语言中班_中班.html","views":19237,"date":"2016-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蜻蜓-科学语言中班/ppt/20260220124737_ppt_cover_wm.jpg","categories":["科学","中班"]}]);
+  // 🌟 去重保护：先按文章 path（唯一地址）去重，再输出
+  // 🌟 安全加固：< 全量转义为 \u003c，标题含"脚本结束标签"字样也不会截断脚本
+  // 🌟 修复跳转：path 前补 "/"，否则文章链接会缺少域名根路径，网页打不开
+  const allPosts = dedupePosts([{"title":"中班科学 蔬菜从哪里来 PPT课件教案","path":"//categories/科学/中班科学 蔬菜从哪里来 PPT课件教案_中班.html","views":15456,"date":"2026-01-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-蔬菜从哪里来-PPT课件教案/ppt/20260220154410_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《风的奥秘》","path":"//categories/科学/中班科学《风的奥秘》_中班.html","views":8629,"date":"2025-10-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《风的奥秘》/ppt/20260131123823_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"甲虫朋友 科学 中班","path":"//categories/科学/甲虫朋友 科学 中班_中班.html","views":7262,"date":"2025-07-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/甲虫朋友_科学_中班/ppt/20260131125258_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小动物的家 科学语言中班","path":"//categories/科学/小动物的家 科学语言中班_中班.html","views":10184,"date":"2025-06-01","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小动物的家-科学语言中班/ppt/20260220122757_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"一闪一闪亮晶晶 科学 中班","path":"//categories/科学/一闪一闪亮晶晶 科学 中班_中班.html","views":12700,"date":"2025-04-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/一闪一闪亮晶晶_科学_中班/ppt/20260131012203_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蔬菜哪个部位可以吃 科学中班","path":"//categories/科学/蔬菜哪个部位可以吃 科学中班_中班.html","views":18091,"date":"2025-01-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蔬菜哪个部位可以吃-科学中班/ppt/20260220144429_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"《秋天的花》 科学语言 中班(1)","path":"//categories/科学/《秋天的花》 科学语言 中班(1)_中班.html","views":25950,"date":"2024-12-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/《秋天的花》_科学语言_中班(1)/ppt/20260220121115_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"我们为什么会长大 科学中班","path":"//categories/科学/我们为什么会长大 科学中班_中班.html","views":111376,"date":"2024-12-21","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/我们为什么会长大-科学中班/ppt/20260220155317_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"天为什么是蓝的 科学 中班","path":"//categories/科学/天为什么是蓝的 科学 中班_中班.html","views":7214,"date":"2024-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/天为什么是蓝的_科学_中班/ppt/20260131012800_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"躲猫猫的糖 中班科学","path":"//categories/科学/躲猫猫的糖 中班科学_中班.html","views":8076,"date":"2024-07-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/躲猫猫的糖-中班科学/ppt/20260131125333_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学语言 昆虫大比赛","path":"//categories/科学/中班科学语言 昆虫大比赛_中班.html","views":18716,"date":"2024-04-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学语言-昆虫大比赛/ppt/20260220121323_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《各种各样的纸》","path":"//categories/科学/中班科学《各种各样的纸》_中班.html","views":42222,"date":"2023-11-13","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《各种各样的纸》/ppt/20260130220641_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中大社会科学 逛逛动物园 课件PPT教案","path":"//categories/科学/中大社会科学 逛逛动物园 课件PPT教案_中班.html","views":9453,"date":"2023-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中大社会科学-逛逛动物园-课件PPT教案/ppt/20260219215457_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"不同的动物 科学 中班","path":"//categories/科学/不同的动物 科学 中班_中班.html","views":9497,"date":"2023-09-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/不同的动物_科学_中班/ppt/20260131012226_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《各种各样的纸》课件","path":"//categories/科学/中班科学《各种各样的纸》课件_中班.html","views":17799,"date":"2023-05-31","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《各种各样的纸》课件/ppt/20260130220646_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学我是小司机","path":"//categories/科学/中班科学我是小司机_中班.html","views":14853,"date":"2023-02-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学我是小司机/ppt/20260220004145_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"谁的尾巴掉啦 语言科学中班","path":"//categories/科学/谁的尾巴掉啦 语言科学中班_中班.html","views":12672,"date":"2023-02-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/谁的尾巴掉啦-语言科学中班/ppt/20260220124830_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 小动物过冬 课件PPT教案","path":"//categories/科学/中班科学 小动物过冬 课件PPT教案_中班.html","views":11435,"date":"2023-01-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-小动物过冬-课件PPT教案/ppt/20260219215905_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"落叶 语言科学中班","path":"//categories/科学/落叶 语言科学中班_中班.html","views":8855,"date":"2022-11-14","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/落叶-语言科学中班/ppt/20260220124657_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"你家借我躲一下 语言科学中班","path":"//categories/科学/你家借我躲一下 语言科学中班_中班.html","views":4391,"date":"2022-10-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/你家借我躲一下-语言科学中班/ppt/20260220121625_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"阳光的颜色 科学 中班","path":"//categories/科学/阳光的颜色 科学 中班_中班.html","views":12089,"date":"2022-09-22","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/阳光的颜色_科学_中班/ppt/20260131013632_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学游戏《学习5以内的序数》","path":"//categories/科学/中班科学游戏《学习5以内的序数》_中班.html","views":19344,"date":"2022-04-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学游戏《学习5以内的序数》/ppt/20260130220705_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"谁的尾巴掉啦 语言科学中班课件","path":"//categories/科学/谁的尾巴掉啦 语言科学中班课件_中班.html","views":19179,"date":"2022-03-05","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/谁的尾巴掉啦-语言科学中班课件/ppt/20260220155555_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 冬天取暖我知道 教案PPT课件","path":"//categories/科学/中班科学 冬天取暖我知道 教案PPT课件_中班.html","views":19666,"date":"2022-03-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-冬天取暖我知道-教案PPT课件/ppt/20260219215851_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"春夜喜雨 语言科学中班","path":"//categories/科学/春夜喜雨 语言科学中班_中班.html","views":4175,"date":"2021-12-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/春夜喜雨-语言科学中班/ppt/20260220123637_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"叶子用途多 科学语言活动","path":"//categories/科学/叶子用途多 科学语言活动_通用.html","views":9984,"date":"2021-10-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/叶子用途多-科学语言活动/ppt/20260220121904_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小草的本领 科学语言中班","path":"//categories/科学/小草的本领 科学语言中班_中班.html","views":19952,"date":"2021-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小草的本领-科学语言中班/ppt/20260220155228_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"坚硬的动物 语言科学中班","path":"//categories/科学/坚硬的动物 语言科学中班_中班.html","views":8531,"date":"2021-06-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/坚硬的动物-语言科学中班/ppt/20260220122017_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学数学 比较长短","path":"//categories/科学/中班科学数学 比较长短_中班.html","views":15954,"date":"2021-04-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学数学-比较长短/ppt/20260219215910_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"英勇的消防员 语言科学中班","path":"//categories/科学/英勇的消防员 语言科学中班_中班.html","views":17642,"date":"2020-12-25","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/英勇的消防员-语言科学中班/ppt/20260220124641_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"章鱼小子找工作 语言科学中班","path":"//categories/科学/章鱼小子找工作 语言科学中班_中班.html","views":7864,"date":"2020-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/章鱼小子找工作-语言科学中班/ppt/20260220124531_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 种子变形记","path":"//categories/科学/中班科学 种子变形记_中班.html","views":13049,"date":"2020-11-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-种子变形记/ppt/20260220143831_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"磁铁能吸什么 科学 中班","path":"//categories/科学/磁铁能吸什么 科学 中班_中班.html","views":8811,"date":"2020-09-20","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/磁铁能吸什么_科学_中班/ppt/20260131013524_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班语言科学 公鸡喔喔学孵蛋","path":"//categories/科学/中班语言科学 公鸡喔喔学孵蛋_中班.html","views":4384,"date":"2020-08-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言科学-公鸡喔喔学孵蛋/ppt/20260220121507_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"长高了变矮了 中班科学","path":"//categories/科学/长高了变矮了 中班科学_中班.html","views":12769,"date":"2020-08-08","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/长高了变矮了-中班科学/ppt/20260220155623_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"KZ中班科学课件 有趣的水 PPT课件教案图片","path":"//categories/科学/KZ中班科学课件 有趣的水 PPT课件教案图片_中班.html","views":27451,"date":"2020-07-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/KZ中班科学课件-有趣的水-PPT课件教案图片/ppt/20260220154208_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"多变的云 科学 中班","path":"//categories/科学/多变的云 科学 中班_中班.html","views":6792,"date":"2020-07-04","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/多变的云_科学_中班/ppt/20260131012603_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"美丽的蝴蝶 美术科学中班课件","path":"//categories/科学/美丽的蝴蝶 美术科学中班课件_中班.html","views":11404,"date":"2020-06-15","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/美丽的蝴蝶-美术科学中班课件/ppt/20260220155514_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"GZ中班科学活动 保护鸟朋友","path":"//categories/科学/GZ中班科学活动 保护鸟朋友_中班.html","views":15779,"date":"2020-04-02","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/GZ中班科学活动-保护鸟朋友/ppt/20260220154109_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"益虫和害虫 语言科学中班","path":"//categories/科学/益虫和害虫 语言科学中班_中班.html","views":13115,"date":"2020-03-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/益虫和害虫-语言科学中班/ppt/20260220124344_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"生活中的纸 科学语言中班","path":"//categories/科学/生活中的纸 科学语言中班_中班.html","views":9780,"date":"2020-03-03","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/生活中的纸-科学语言中班/ppt/20260220155439_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小 中班科学图形宝宝捉迷藏","path":"//categories/科学/小 中班科学图形宝宝捉迷藏_中班.html","views":7657,"date":"2020-02-19","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小-中班科学图形宝宝捉迷藏/ppt/20260220155009_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班 科学 地图上的“蜘蛛网”","path":"//categories/科学/中班 科学 地图上的“蜘蛛网”_中班.html","views":17003,"date":"2019-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_科学_地图上的“蜘蛛网”/ppt/20260131123559_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"坚强的水袋 科学 中班","path":"//categories/科学/坚强的水袋 科学 中班_中班.html","views":12983,"date":"2019-10-27","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/坚强的水袋_科学_中班/ppt/20260131012556_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"解码水之声 科学 中班","path":"//categories/科学/解码水之声 科学 中班_中班.html","views":12110,"date":"2019-10-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/解码水之声_科学_中班/ppt/20260130234846_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学教育活动：多变的天气","path":"//categories/科学/中班科学教育活动：多变的天气_中班.html","views":18117,"date":"2019-10-09","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学教育活动：多变的天气/ppt/20260130220653_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蔬菜大集合 科学中班","path":"//categories/科学/蔬菜大集合 科学中班_中班.html","views":8022,"date":"2019-08-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蔬菜大集合-科学中班/ppt/20260220155530_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小狗的本领 科学语言中班","path":"//categories/科学/小狗的本领 科学语言中班_中班.html","views":7892,"date":"2019-07-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/小狗的本领-科学语言中班/ppt/20260220122821_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"博物馆是什么 中班语言科学课件","path":"//categories/科学/博物馆是什么 中班语言科学课件_中班.html","views":7558,"date":"2019-03-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/博物馆是什么-中班语言科学课件/ppt/20260220121830_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班 科学 会爬升的水","path":"//categories/科学/中班 科学 会爬升的水_中班.html","views":13233,"date":"2019-03-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班_科学_会爬升的水/ppt/20260131012321_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"有趣的水 中班科学课件","path":"//categories/科学/有趣的水 中班科学课件_中班.html","views":17629,"date":"2019-01-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/有趣的水-中班科学课件/ppt/20260220155356_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《种子变形记》","path":"//categories/科学/中班科学《种子变形记》_中班.html","views":6934,"date":"2018-10-17","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《种子变形记》/ppt/20260131123817_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"神奇的恐龙 科学 中班","path":"//categories/科学/神奇的恐龙 科学 中班_中班.html","views":11853,"date":"2018-08-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/神奇的恐龙_科学_中班/ppt/20260131125308_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"小中科学 可爱的蚕宝宝","path":"//categories/科学/小中科学 可爱的蚕宝宝_通用.html","views":18145,"date":"2018-04-30","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/小中科学-可爱的蚕宝宝/ppt/20260130201652_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学活动：多变的天气PPT","path":"//categories/科学/中班科学活动：多变的天气PPT_中班.html","views":16307,"date":"2017-12-10","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学活动：多变的天气PPT/ppt/20260130220700_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"沉浮变变变 科学 中班","path":"//categories/科学/沉浮变变变 科学 中班_中班.html","views":11625,"date":"2017-11-07","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/沉浮变变变_科学_中班/ppt/20260131013435_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学《神奇的纸巾》","path":"//categories/科学/中班科学《神奇的纸巾》_中班.html","views":8968,"date":"2017-07-24","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/blog_images/中班科学《神奇的纸巾》/ppt/20260130201517_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班语言科学 益虫和害虫","path":"//categories/科学/中班语言科学 益虫和害虫_中班.html","views":11800,"date":"2017-07-23","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班语言科学-益虫和害虫/ppt/20260220121514_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"秋天的花 科学语言中班","path":"//categories/科学/秋天的花 科学语言中班_中班.html","views":11648,"date":"2016-10-28","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/秋天的花-科学语言中班/ppt/20260220124506_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"中班科学 冬天的取暖用具 课件PPT教案","path":"//categories/科学/中班科学 冬天的取暖用具 课件PPT教案_中班.html","views":19303,"date":"2016-09-11","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/中班科学-冬天的取暖用具-课件PPT教案/ppt/20260219215857_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"T中班科学 装满口袋的声音 徐鹏","path":"//categories/科学/T中班科学 装满口袋的声音 徐鹏_中班.html","views":90020,"date":"2016-07-18","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/T中班科学-装满口袋的声音-徐鹏/ppt/20260220154214_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"公鸡喔喔学孵蛋 语言科学中班","path":"//categories/科学/公鸡喔喔学孵蛋 语言科学中班_中班.html","views":17065,"date":"2016-05-29","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/公鸡喔喔学孵蛋-语言科学中班/ppt/20260220121703_ppt_cover_wm.jpg","categories":["科学","中班"]},{"title":"蜻蜓 科学语言中班","path":"//categories/科学/蜻蜓 科学语言中班_中班.html","views":19237,"date":"2016-02-12","cover_img":"https://yekjw.oss-cn-qingdao.aliyuncs.com/kecheng/蜻蜓-科学语言中班/ppt/20260220124737_ppt_cover_wm.jpg","categories":["科学","中班"]}]);
 
-    let currentPage = 1;
-    const itemsPerPage = 12; 
+  let currentPage = 1;
+  const itemsPerPage = 12;
 
-    function renderCategoryPosts() {
-        const container = document.getElementById('category-posts-container');
-        container.innerHTML = '';
+  function renderCategoryPosts() {
+    const container = document.getElementById('category-posts-container');
+    container.innerHTML = '';
 
-        try {
-            const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+    try {
+      const totalPages = Math.ceil(allPosts.length / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
 
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageData = allPosts.slice(start, end);
 
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageData = allPosts.slice(start, end);
-
-            // 🌟 统一状态组件：暂无数据
-            if (pageData.length === 0) {
-                container.innerHTML = renderState('empty', {
-                    icon: '📭',
-                    title: '该分类下暂无课件',
-                    desc: '可以去其他分类看看',
-                    btnText: '返回首页',
-                    btnLink: '/'
-                });
-            } else {
-                // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构，也不会被当成代码执行
-                function escTitle(s) {
-                    return String(s == null ? '' : s)
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/"/g, '&quot;');
-                }
-                pageData.forEach(post => {
-                    const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
-                    const html = `
-                        <div class="post-card">
-                            <div class="card-img-wrapper">
-                                <img src="${imgUrl}" alt="${escTitle(post.title)}">
-                            </div>
-                            <div class="card-body">
-                                <div class="card-title">
-                                    <a href="${post.path}">${escTitle(post.title)}</a>
-                                </div>
-                                <div class="card-meta">
-                                    <span>👁 ${post.views}</span>
-                                    <span>📅 ${post.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += html;
-                });
-            }
-
-            document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
-            document.getElementById('cat-prev-btn').disabled = currentPage === 1;
-            document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
-        } catch (e) {
-            // 🌟 统一状态组件：出错
-            container.innerHTML = renderState('error', {
-                title: '加载出错',
-                desc: '数据加载失败，请刷新页面重试',
-                btnText: '刷新页面',
-                btnLink: 'javascript:location.reload()'
-            });
+      // 🌟 统一状态组件：暂无数据
+      if (pageData.length === 0) {
+        container.innerHTML = renderState('empty', {
+          icon: '📭',
+          title: '该分类下暂无课件',
+          desc: '可以去其他分类看看',
+          btnText: '返回首页',
+          btnLink: '/'
+        });
+      } else {
+        // 🌟 HTML 转义小工具：标题里的引号/尖括号不会破坏卡片结构
+        function escTitle(s) {
+          return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
         }
-    }
 
-    function changeCategoryPage(delta) {
-        currentPage += delta;
-        renderCategoryPosts();
-        // 翻页后回到列表顶部
-        window.scrollTo({ top: document.querySelector('.category-header').offsetTop - 20, behavior: 'smooth' });
-    }
+        pageData.forEach(post => {
+          const imgUrl = post.cover_img ? post.cover_img : 'https://via.placeholder.com/400x200?text=No+Image';
+          const html = `
+            <div class="post-card">
+              <div class="card-img-wrapper">
+                <img src="${imgUrl}" alt="${escTitle(post.title)}">
+              </div>
+              <div class="card-body">
+                <div class="card-title">
+                  <a href="${post.path}">${escTitle(post.title)}</a>
+                </div>
+                <div class="card-meta">
+                  <span>👁 ${post.views}</span>
+                  <span>📅 ${post.date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          container.innerHTML += html;
+        });
+      }
 
+      document.getElementById('cat-page-info').textContent = `第 ${currentPage} 页`;
+      document.getElementById('cat-prev-btn').disabled = currentPage === 1;
+      document.getElementById('cat-next-btn').disabled = currentPage === totalPages;
+    } catch (e) {
+      // 🌟 统一状态组件：出错
+      container.innerHTML = renderState('error', {
+        title: '加载出错',
+        desc: '数据加载失败，请刷新页面重试',
+        btnText: '刷新页面',
+        btnLink: 'javascript:location.reload()'
+      });
+    }
+  }
+
+  function changeCategoryPage(delta) {
+    currentPage += delta;
     renderCategoryPosts();
-</script>
+    // 翻页后回到列表顶部
+    window.scrollTo({
+      top: document.querySelector('.category-header').offsetTop - 20,
+      behavior: 'smooth'
+    });
+  }
 
+  renderCategoryPosts();
+</script>
 
 
         </div>
